@@ -1,0 +1,13 @@
+name = "drabornseries-video"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+[vars]
+SUPABASE_URL = "https://xpdiwyxnnrmyvpcqwuyb.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cu71JQGPiRusMw_YeZzUbg_6r9r13TG"
+DBS_ALLOWED_ORIGINS = "https://www.draborneagle.com,https://draborneagle.com"
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
+# Set SUPABASE_SECRET_KEY, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
+# STREAM_CUSTOMER_CODE with wrangler secret put, never in this file.

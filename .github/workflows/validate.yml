@@ -1,0 +1,46 @@
+name: DraBornSeries checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dbs-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build:web
+      - name: Validate Android JS bundle (no APK)
+        run: npm run export:android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DraBornSeries-web
+          path: dist
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Start isolated local Supabase
+        run: npx supabase start
+      - name: Validate migrations and seed in local database
+        run: npx supabase db reset --local
+      - name: Verify ledger, RLS and progress isolation
+        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/database-security.sql

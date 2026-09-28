@@ -1,0 +1,46 @@
+-- Run against the configured project; all fixtures and test writes roll back.
+begin;
+set local statement_timeout = '30s';
+select set_config('dbs.test_user',gen_random_uuid()::text,true);
+select set_config('dbs.test_session',gen_random_uuid()::text,true);
+insert into auth.users(id,aud,role,email,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values(current_setting('dbs.test_user')::uuid,'authenticated','authenticated','dbs-test-'||current_setting('dbs.test_user')||'@example.invalid',now(),'{"provider":"email","providers":["email"]}','{}',now(),now());
+insert into auth.sessions(id,user_id,created_at,updated_at) values(current_setting('dbs.test_session')::uuid,current_setting('dbs.test_user')::uuid,now(),now());
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('dbs.test_user'),'role','authenticated','session_id',current_setting('dbs.test_session'))::text,true);
+set local role authenticated;
+select drabornseries.dbs_bootstrap('test-device','Automated transaction test','test');
+do $$
+declare amount bigint; target uuid; result jsonb; denied boolean:=false;
+begin
+ if drabornseries.dbs_is_admin() then raise exception 'Test user must not be admin'; end if;
+ result:=drabornseries.dbs_claim_daily();
+ if (result->>'coins')::int<>2 then raise exception 'First daily reward mismatch'; end if;
+ begin perform drabornseries.dbs_claim_daily();exception when others then if sqlerrm like '%ALREADY_CLAIMED%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'Duplicate daily reward accepted'; end if;
+ perform drabornseries.dbs_redeem_promo('DBS2026');
+ select balance into amount from drabornseries.dbs_borncoins_wallet where user_id=auth.uid();
+ if amount<>32 then raise exception 'Wallet expected 32, got %',amount; end if;
+ select id into target from drabornseries.dbs_episodes where access_type='coins' and coin_price=10 limit 1;
+ perform drabornseries.dbs_unlock_episode(target);
+ perform drabornseries.dbs_unlock_episode(target);
+ select balance into amount from drabornseries.dbs_borncoins_wallet where user_id=auth.uid();
+ if amount<>22 then raise exception 'Unlock not idempotent: %',amount; end if;
+ if not drabornseries.dbs_episode_access(target) then raise exception 'Purchased episode denied'; end if;
+ perform drabornseries.dbs_save_progress(target,42,'test-device',now());
+ perform drabornseries.dbs_save_progress(target,3,'offline-old-device',now()-interval '1 hour');
+ select position_seconds into amount from drabornseries.dbs_watch_progress where user_id=auth.uid() and episode_id=target;
+ if amount<>42 then raise exception 'Old offline progress overwrote newer state'; end if;
+ denied:=false;begin update drabornseries.dbs_borncoins_wallet set balance=99999 where user_id=auth.uid();exception when insufficient_privilege then denied:=true;end;
+ if not denied then raise exception 'Client modified balance'; end if;
+ denied:=false;begin update drabornseries.dbs_profiles set status='blocked' where user_id=auth.uid();exception when insufficient_privilege then denied:=true;end;
+ if not denied then raise exception 'Client modified privileged profile fields'; end if;
+ denied:=false;begin perform drabornseries.dbs_apply_verified_purchase(auth.uid(),'dbs_coins_50','forged','forged','verified',null,'{}');exception when insufficient_privilege then denied:=true;end;
+ if not denied then raise exception 'Client forged purchase'; end if;
+ select id into target from drabornseries.dbs_episodes where access_type='vip' limit 1;
+ if drabornseries.dbs_episode_access(target) then raise exception 'Non-VIP accessed VIP'; end if;
+ if exists(select 1 from drabornseries.dbs_profiles where user_id<>auth.uid()) then raise exception 'Other profile leaked through RLS'; end if;
+ perform drabornseries.dbs_revoke_session(current_setting('dbs.test_session')::uuid);
+ if drabornseries.dbs_is_vip() then raise exception 'Revoked session retained VIP'; end if;
+end $$;
+reset role;
+rollback;
+select 'PASS: daily idempotency, promo, atomic unlock, stale progress, wallet/purchase/profile protections, RLS isolation, session revocation' as result;

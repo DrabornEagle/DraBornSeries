@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "gece-hatti",
+    "title": "Gece Hattı",
+    "title_en": "Night Line",
+    "short_description": "Bir telefon. İki yabancı. Sabaha kadar saklanamayacak bir sır.",
+    "description": "Gece yarısı gelen bir arama, yolları asla kesişmemesi gereken iki insanı aynı sahil yolunda buluşturur. Şehrin ışıkları sönerken gerçeğe giden tek yol birbirlerine güvenmektir. DraBornSeries için geliştirilmekte olan özgün dizi konsepti; bölümleri henüz yayınlanmadı.",
+    "genres": [
+      "Gerilim",
+      "Dram"
+    ],
+    "accent": "#f547a5",
+    "poster_url": "https://www.draborneagle.com/DraBornSeries/media/gece-hatti.png",
+    "banner_url": "https://www.draborneagle.com/DraBornSeries/media/gece-hatti.png",
+    "featured_order": 1
+  },
+  {
+    "slug": "son-yaz",
+    "title": "Son Yazdan Kalan",
+    "short_description": "Bazı vedalar, yeni bir hikâyenin ilk cümlesidir.",
+    "description": "Yıllar sonra sahil kasabasına dönen Deniz, çocukluğundan kalan bir mektubun izini sürer. Özgün romantik dram konsepti; yakında.",
+    "genres": [
+      "Romantik",
+      "Dram"
+    ],
+    "accent": "#fc915f",
+    "poster_url": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&q=85",
+    "featured_order": 2
+  },
+  {
+    "slug": "sifir-noktasi",
+    "title": "Sıfır Noktası",
+    "short_description": "Dünya durduğunda, zaman sana ne anlatır?",
+    "description": "Her gece tam 03.17’de şehirdeki tüm saatler durur. Bunu hatırlayan tek kişi genç bir saat ustasıdır. Özgün bilimkurgu konsepti; yakında.",
+    "genres": [
+      "Bilimkurgu",
+      "Gizem"
+    ],
+    "accent": "#9b7cfa",
+    "poster_url": "https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=720&q=85",
+    "is_vip": true
+  },
+  {
+    "slug": "kiyi",
+    "title": "Kıyı",
+    "short_description": "Denizin sakladığını hiçbir şehir unutamaz.",
+    "description": "Kaybolan bir tekne, terk edilmiş bir otel ve birbiriyle kesişen üç hayat. Özgün gizem konsepti; yakında.",
+    "genres": [
+      "Gizem",
+      "Dram"
+    ],
+    "accent": "#40cec3",
+    "poster_url": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=720&q=85"
+  },
+  {
+    "slug": "neon-kalp",
+    "title": "Neon Kalp",
+    "short_description": "Bu şehirde herkesin bir ritmi var.",
+    "description": "İlk konserine hazırlanan bir müzisyen, komşusuyla kaydettiği bir şarkıyla beklenmedik bir yolculuğa çıkar. Özgün romantik müzik konsepti; yakında.",
+    "genres": [
+      "Romantik",
+      "Müzik"
+    ],
+    "accent": "#eb568b",
+    "poster_url": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=720&q=85"
+  },
+  {
+    "slug": "yuksek-sezon",
+    "title": "Yüksek Sezon",
+    "short_description": "Küçük bir otel. Çok büyük meseleler.",
+    "description": "Bir aile otelinin yeni çalışanları, sezonun ilk gününde kendilerini komik bir yanlış anlaşılmanın içinde bulur. Özgün komedi konsepti; yakında.",
+    "genres": [
+      "Komedi"
+    ],
+    "accent": "#e4b45c",
+    "poster_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=720&q=85"
+  },
+  {
+    "slug": "big-buck-bunny",
+    "title": "Big Buck Bunny",
+    "short_description": "Oynatıcı ve bölüm erişimini denemek için açık lisanslı kısa film.",
+    "description": "Blender Foundation tarafından hazırlanan açık lisanslı animasyon. Bu test koleksiyonundaki bütün bölümler aynı filme bağlanır; farklı bölüm kilitlerini denemek içindir. Ticari DraBornSeries dizisi değildir.",
+    "genres": [
+      "Animasyon",
+      "Komedi"
+    ],
+    "accent": "#83b993",
+    "poster_url": "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
+    "is_demo": true,
+    "status": "published",
+    "total_episodes": 8,
+    "license": "© Blender Foundation | peach.blender.org | CC BY 3.0",
+    "production_year": 2008
+  },
+  {
+    "slug": "sintel",
+    "title": "Sintel",
+    "short_description": "Bir dostu bulmak için çıkılan büyülü yolculuk.",
+    "description": "Blender Foundation açık filmi. DraBornSeries video oynatıcısını test etmek için sunulur. © Blender Foundation / sintel.org — Creative Commons Attribution 3.0.",
+    "genres": [
+      "Animasyon",
+      "Fantastik"
+    ],
+    "accent": "#e48d57",
+    "poster_url": "https://download.blender.org/durian/trailer/sintel_trailer-1080p.jpg",
+    "is_demo": true,
+    "status": "published",
+    "total_episodes": 1,
+    "license": "© Blender Foundation | sintel.org | CC BY 3.0",
+    "production_year": 2010
+  }
+]
