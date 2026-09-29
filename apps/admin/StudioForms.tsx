@@ -1,3 +1,4 @@
+import StudioMediaPicker from "./StudioMediaPicker";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Button, Chip, Field, colors, styles } from "../../packages/ui/theme";
@@ -153,9 +154,14 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
       <Text style={styles.h2}>{initial.id ? config.singular + " düzenle" : "Yeni " + config.singular.toLocaleLowerCase("tr-TR")}</Text>
       <Text style={styles.body}>Alanları doldur ve kaydet. Yayından kaldırmak için “Gizli” veya “Arşiv” seç.</Text>
     </View>
+    {config.table === "dbs_series" && !initial.id && <View style={{ padding: 15, borderRadius: 16, backgroundColor: "#49243b" }}>
+      <Text style={styles.label}>Bölüm ve videoları nasıl eklerim?</Text>
+      <Text style={styles.body}>Diziyi önce kaydet. Sonraki adımda “Bu diziye sezon ekle”, ardından “Bu sezona bölüm ekle” ve “Bölüme video yükle / bağla” düğmeleri görünür. Yayını, video hazır olduktan sonra aç.</Text>
+    </View>}
     {readOnly && <Text style={styles.body}>Destek yetkisiyle kayıtları görebilirsin. Düzenleme için içerik yetkisi gerekir.</Text>}
     {config.fields.map((field) => {
       if (field.type === "json" && !advanced) return null;
+      if (config.table === "dbs_video_assets" && field.key === "ready") return <Text key="ready" style={styles.body}>Video durumu: {form.ready ? "Oynatmaya hazır" : "Henüz doğrulanmadı / işleniyor"}. Sunucudan doğrulanarak kaydedilir.</Text>;
       const group = fieldGroup(config.table, field.key);
       const options = field.type === "series" ? series.map((s) => [s.id, s.title] as [string, string])
         : field.type === "season" ? seasons.filter((s) => s.series_id === form.series_id).map((s) => [s.id, s.title || "Sezon " + s.number] as [string, string])
@@ -186,6 +192,8 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
           keyboardType={field.type === "number" ? "numeric" : "default"}
           style={field.type === "long" || field.type === "json" ? { minHeight: 90, textAlignVertical: "top" } : undefined} />
         {field.hint && <Text style={[styles.body, { fontSize: 12 }]}>{field.hint}</Text>}
+        {!readOnly && ["poster_url", "banner_url", "thumbnail_url", "trailer_url"].includes(field.key) && <StudioMediaPicker
+          kind={field.key === "trailer_url" ? "trailer" : "image"} value={form[field.key]} onValue={(value) => update(field.key, value)} />}
         </View>
       </React.Fragment>;
     })}
@@ -193,6 +201,8 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
       {advanced ? "Ek ayarları gizle" : "Gelişmiş ayarları göster"}
     </Button>}
     {config.table === "dbs_video_assets" && <View style={{ gap: 8 }}>
+      {!readOnly && <StudioMediaPicker kind="episode" episodeId={form.episode_id} value={form.stream_uid}
+        onValue={(value) => update("stream_uid", value)} onReady={(ready) => update("ready", ready)} />}
       <Text style={styles.label}>Cloudflare hesabındaki videolar</Text>
       <View style={styles.wrap}>{streamVideos.length ? streamVideos.map((v) =>
         <Chip key={v.uid} label={(v.name || v.uid) + (v.ready ? " ✓" : " · işleniyor")}

@@ -27,6 +27,7 @@ export default function Auth({
     ),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
+    [fullName, setFullName] = useState(""),
     [username, setUsername] = useState(""),
     [photo, setPhoto] = useState<ProfilePhoto | null>(null);
   const t = translations(store.language);
@@ -52,7 +53,7 @@ export default function Auth({
       const { data, error } = await db.auth.signUp({
         email,
         password,
-        options: { data: { username }, emailRedirectTo: config.webUrl },
+        options: { data: { dbs_registration: { username: username.trim(), full_name: fullName.trim() } }, emailRedirectTo: config.webUrl },
       });
       if (error) throw error;
       if (data.session && username.trim()) {
@@ -64,7 +65,7 @@ export default function Auth({
         await requireData(
           db
             .from("dbs_profiles")
-            .update({ username: username.trim() })
+            .update({ username: username.trim(), full_name: fullName.trim() })
             .eq("user_id", data.session.user.id),
         );
       }
@@ -186,6 +187,7 @@ export default function Auth({
                 : t.login}
         </Text>
         <Text style={styles.body}>{t.synced}</Text>
+        {mode === "register" && <Field label="Ad Soyad · İsteğe bağlı" value={fullName} onChangeText={setFullName} autoComplete="name" />}
         {mode === "register" && (
           <Field
             label="Kullanıcı adı"
@@ -230,6 +232,7 @@ export default function Auth({
             )
           }
           icon="arrow-forward"
+          style={{ alignSelf: "stretch" }}
         >
           {mode === "register"
             ? t.register
@@ -239,9 +242,16 @@ export default function Auth({
                 ? t.save
                 : t.login}
         </Button>
-        <Button secondary onPress={() => run(google)} icon="logo-google">
-          Google
-        </Button>
+        {(mode === "login" || mode === "register") && <View style={{ gap: 14 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+            <Text style={[styles.body, { fontSize: 12 }]}>veya hesabınla devam et</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+          </View>
+          <Button secondary onPress={() => run(google)} icon="logo-google" style={{ alignSelf: "stretch", borderRadius: 16 }}>
+            Google ile devam et
+          </Button>
+        </View>}
         <View style={styles.wrap}>
           <Button
             small

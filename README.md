@@ -4,15 +4,17 @@ Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürüm�
 
 Bu sürüm resmi ticari lansman değildir. Ticari içerik hakları, Cloudflare hesabı, Google OAuth, Play Console/Billing, RTDN/iade sistemi, AdMob SSV ve Android push bağlantıları henüz tamamlanmadı. Ayrıntılı durum: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
 
-## v0.4 değişiklikleri
+## v0.4 güncel düzenlemeler
 
-- Yardım, uygulama, API ve Android sürümü `0.4.0`; `versionCode: 1`.
-- Keşfet okları kaldırıldı. Her parmak hareketi veya mouse/trackpad kaydırma hareketi bir video değiştirir; ivme birkaç videoyu birden atlamaz. Klavye ve erişilebilirlik desteği devam eder.
-- Ana sayfa vitrininde sağa/sola parmak kaydırma; gerçek hesaba bağlı izlenme ve beğeni göstergeleri. Örnek sayaç üretilmez.
-- Eski Big Buck Bunny, Sintel ve Pexels örnekleri katalogdan kaldırıldı. Özgün vektör animasyon **Neon Postası (5 bölüm)** ve **Yıldız Tohumu (3 bölüm)** eklendi. Her bölüm 24 saniye, 540×960, Türkçe hikâye yazıları ve özgün müzik içerir. AI videosu değildir.
-- Web fullscreen videonun boyut sınırı kaldırıldı. Chrome/Android'in geçici tam ekrandan çıkış güvenlik bildirimi tarayıcıya aittir; site kodu bunu kapatamaz.
-- Bağlantı/hesap hataları anlaşılır popup; profil ve isteğe bağlı kayıt fotoğrafını cihazdan seçme, kare 512 px hazırlama ve hesapla senkron kaydetme.
-- Stüdyo'da yayınlanmış dizi, sezon ve bölümleri atomik silme; dizi adıyla onay, yalnızca owner yetkisi, finansal kayıtları ve rapor/audit izini koruma. Cloudflare dosyalarını silmez.
+- Keşfet v0.3'teki doğal, ivmeli ve sayfalı dikey listeye döndü. Tek video / hareket kısıtı ve mor oklar yok.
+- Ana sayfa vitrininde sadece üç afiş penceresi yatay parmak hareketine tepki verir; afişler animasyonla yer değiştirir. Tüm hero alanı kaydırılmaz. Kategori seçimi ilgili içeriklere aşağı kaydırır.
+- Premium ortak oynatıcı: video üstünde kaybolan kontroller, ilerleme çubuğu, ±10 saniye, ses, fullscreen, desteklenen PiP ve gerçek kaynak çözünürlükleri. Dikey fullscreen alanı orantıları koruyarak doldurur. Bölümler düğmesi bölüm listesini açar; fragman uygulama içinde oynar.
+- **Tears of Steel (5), Spring (3), Charge (3), Coffee Run (3)**: açık lisanslı gerçek çekim / profesyonel 3D kısa filmlerin **9:16 test uyarlamaları**. Özgün bölümlü TV dizileri veya DraBornSeries yapımı olarak sunulmaz. Önceki iki vektör hikâyesi arşivlendi. Lisans, yapımcı ve değişiklik bilgileri dizi detayında gösterilir; jenerikler son bölümde tam kadrajda korunur.
+- Seçili VIP paket düğmesi animasyonlu; detay penceresinde 1080p FULL HD (içeriğin sunduğu kalite), VIP kapsamı için sınırsız izleme, reklamsız kullanım ve hesap senkronu. **Hemen Ödeme Yap**, gerçek ödeme bağlantısı eksikse açık bilgi verir; hiçbir demo ödeme/coin/VIP tanımlamaz.
+- Stüdyo 10 kayıtla açılır, Daha Fazla 5 kayıt yükler. Kayıt sayısı ayrı satırdadır. Aktif oturumlar 5 + 5 gösterilir.
+- Stüdyo afiş, banner ve thumbnail için cihazdan görsel yükleme; fragman ve bölüm videosu için Cloudflare Direct Creator Upload hazırlığı. Video API anahtarı istemciye aktarılmaz; gerçek hazır durumu ve signed erişim sunucudan doğrulanır.
+- Dizi → sezon → bölüm → video → yayın adımlarını açan Stüdyo yönlendirmeleri. [STUDIO_GUIDE_TR.md](docs/STUDIO_GUIDE_TR.md).
+- Kayıtta isteğe bağlı Ad Soyad ve profil fotoğrafı; modern geniş kayıt / Google düğmeleri. Ad ve fotoğraf hesapla Android ve webde senkron olur.
 
 ## Çalışan özellikler
 

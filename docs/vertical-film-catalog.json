@@ -1,0 +1,498 @@
+[
+  {
+    "slug": "tears-of-steel",
+    "title": "Tears of Steel",
+    "source": "https://media.xiph.org/tearsofsteel/tears_of_steel_1080p.webm",
+    "length": 734,
+    "cuts": [
+      0,
+      150,
+      300,
+      450,
+      600,
+      734
+    ],
+    "credits": 610,
+    "poster": 55,
+    "year": 2012,
+    "director": "Ian Hubert",
+    "genres": [
+      "Bilim Kurgu",
+      "Dram",
+      "Macera"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "source_page": "https://mango.blender.org/sharing/",
+    "summary": "Amsterdam'ın geleceğinde bir grup bilim insanı, eski bir ilişkinin dünyayı tehdit eden sonuçlarını durdurmaya çalışır.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "modifications": "DraBornSeries için 9:16 dikey kadraj ve 3–5 test bölümü olarak uyarlandı. Özgün jenerik, son bölümde tam kadrajla korunur. DraBornSeries ile yapımcı arasında sponsorluk ilişkisi yoktur.",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/01fe6a16-9dda-4d1d-9ced-c6e505153327.jpg",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Tears of Steel · Bölüm 1",
+        "start_seconds": 0,
+        "duration_seconds": 150,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/227ada62-765a-413b-9a0b-ad9caa0bc70c.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f9da2b76-5dff-4a32-a888-6443796d2aef.mp4",
+            "sha256": "04c4a7807776f726ba02b5bb169adc4719a8479a155b976a77f8ffa85621e821",
+            "bytes": 8171860
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/69c46981-c9e1-4000-89bb-ed8ecdbb896c.mp4",
+            "sha256": "d218afdde19e3c2e079832f4d81d9a5aa0e12343fa58ef28ce6af39c42d20092",
+            "bytes": 11806391
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "Tears of Steel · Bölüm 2",
+        "start_seconds": 150,
+        "duration_seconds": 150,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/bb843917-9e1e-4302-bf66-764540ff661f.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f3704b4c-1997-4028-89b8-dd3a7aa59f83.mp4",
+            "sha256": "6825c8cf77903e8d1fa4a51c6eb2042d9dd9275270dc6b99fa41c691be3f72ba",
+            "bytes": 11223637
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f07a6d5d-1ad6-4fc0-b927-22dd8db55e98.mp4",
+            "sha256": "bf1bb9bfc63f7776490ee3be63df6751c28d592a202825b2a03c132a7b2dd3b6",
+            "bytes": 16286686
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Tears of Steel · Bölüm 3",
+        "start_seconds": 300,
+        "duration_seconds": 150,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/68d3ba50-15e7-4a12-a319-cc2ae6ef5d1a.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/5afcb174-3be0-4305-b4e1-7955421ec8bb.mp4",
+            "sha256": "a52cc5adb03b9442ac5c7d894d008529a2a61a4159c7f7b88738ab275d8bd5d3",
+            "bytes": 10512821
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2b43ee90-d51a-4808-8586-0861953e630e.mp4",
+            "sha256": "720f8eaffbb8d188e451bd2aba1853aad1bbeac2066127704ff9cc055ac01e3e",
+            "bytes": 15246261
+          }
+        ]
+      },
+      {
+        "number": 4,
+        "title": "Tears of Steel · Bölüm 4",
+        "start_seconds": 450,
+        "duration_seconds": 150,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/e4264e85-5ff6-40f6-8150-54f1e0c81202.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/a5fd41d6-b488-4d7e-bdbe-14f69b690fba.mp4",
+            "sha256": "236c9243bba681395ad0f4978fd4a3c0c5c1512ec853ef0cd7ea49acc2f5efcf",
+            "bytes": 14414213
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2b46d889-5c24-4793-8a50-95058a67a566.mp4",
+            "sha256": "bf063519a0bef6f6bfd3939165cd16fa0be2079916c37c4c8ec592d2d2f12b98",
+            "bytes": 21434274
+          }
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Tears of Steel · Bölüm 5",
+        "start_seconds": 600,
+        "duration_seconds": 134,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/53bffbf0-3e4e-4db3-9f9c-ca678d170d68.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/32b2af9d-5412-4fba-b36c-f66295183de0.mp4",
+            "sha256": "fd85e8a7f7620bea5aea7238e56277d6d363f3b83294b108aba6da8b172a376b",
+            "bytes": 8064513
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/dbc021bd-f8e9-4f85-b353-d719fc3b9881.mp4",
+            "sha256": "7a77eb9c9d102bd1151a07a0f68599f3a62c7042f993f82a89737695322db1fa",
+            "bytes": 12535567
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "spring",
+    "title": "Spring",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Spring_-_Blender_Open_Movie.webm",
+    "length": 464,
+    "cuts": [
+      0,
+      145,
+      290,
+      464
+    ],
+    "credits": 400,
+    "poster": 122,
+    "year": 2019,
+    "director": "Andy Goralczyk",
+    "genres": [
+      "Animasyon",
+      "Fantastik",
+      "Macera"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_page": "https://studio.blender.org/projects/spring/pages/about/",
+    "summary": "Genç bir çoban ve köpeği, kışı geride bırakmak için kadim ormanın ruhlarıyla yüzleşir.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "modifications": "DraBornSeries için 9:16 dikey kadraj ve 3–5 test bölümü olarak uyarlandı. Özgün jenerik, son bölümde tam kadrajla korunur. DraBornSeries ile yapımcı arasında sponsorluk ilişkisi yoktur.",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/b7adf5c6-2cad-4188-a64a-131c1e46b156.jpg",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Spring · Bölüm 1",
+        "start_seconds": 0,
+        "duration_seconds": 145,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/79712afb-833b-4ee5-8403-7ceb5150af8d.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9ed90f23-5444-4071-84dc-e8082f707453.mp4",
+            "sha256": "60c5e2212305bacc5ec0710e7611f4de270681cb433899ed9a689afb41be5f91",
+            "bytes": 6083056
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/457422e4-047c-4e01-acd0-7dd2bf7c7e52.mp4",
+            "sha256": "8c6eaf78f512ffc49eb005a30b4757cd978cff9dbdef369347aec852979115b5",
+            "bytes": 8366064
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "Spring · Bölüm 2",
+        "start_seconds": 145,
+        "duration_seconds": 145,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/8cc1956d-1073-485e-a3cc-3549540b4463.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/6555944e-72f3-4230-a59b-24beda07ff65.mp4",
+            "sha256": "d7e3961a9aa5e07e448e14a8a8532fefa8e3c8ceeadbd48e7b8029059ffb636c",
+            "bytes": 8335481
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/207f76b0-5624-49f9-ad58-5a9c64478d16.mp4",
+            "sha256": "08274ebbe62137b61836e1e868f214a3ae39fe825c77b73c1c583a61d581f25b",
+            "bytes": 11794919
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Spring · Bölüm 3",
+        "start_seconds": 290,
+        "duration_seconds": 174,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ee446bf3-ac00-437f-8aca-7c29a01264c9.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9462240b-568f-40f5-819d-171b91d58c86.mp4",
+            "sha256": "43975167889ad490bbfbb83b61ad3ed65d190ed6b3b30f06275bdcd1b7fc602d",
+            "bytes": 7472767
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/bb48ed6b-2ea6-486d-8c06-1d169059915a.mp4",
+            "sha256": "4739b71e195d56538cd1c83c45bbb374e236cf48c416be2d40168fdfbf00d5e6",
+            "bytes": 10430998
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "charge",
+    "title": "Charge",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Charge_-_Blender_Open_Movie-full_movie.webm",
+    "length": 263,
+    "cuts": [
+      0,
+      60,
+      120,
+      263
+    ],
+    "credits": 172,
+    "poster": 92,
+    "year": 2022,
+    "director": "Hjalti Hjalmarsson",
+    "genres": [
+      "Animasyon",
+      "Aksiyon",
+      "Bilim Kurgu"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_page": "https://studio.blender.org/blog/charge-premiere/",
+    "summary": "Endüstriyel bir gelecekte Einar, bir enerji kaynağına ulaşmak için güvenlik sistemlerinin içine sızar.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "modifications": "DraBornSeries için 9:16 dikey kadraj ve 3–5 test bölümü olarak uyarlandı. Özgün jenerik, son bölümde tam kadrajla korunur. DraBornSeries ile yapımcı arasında sponsorluk ilişkisi yoktur.",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/48bd22eb-343c-4494-9a15-9009ca5556e7.jpg",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Charge · Bölüm 1",
+        "start_seconds": 0,
+        "duration_seconds": 60,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/7267a0f9-3110-4863-8279-3140032553f2.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4c1d25c3-afa1-441f-bc8a-86f055c82901.mp4",
+            "sha256": "61fd9ff54c6d029645d6e7711104ef794533e7b146e9f384e276651336b16cbe",
+            "bytes": 2785121
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2dbe4dbc-d0f7-4c00-84d2-abdeb0d2928c.mp4",
+            "sha256": "ca89ae356f0b3dc6530a71cdde48f53e4e222f07a390285552163ebb77d5efd2",
+            "bytes": 3936457
+          },
+          {
+            "label": "720p",
+            "width": 720,
+            "height": 1280,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/dc1a953f-9542-4d45-b7b8-2920531d73d0.mp4",
+            "sha256": "033d204762cea92578208474890140416b7c490490bad63079574951168fe952",
+            "bytes": 7863269
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "Charge · Bölüm 2",
+        "start_seconds": 60,
+        "duration_seconds": 60,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/12cab3d4-a19d-4322-aac2-e3301c3e4733.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/d7da9084-90f9-4867-a9f4-343aa58bce8c.mp4",
+            "sha256": "2f0b739050d209e4d1b17eb48918e987dcff801dd2e98cd41a864ff38f609ff9",
+            "bytes": 4968038
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4961cd12-3224-4bd6-bec7-ae197d20b3a7.mp4",
+            "sha256": "9452c84235232a5a685577fd272b22a6177ec1b0e610a8815481827ac578928f",
+            "bytes": 7236957
+          },
+          {
+            "label": "720p",
+            "width": 720,
+            "height": 1280,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/72b14b66-71d3-44ff-9b2c-27796f164bbe.mp4",
+            "sha256": "50be84ddb19bac6c278a13cd8c4edb36a26253c4207595916ba136990a0b614c",
+            "bytes": 14301001
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Charge · Bölüm 3",
+        "start_seconds": 120,
+        "duration_seconds": 143,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/25a32be6-bcf1-49f4-aab2-26bf14b3c2c1.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2b45f56f-ae32-4f16-b77a-e0ff06bc0aae.mp4",
+            "sha256": "9b045bd5594d72f1ae91355306a8b22155bdafed171b2a30f8a55cde89b8f6d1",
+            "bytes": 5427625
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4ea40f75-9edc-496c-bd80-9235e40bf152.mp4",
+            "sha256": "e152a8afa049d8ec25b41b3ff3b5c6e29de80b3607e9fe9acb1aeeaea4a7eb3e",
+            "bytes": 7596249
+          },
+          {
+            "label": "720p",
+            "width": 720,
+            "height": 1280,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/a389ffcc-8857-4a87-a6fb-afdfe059ce94.mp4",
+            "sha256": "5a138f44434a825a5b73eeff31058183bf553cbe6af2924ec94fc25cd28867c7",
+            "bytes": 14915163
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "coffee-run",
+    "title": "Coffee Run",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Coffee_Run_-_Blender_Open_Movie-full_movie.webm",
+    "length": 185,
+    "cuts": [
+      0,
+      60,
+      120,
+      185
+    ],
+    "credits": 151,
+    "poster": 74,
+    "year": 2020,
+    "director": "Hjalti Hjalmarsson",
+    "genres": [
+      "Animasyon",
+      "Dram",
+      "Romantik"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_page": "https://studio.blender.org/projects/coffee-run/pages/licensing/",
+    "summary": "Bir fincan kahve, genç bir kadının anılarını ve hayatının dönüm noktalarını birbirine bağlar.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "modifications": "DraBornSeries için 9:16 dikey kadraj ve 3–5 test bölümü olarak uyarlandı. Özgün jenerik, son bölümde tam kadrajla korunur. DraBornSeries ile yapımcı arasında sponsorluk ilişkisi yoktur.",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/09c8ed0f-6ad1-4ff4-af12-c1fa6bf2442c.jpg",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Coffee Run · Bölüm 1",
+        "start_seconds": 0,
+        "duration_seconds": 60,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ea4b6606-8544-4edb-96c9-b4d2f188d65c.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/def9761f-bd97-4f74-8de6-8ae4bfcee201.mp4",
+            "sha256": "5d5dc79c1596e4fbc9e395e52dea73e265e2901d2763ce3efed4100144723cb3",
+            "bytes": 3168749
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2893b1e4-6ba8-456a-91ae-a9120fa4e099.mp4",
+            "sha256": "9f08d25b23747dde0171be950bde76ced45b5989f4d441f7435e996567cf9baa",
+            "bytes": 4238618
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "Coffee Run · Bölüm 2",
+        "start_seconds": 60,
+        "duration_seconds": 60,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/232b8209-277b-4904-b0d6-f070e37815b6.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/75eebfd0-38b2-46fc-89c1-42a5c44973ef.mp4",
+            "sha256": "b821a71f6340ddd82127b57e5610e29e7f86b0371b150301d66ccdf606faecf9",
+            "bytes": 3387510
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/6cc86387-65aa-4e81-a30b-b53498dfcb0f.mp4",
+            "sha256": "21c2b7a44425dcaa5ff7918bcfab00e93e0dca010fe535996921b85ce22343d3",
+            "bytes": 4528216
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Coffee Run · Bölüm 3",
+        "start_seconds": 120,
+        "duration_seconds": 65,
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/3591d27e-2b5d-4805-9b6c-711750285c7a.jpg",
+        "renditions": [
+          {
+            "label": "360p",
+            "width": 360,
+            "height": 640,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/e981bf68-17fa-4e54-90be-a18ab85cc40c.mp4",
+            "sha256": "aacd3236967cf465dda99a5d554eceaf1d479b56832f77a00782b5cd7214e2ec",
+            "bytes": 2891514
+          },
+          {
+            "label": "480p",
+            "width": 480,
+            "height": 854,
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/1a37b0b9-d8c8-431c-9644-e855ee6fa0ca.mp4",
+            "sha256": "dadd2974e7df7d51e841a684753231f225e425cb76f2a3e811b4449bff8ae34d",
+            "bytes": 3858944
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -5,10 +5,12 @@ import {
   Platform,
   Pressable,
   Switch,
+  ScrollView,
   Text,
   View,
   Linking,
 } from "react-native";
+import AnimatedCTA from "../../packages/ui/AnimatedCTA";
 import { LinearGradient } from "expo-linear-gradient";
 import type { Store } from "../../packages/api/store";
 import type { Page } from "../../packages/types";
@@ -481,13 +483,13 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
           )}
         </LinearGradient>
         {planCards}
-        <Button
+        <AnimatedCTA
           icon="diamond"
           onPress={() => currentPlan && setCheckout(currentPlan)}
           style={{ alignSelf: "stretch" }}
         >
           Seçili paketi incele
-        </Button>
+        </AnimatedCTA>
         <Text style={styles.h2}>VIP dünyanda neler var?</Text>
         <View style={panel}>
           {[
@@ -1044,6 +1046,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             alignItems: "center",
           }}
         >
+          <ScrollView style={{ width: "100%", maxWidth: 540, maxHeight: "90%" }} contentContainerStyle={{ paddingBottom: 20 }}>
           <View
             style={{
               width: "100%",
@@ -1059,7 +1062,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             }}
           >
             <View style={[styles.row, { justifyContent: "space-between" }]}>
-              <Text style={styles.h2}>
+              <Text style={[styles.h2, { flex: 1 }]}>
                 {checkout?.kind === "vip"
                   ? checkout.title
                   : `${checkout?.coins} BornCoins`}
@@ -1077,6 +1080,16 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                 : "BornCoins ile uygun bölümleri kalıcı olarak hesabına açabilirsin."}
             </Text>
             {checkout && <Text style={[styles.h2, { color: colors.orange }]}>{examplePrice(checkout.id)}</Text>}
+            {checkout?.kind === "vip" && <View style={{ gap: 12, backgroundColor: "#332040", borderRadius: 18, padding: 18 }}>
+              {[["videocam-outline", "1080p FULL HD", "İçeriğin sunduğu en yüksek kalite"],
+                ["infinite", "Sınırsız İzleme", "VIP kapsamındaki tüm diziler ve bölümler"],
+                ["shield-checkmark-outline", "Reklamsız", "VIP hesabında kesintisiz izleme"],
+                ["sync-outline", "Android + Web", "Aynı hesapta eş zamanlı VIP erişimi"]].map(([icon, title, detail]) =>
+                <View key={title} style={[styles.row, { gap: 12 }]}>
+                  <Icon name={icon as any} color={colors.orange} size={24} />
+                  <View style={{ flex: 1, gap: 2 }}><Text style={styles.label}>{title}</Text><Text style={[styles.body, { fontSize: 11, lineHeight: 16 }]}>{detail}</Text></View>
+                </View>)}
+            </View>}
             <View style={[panel, { borderColor: "#a94a78" }]}>
               <Text
                 style={{ color: "#ffb7d2", fontSize: 15, fontWeight: "800" }}
@@ -1094,11 +1107,14 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             <Button
               onPress={() => {
                 setCheckout(null);
-                go("rewards");
+                run(async () => { throw Error(Platform.OS === "web"
+                  ? "Google Play ödeme bağlantısı henüz etkin değil. Satın alma, Google Play Android sürümünde açılacak. Hesabından ücret alınmadı."
+                  : "Expo Go içinde Google Play ödemesi açılamaz. Ödeme için Google Play bağlantısı ve development build gerekir. Hesabından ücret alınmadı."); });
               }}
-              icon="gift"
+              icon="card-outline"
+              style={{ alignSelf: "stretch" }}
             >
-              Şimdi ücretsiz BornCoins kazan
+              Hemen Ödeme Yap
             </Button>
             {checkout?.kind === "vip" && store.vip && (
               <Button
@@ -1113,6 +1129,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
               </Button>
             )}
           </View>
+          </ScrollView>
         </View>
       </Modal>
       <Modal

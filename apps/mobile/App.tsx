@@ -235,6 +235,7 @@ function Main() {
           onRewards={() => go("rewards")}
           onVIP={() => go("vip")}
           previewRegion={previewRegion}
+          onCategoryScroll={(y) => scroll.current?.scrollTo({ y: Math.max(0, y - 10), animated: true })}
         />
       );
     if (route.page === "detail")

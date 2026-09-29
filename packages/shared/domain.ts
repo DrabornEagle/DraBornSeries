@@ -82,6 +82,9 @@ export const readableError = (error: unknown) => {
     VIDEO_NOT_READY: "Video henüz yayına hazır değil.",
     INVALID_PROMO: "Promosyon kodu geçersiz veya süresi dolmuş.",
     ACCESS_DENIED: "Bu bölüm için erişim gerekiyor.",
+    STREAM_UPLOAD_NOT_CONFIGURED: "Video yükleme için Cloudflare Stream hesabını Stüdyo backendine bağlaman gerekiyor. Supabase Functions Secrets alanına CLOUDFLARE_ACCOUNT_ID ve CLOUDFLARE_API_TOKEN ekle.",
+    STREAM_UPLOAD_FAILED: "Cloudflare video yükleme bağlantısı oluşturulamadı. Hesap yetkilerini kontrol et.",
+    STREAM_STATUS_FAILED: "Cloudflare video durumu okunamadı. Stream UID ve hesap bağlantısını kontrol et.",
     STREAM_NOT_CONFIGURED: "Video dağıtımı henüz etkinleştirilmedi.",
     Invalid: "İşlem tamamlanamadı.",
   };

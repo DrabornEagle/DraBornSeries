@@ -25,6 +25,7 @@ type Props = {
   run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
 };
 export default function Account({ page, store, go, run }: Props) {
+  const [visibleSessionCount, setVisibleSessionCount] = useState(5);
   const t = translations(store.language),
     [promo, setPromo] = useState(""),
     [username, setUsername] = useState(store.profile?.username || ""),
@@ -129,7 +130,7 @@ export default function Account({ page, store, go, run }: Props) {
           <Text style={styles.h3}>DraBornSeries · v{config.version} · Kod {config.versionCode}</Text>
           <Text style={styles.body}>
             Bu sürüm Expo Go ve web üzerinde erken erişim testidir. Bu
-            sürümde dikey animasyon test dizilerini bölüm bölüm izleyebilirsin.
+            sürümde Tears of Steel, Spring, Charge ve Coffee Run filmlerinin açık lisanslı dikey test uyarlamalarını, toplam 14 bölümde izleyebilirsin.
             Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. BornCoins satın alma, VIP satışı, ödüllü
             reklamlar ve push bildirimleri üretim bağlantıları açıldığında
             etkinleşir.
@@ -578,6 +579,7 @@ export default function Account({ page, store, go, run }: Props) {
           <Text style={styles.h3}>Aktif DraBornSeries oturumları</Text>
           {sessions
             .filter((s) => !s.revoked_at)
+            .slice(0, visibleSessionCount)
             .map((s) => (
               <View
                 key={s.session_id}
@@ -614,6 +616,8 @@ export default function Account({ page, store, go, run }: Props) {
                 </Button>
               </View>
             ))}
+          {sessions.filter((s) => !s.revoked_at).length > visibleSessionCount && <Button secondary small icon="chevron-down"
+            onPress={() => setVisibleSessionCount((count) => count + 5)}>Daha Fazla · 5 oturum</Button>}
           <Button
             secondary
             onPress={() =>

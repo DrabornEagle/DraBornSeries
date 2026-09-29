@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  FlatList,
   Pressable,
   Text,
   View,
@@ -15,8 +16,6 @@ import { Artwork } from "../../packages/ui/Catalog";
 import { Button, Icon, colors, Empty } from "../../packages/ui/theme";
 import { config } from "../../packages/shared/config";
 import { saveProgress } from "../../packages/api/progress";
-import SwipeSurface from "../../packages/ui/SwipeSurface";
-import { adjacentIndex } from "../../packages/shared/gestures";
 import { compactCount } from "../../packages/shared/domain";
 type Entry = { episode: Episode; series: Series };
 function Scene({
@@ -304,18 +303,21 @@ export default function Discover({
         setHeight(Math.max(300, Math.round(e.nativeEvent.layout.height)))
       }
     >
-      <SwipeSurface axis="vertical" extent={height} style={{ flex: 1, overflow: "hidden" }}
-        label="Keşfet videoları. Sonraki video için yukarı, önceki için aşağı kaydır."
-        onStep={(step) => setIndex((current) => adjacentIndex(current, step, items.length))}>
-        <Scene key={items[Math.min(index, items.length - 1)].episode.id}
-          item={items[Math.min(index, items.length - 1)]} active height={height}
-          onSeries={() => onSeries(items[index].series)}
-          onWatch={() => onEpisode(store.episodes.find((e) =>
-            e.series_id === items[index].series.id && e.number === 1) || items[index].episode)}
-          favorite={store.favorites.includes(items[index].series.id)}
-          onLike={() => store.session
-            ? run(() => store.toggleFavorite(items[index].series.id)) : onLogin()} />
-      </SwipeSurface>
+      <FlatList<Entry>
+        data={items} keyExtractor={(item) => item.episode.id}
+        pagingEnabled snapToInterval={height} decelerationRate="fast"
+        showsVerticalScrollIndicator={false}
+        getItemLayout={(_, i) => ({ length: height, offset: height * i, index: i })}
+        onScroll={(event) => setIndex(Math.max(0, Math.min(items.length - 1,
+          Math.round(event.nativeEvent.contentOffset.y / height))))}
+        scrollEventThrottle={80} initialNumToRender={2} windowSize={3} maxToRenderPerBatch={2}
+        renderItem={({ item, index: sceneIndex }) => <Scene item={item}
+          active={index === sceneIndex} height={height}
+          onSeries={() => onSeries(item.series)}
+          onWatch={() => onEpisode(store.episodes.find((e) => e.series_id === item.series.id && e.number === 1) || item.episode)}
+          favorite={store.favorites.includes(item.series.id)}
+          onLike={() => store.session ? run(() => store.toggleFavorite(item.series.id)) : onLogin()} />}
+      />
     </View>
   );
 }

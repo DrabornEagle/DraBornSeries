@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  PanResponder,
   Image,
   Pressable,
   ScrollView,
@@ -13,7 +15,6 @@ import type { Store } from "../api/store";
 import { usePreview } from "../api/preview";
 import InlineVideo from "./InlineVideo";
 import { Button, Icon, colors, styles } from "./theme";
-import SwipeSurface from "./SwipeSurface";
 import { compactCount } from "../shared/domain";
 export function Artwork({
   series,
@@ -260,6 +261,57 @@ export function Rail({
     </View>
   );
 }
+// Only the three posters respond to a horizontal gesture; the rest of the hero stays still.
+function FeaturedPosters({ entries, tick, compact, store, active, onStep, onSelect }: {
+  entries: Series[]; tick: number; compact: boolean; store: Store; active: boolean;
+  onStep: (step: number) => void; onSelect: (series: Series) => void;
+}) {
+  const phase = useRef(new Animated.Value(0)).current;
+  const previous = useRef(tick);
+  const step = useRef(onStep); step.current = onStep;
+  useEffect(() => {
+    if (previous.current === tick) return;
+    phase.stopAnimation(); phase.setValue(tick > previous.current ? 1 : -1);
+    previous.current = tick;
+    const animation = Animated.spring(phase, { toValue: 0, useNativeDriver: true,
+      damping: 19, stiffness: 150, mass: 0.8 });
+    animation.start(); return () => animation.stop();
+  }, [tick, phase]);
+  const responder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 12 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.3,
+    onPanResponderRelease: (_, gesture) => {
+      if (Math.abs(gesture.dx) > 30) step.current(gesture.dx < 0 ? 1 : -1);
+    },
+  })).current;
+  const height = compact ? 300 : 388, cardWidth = height * 9 / 16, spacing = cardWidth * 0.86;
+  return <View {...responder.panHandlers} accessibilityLabel="Vitrindeki üç görsel arasında sağa veya sola kaydır"
+    style={{ height, width: compact ? "100%" : 370, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+    {[-1, 0, 1].map((slot) => {
+      const series = entries[((tick + slot) % entries.length + entries.length) % entries.length];
+      const position = Animated.add(phase, slot);
+      return <Animated.View key={slot} style={{ position: "absolute", height, width: cardWidth, zIndex: slot === 0 ? 3 : 1,
+        opacity: position.interpolate({ inputRange: [-2, -1, 0, 1, 2], outputRange: [0.25, 0.55, 1, 0.55, 0.25] }),
+        transform: [{ translateX: Animated.multiply(position, spacing) },
+          { scale: position.interpolate({ inputRange: [-2, -1, 0, 1, 2], outputRange: [0.7, 0.84, 1, 0.84, 0.7] }) },
+          { rotate: position.interpolate({ inputRange: [-2, 0, 2], outputRange: ["-18deg", "0deg", "18deg"] }) }] }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={series.title} onPress={() => onSelect(series)}
+          style={{ flex: 1, borderRadius: 20, overflow: "hidden", borderWidth: 1, borderColor: "#f5badb60" }}>
+          <MotionArtwork series={series} episode={store.episodes.find((e) => e.series_id === series.id && e.access_type === "free")}
+            active={slot === 0 && active} />
+          <LinearGradient colors={["transparent", "#0a0710ef"]} style={{ position: "absolute", inset: 0 }} />
+          <View style={{ position: "absolute", top: 12, left: 9, padding: 5, borderRadius: 6, backgroundColor: "#d83085dc" }}>
+            <Text style={{ color: "white", fontSize: 8, fontWeight: "800" }}>{compactCount(series.view_count)} izlenme · ♥ {compactCount(series.like_count)}</Text>
+          </View>
+          <View style={{ position: "absolute", bottom: 18, left: 12, right: 10, gap: 6 }}>
+            <Text style={{ color: "white", fontSize: compact ? 23 : 29, fontWeight: "900", lineHeight: compact ? 27 : 33 }}>{series.title}</Text>
+            <Text style={{ color: "#f1d8e3", fontSize: 10 }}>{series.genres.join(" · ")}</Text>
+          </View>
+        </Pressable>
+      </Animated.View>;
+    })}
+  </View>;
+}
+
 export function Home({
   store,
   onSelect,
@@ -268,6 +320,7 @@ export function Home({
   onRewards,
   onVIP,
   previewRegion = "hero",
+  onCategoryScroll,
 }: {
   store: Store;
   onSelect: (s: Series) => void;
@@ -276,26 +329,23 @@ export function Home({
   onRewards: () => void;
   onVIP: () => void;
   previewRegion?: string;
+  onCategoryScroll?: (y: number) => void;
 }) {
   const { width } = useWindowDimensions(),
     compact = width < 700,
     [tick, setTick] = useState(0),
     [category, setCategory] = useState("Sana özel");
+  const resultY = useRef(0);
   const published = store.series.filter((s) => s.status === "published"),
     featured = published.length ? published : store.series;
   const wrap = (value: number) => ((value % Math.max(1, featured.length)) + featured.length) % Math.max(1, featured.length);
   const [seed] = useState(() => Math.floor(Math.random() * 1000));
   useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), 9000);
-    return () => clearInterval(timer);
-  }, []);
-  const hero = featured[wrap(tick + seed)],
-    side = featured[wrap(tick + seed + 1)],
-    left = featured[wrap(tick + seed + 2)];
+    const timer = setTimeout(() => setTick((t) => t + 1), 9000);
+    return () => clearTimeout(timer);
+  }, [tick]);
+  const hero = featured[wrap(tick + seed)];
   if (!hero) return null;
-  const first = store.episodes.find(
-    (e) => e.series_id === hero.id && e.access_type === "free",
-  );
   const continuing = Array.from(
     new Set(
       store.progress
@@ -326,7 +376,7 @@ export function Home({
       >
         {["Sana özel", "Yeni", "Animasyon", "Macera", "Romantik", "Dram", "Gizem", "Komedi"].map(
           (v) => (
-            <Pressable key={v} onPress={() => setCategory(v)}>
+            <Pressable key={v} onPress={() => { setCategory(v); requestAnimationFrame(() => onCategoryScroll?.(resultY.current)); }}>
               <Text
                 style={{
                   fontSize: 15,
@@ -350,8 +400,6 @@ export function Home({
           ),
         )}
       </ScrollView>
-      <SwipeSurface axis="horizontal" extent={width} onStep={(step) => setTick((current) => current + step)}
-        label="Öne çıkan diziler. Diğer diziler için sağa veya sola kaydır.">
       <LinearGradient
         colors={["#32192e", "#180e26", "#0b0811"]}
         start={{ x: 0, y: 0 }}
@@ -383,105 +431,9 @@ export function Home({
             gap: compact ? 14 : 40,
           }}
         >
-          <View
-            style={{
-              height: compact ? 292 : 388,
-              width: compact ? "100%" : 370,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {[left, side].map((s, i) => (
-              <Pressable
-                key={s.id + "-" + i}
-                onPress={() => onSelect(s)}
-                style={{
-                  position: "absolute",
-                  width: compact ? 145 : 185,
-                  height: compact ? 245 : 318,
-                  left: i === 0 ? (compact ? -22 : -5) : undefined,
-                  right: i === 1 ? (compact ? -22 : -5) : undefined,
-                  transform: [{ rotate: i === 0 ? "-9deg" : "9deg" }],
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  opacity: 0.52,
-                }}
-              >
-                <Artwork series={s} />
-              </Pressable>
-            ))}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={hero.title + " öne çıkan"}
-              onPress={() => onSelect(hero)}
-              style={{
-                height: "100%",
-                aspectRatio: 9 / 16,
-                borderRadius: 18,
-                overflow: "hidden",
-                borderWidth: 1,
-                borderColor: "#f5badb60",
-                boxShadow: "0px 15px 35px #00000055",
-              }}
-            >
-              <MotionArtwork
-                series={hero}
-                episode={first}
-                active={
-                  previewRegion === "hero" &&
-                  store.profile?.preferences?.previews !== false
-                }
-              />
-              <LinearGradient
-                colors={["transparent", "#0a0710dd"]}
-                style={{ position: "absolute", inset: 0 }}
-              />
-              <View
-                style={{
-                  position: "absolute",
-                  top: 11,
-                  left: 10,
-                  backgroundColor: "#f44492",
-                  borderRadius: 5,
-                  padding: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 8,
-                    fontWeight: "900",
-                    letterSpacing: 1,
-                  }}
-                >
-                  {compactCount(hero.view_count)} izlenme · ♥ {compactCount(hero.like_count)}
-                </Text>
-              </View>
-              <View
-                style={{
-                  position: "absolute",
-                  bottom: 17,
-                  left: 13,
-                  right: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: compact ? 24 : 31,
-                    fontWeight: "900",
-                    letterSpacing: -0.8,
-                    lineHeight: compact ? 27 : 33,
-                  }}
-                >
-                  {hero.title}
-                </Text>
-                <Text style={{ color: "#f1d8e3", fontSize: 10, marginTop: 7 }}>
-                  {hero.genres.join(" · ")}
-                </Text>
-              </View>
-            </Pressable>
-          </View>
+          <FeaturedPosters entries={featured} tick={tick + seed} compact={compact} store={store}
+            active={previewRegion === "hero" && store.profile?.preferences?.previews !== false}
+            onStep={(value) => setTick((current) => current + value)} onSelect={onSelect} />
           <View
             style={{
               flex: compact ? undefined : 1,
@@ -552,7 +504,6 @@ export function Home({
           </View>
         </View>
       </LinearGradient>
-      </SwipeSurface>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 27 }}>
         {[
           ["bag-handle", "Mağaza", colors.pink, onStore],
@@ -590,6 +541,7 @@ export function Home({
       {continuing.length > 0 && (
         <Rail title="Kaldığın yerden" series={continuing} onSelect={onSelect} />
       )}
+      <View onLayout={(event) => { resultY.current = event.nativeEvent.layout.y; }}>
       <Rail
         title={category === "Sana özel" ? "Bir sonraki favorin" : category}
         subtitle="Dikey kısa sahneler · Telefonun için"
@@ -604,6 +556,7 @@ export function Home({
         onSelect={onSelect}
         onMore={onBrowse}
       />
+      </View>
       <Pressable onPress={onRewards}>
         <LinearGradient
           colors={["#632440", "#3a204e", "#241335"]}

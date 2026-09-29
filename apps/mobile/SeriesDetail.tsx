@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
+  Modal,
+  ScrollView,
   Share,
   Linking,
   Text,
@@ -11,6 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { db, requireData } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
 import type { Series, Episode } from "../../packages/types";
+import VideoPlayer from "../../packages/ui/VideoPlayer";
 import { Artwork } from "../../packages/ui/Catalog";
 import {
   Button,
@@ -44,6 +47,7 @@ export default function SeriesDetail({
   const { width } = useWindowDimensions(),
     compact = width < 700,
     t = translations(store.language),
+    [trailer, setTrailer] = useState(false),
     [tab, setTab] = useState("episodes"),
     [comment, setComment] = useState(""),
     [spoiler, setSpoiler] = useState(false),
@@ -113,7 +117,7 @@ export default function SeriesDetail({
               </Button>
             )}
             {!!series.trailer_url && series.trailer_url.startsWith("https://") && (
-              <Button secondary icon="videocam-outline" onPress={() => run(() => Linking.openURL(series.trailer_url!))}>
+              <Button secondary icon="videocam-outline" onPress={() => setTrailer(true)}>
                 Fragmanı izle
               </Button>
             )}
@@ -140,18 +144,38 @@ export default function SeriesDetail({
           </View>
         </View>
       </View>
+      <Modal visible={trailer} transparent animationType="slide" onRequestClose={() => setTrailer(false)}>
+        <View style={{ flex: 1, backgroundColor: "#000c", justifyContent: "center", padding: 14 }}>
+          <View style={[styles.card, { width: "100%", maxWidth: 650, maxHeight: "92%", alignSelf: "center", padding: 14, gap: 12 }]}>
+            <View style={[styles.row, { justifyContent: "space-between" }]}><Text style={[styles.h3, { flex: 1 }]}>{series.title} · Fragman</Text>
+              <Button secondary small icon="close" onPress={() => setTrailer(false)}>Kapat</Button></View>
+            <ScrollView>{trailer && series.trailer_url && <VideoPlayer
+              source={{ url: series.trailer_url, provider: series.is_demo ? "demo" : "cloudflare", subtitles: [] }}
+              title={series.title + " · Fragman"} portrait initialTime={0} onProgress={() => {}} onEnd={() => {}} />}</ScrollView>
+          </View>
+        </View>
+      </Modal>
       <Text style={[styles.body, { maxWidth: 900 }]}>
         {store.language === "en" && series.description_en
           ? series.description_en
           : series.description}
       </Text>
+      {!!series.source_credit?.creator && <View style={[styles.card, { gap: 9, padding: 18, marginTop: 12 }]}>
+        <Text style={styles.h3}>Film kaynağı ve lisans</Text>
+        <Text style={styles.body}>{series.source_credit.creator} · {series.source_credit.license}</Text>
+        <Text style={[styles.body, { fontSize: 12 }]}>{series.source_credit.modifications}</Text>
+        <View style={styles.wrap}>
+          <Button secondary small icon="open-outline" onPress={() => Linking.openURL(series.source_credit!.source_url)}>Özgün film ve yapım ekibi</Button>
+          <Button secondary small icon="document-text-outline" onPress={() => Linking.openURL(series.source_credit!.license_url)}>Lisansı incele</Button>
+        </View>
+      </View>}
       <View style={styles.wrap}>
         {series.genres.map((g) => (
           <Chip key={g} label={g} />
         ))}
         <Chip label={series.country} />
         <Chip label={series.language.toUpperCase()} />
-        {series.license && <Chip label="CC BY 3.0" color={colors.mint} />}
+        {series.license && <Chip label={series.source_credit?.license || series.license} color={colors.mint} />}
       </View>
       <View
         style={[

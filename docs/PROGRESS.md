@@ -1,11 +1,11 @@
-# DraBornSeries v0.4.0 · versionCode 1
+# DraBornSeries · v0.4 current checkpoint
 
-Checkpoint: shared Android/Web sources, Expo Go 58. No APK generated.
+Latest authorized update restores the v0.3 Discover FlatList, confines animated swiping to the three-poster hero viewport, scrolls home categories to results, and adds shared premium player controls / actual renditions / an episode sheet / in-app trailer playback.
 
-Implemented: one-video-per-gesture Discover, no up/down controls, horizontal featured swipe, real account activity counters, modern error popup, dynamic Help version, fullscreen viewport sizing, device profile photos (registration optional), isolated avatar bucket, owner-only atomic published-series deletion with explicit title confirmation and retained financial/audit records.
+Studio: initial 10 records, then 5; independent count toolbar; 5 + 5 account sessions; device artwork upload with owner/editor Storage RLS; Cloudflare direct creator video upload grants, server readiness and signed access checks; guided series → season → episode → video → publish forms. Registration has optional full name, modern full-width actions and synced optional photo.
 
-Catalog: all six legacy demo records removed. Original portrait animation series Neon Postası (5×24 s) and Yıldız Tohumu (3×24 s), 540×960, Turkish integrated captions and original music, public test CDN. Reproducible sources and metadata in scripts/render-original-series.py and docs/original-series.json.
+Catalog: 4 licensed real films, 14 chronological portrait test chapters (Tears of Steel 5, Spring 3, Charge 3, Coffee Run 3). 31 H.264/AAC video renditions verified and uploaded, 18 thumbnails/posters; focal posters refined after visual review. Vector fixtures are archived. Attribution and modification notices are in series details and the manifest. Original credit sequences remain full frame in the final chapters.
 
-Verification: TypeScript, lint, gesture/domain tests, web/Android exports; transaction rollback database tests cover photo RLS, unauthorized deletion, wrong confirmation, published-series cascade, retry idempotency, financial records, reports/audit, counted play deduplication, wallet/purchase/session protections. Physical Expo Go swipe/photo/fullscreen behavior should be checked on the user's phone.
+Version remains 0.4.0 / Android versionCode 1. No APK. Billing / RTDN, ads / SSV, OAuth and production Cloudflare secrets still require owner account setup; no fake transactions or VIP are granted by checkout. Setup and Studio operation guides are in OWNER_SETUP_TR.md and STUDIO_GUIDE_TR.md.
 
-External production integrations (Cloudflare account/Stream/R2/Workers, Google OAuth, Google Play Billing/RTDN/refunds, AdMob SSV, push) still require the owner's account configuration. docs/OWNER_SETUP_TR.md contains the setup steps. Chrome's fullscreen exit notice is browser-controlled and cannot be disabled by this application.
+Verified: TypeScript, lint, domain tests, web export, Android JS export; production SQL rollback tests for financial immutability, series deletion, profile/avatar/session boundaries; new Studio role/ownership and first-registration tests. Deployment and browser verification are recorded in the release note after completion.

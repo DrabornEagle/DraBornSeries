@@ -8,8 +8,10 @@
 
 Unreleased concept backgrounds remain separate from playable films. The v0.4 catalog removes the old Blender and Pexels video records.
 
-Playable test films are two **original procedural 2D animation micro-series**: Neon Postası (5 episodes) and Yıldız Tohumu (3 episodes). Every episode is authored at 540×960 (9:16), 24 fps, 24 seconds, H.264/AAC with Turkish integrated story captions and original synthesized music. They are normal vector animations, not AI-generated/live-action films or stock clip compilations.
+The current playable catalog comprises four licensed open films adapted into 14 portrait test chapters: Tears of Steel (5), Spring (3), Charge (3), Coffee Run (3). These are real live-action / professional 3D films, not DraBornSeries originals or native portrait TV series. The older procedural vector stories are archived and excluded from published feeds.
 
-Stories, characters, artwork and audio are reproducible from `scripts/render-original-series.py`. Sources and published test-media URLs are recorded in `original-series.json`. Videos and frame thumbnails are uploaded to the connected media CDN; large video binaries are neither in GitHub nor Supabase Storage. These public test assets are not protected commercial Cloudflare streams. The production Cloudflare Worker integration remains separate.
+Sources, creators, exact licenses, chapter boundaries, rendition URLs, dimensions and checksums are recorded in [vertical-film-catalog.json](vertical-film-catalog.json). Tears of Steel uses CC BY 3.0; the other three use CC BY 4.0. Films are cropped to a portrait aspect without stretching. Credit sequences appear in full width over a blurred film background in the final chapter. Posters are extracted frames with the focal point set to the main character. Source logos are not reused as DraBornSeries branding.
 
-Avatar photos use the isolated `dbs_series_avatars` bucket, JPEG only, 2 MB limit; the client prepares 512×512 images. Each account may write only its own `user_id/avatar.jpg` object. Avatars are public profile pictures.
+H.264/AAC MP4s: 360×640 and 480×854; Charge also has 720×1280. 1080p is not invented for this fixture set. The player offers only available renditions. Large videos are hosted on the public test media CDN; production private content uses Cloudflare Stream/R2 and signed Worker access. Videos are never committed to GitHub.
+
+The archived rendering script and original-series metadata remain as historical sources; their videos are no longer published.

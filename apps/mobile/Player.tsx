@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Text, View, Switch } from "react-native";
+import { Modal, ScrollView, Pressable, Text, View, Switch } from "react-native";
 import type { Store } from "../../packages/api/store";
 import type { Episode, Playback } from "../../packages/types";
 import { api, rpc } from "../../packages/api/client";
@@ -12,6 +12,7 @@ import {
 import VideoPlayer from "../../packages/ui/VideoPlayer";
 import {
   Button,
+  Icon,
   Empty,
   Loading,
   colors,
@@ -32,6 +33,7 @@ export default function Player({
   run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
   onReport: () => void;
 }) {
+  const [episodePicker, setEpisodePicker] = useState(false);
   const [source, setSource] = useState<Playback | null>(null),
     [error, setError] = useState(""),
     [retry, setRetry] = useState(0),
@@ -60,7 +62,7 @@ export default function Player({
   }, [allowed, episode, store, run]);
   const sequence = store.episodes.filter(
       (e) => e.series_id === episode.series_id,
-    ),
+    ).sort((a, b) => a.number - b.number),
     position = sequence.findIndex((e) => e.id === episode.id),
     next = sequence[position + 1],
     previous = sequence[position - 1];
@@ -133,6 +135,7 @@ export default function Player({
         <VideoPlayer
           key={`${episode.id}-${retry}`}
           source={source}
+          title={episode.title}
           initialTime={initialTime}
           portrait={episode.orientation === "portrait"}
           onProgress={(seconds) => {
@@ -161,6 +164,7 @@ export default function Player({
               Önceki
             </Button>
           )}
+          <Button secondary icon="albums-outline" onPress={() => setEpisodePicker(true)}>Bölümler</Button>
           {next && (
             <Button icon="arrow-forward" onPress={() => onEpisode(next)}>
               Sonraki bölüm
@@ -176,6 +180,24 @@ export default function Player({
           />
         </View>
       </View>
+      <Modal visible={episodePicker} transparent animationType="slide" onRequestClose={() => setEpisodePicker(false)}>
+        <View style={{ flex: 1, backgroundColor: "#000a", justifyContent: "flex-end", alignItems: "center" }}>
+          <View style={[styles.card, { width: "100%", maxWidth: 640, maxHeight: "80%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}>
+            <View style={[styles.row, { justifyContent: "space-between" }]}><Text style={styles.h2}>Bölümler · {sequence.length}</Text>
+              <Button secondary small icon="close" onPress={() => setEpisodePicker(false)}>Kapat</Button></View>
+            <ScrollView contentContainerStyle={{ gap: 10, paddingBottom: 16 }}>
+              {sequence.map((item) => <Pressable key={item.id} onPress={() => { setEpisodePicker(false); onEpisode(item); }}
+                style={[styles.row, { padding: 16, borderRadius: 16, borderWidth: 1, borderColor: item.id === episode.id ? colors.pink : colors.line,
+                  backgroundColor: item.id === episode.id ? "#482039" : "#181021", gap: 14 }]}>
+                <Text style={{ color: colors.pink, fontWeight: "900", fontSize: 22, width: 34 }}>{String(item.number).padStart(2, "0")}</Text>
+                <View style={{ flex: 1, gap: 3 }}><Text style={styles.label}>{item.title}</Text>
+                  <Text style={[styles.body, { fontSize: 11 }]}>{item.id === episode.id ? "Şimdi izleniyor · " : ""}{accessLabel(item)}</Text></View>
+                <Icon name={clientCanWatch(item, new Set(store.unlocks), store.vip) ? "play-circle-outline" : "lock-closed-outline"} color={colors.pink} />
+              </Pressable>)}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
       <Text style={styles.body}>{episode.description}</Text>
       <Button small secondary icon="flag-outline" onPress={onReport}>
         Video sorunu bildir

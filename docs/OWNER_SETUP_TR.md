@@ -16,7 +16,7 @@ Kaynak: [Supabase Google Auth](https://supabase.com/docs/guides/auth/social-logi
 
 1. [Cloudflare Dashboard](https://dash.cloudflare.com/) hesabında **Stream**'i açın, hesap kimliğini kaydedin. Stream'e hakkınız olan kısa **9:16** videoları yükleyin, işlenip `readyToStream` olduğunu bekleyin. Her ücretli/vip video için **requireSignedURLs** özelliğini açın; aksi halde UID tek başına herkese açık olabilir.
 2. **R2 → Create bucket** ile özel bir kaynak medya kovası oluşturun. Ham videolar, altyazılar, ses ve görseller için varsayılan public access açmayın. R2 erişim anahtarını yalnızca gereken kovaya ve yetkilere sınırlayın. Stüdyo halen doğrudan dosya yüklemez; bugün Stream UID ve var olan HTTPS görsel adresi girilir. R2 ingest/özel dosya bağlantıları ayrı bir uygulama işi gerektirir.
-3. Cloudflare **API Tokens** bölümünde Stream video listeleme/ayrıntı ve imzalı token işlemlerine yetecek sınırlı izinli token oluşturun. `CLOUDFLARE_ACCOUNT_ID` ve `CLOUDFLARE_API_TOKEN` değerlerini Supabase Edge Function `dbs-api` secrets bölümüne eklediğinizde Stüdyo'da hesap videoları seçilebilir. `CLOUDFLARE_API_TOKEN`'ı Expo/React istemcisine vermeyin.
+3. Cloudflare **API Tokens** bölümünde Yalnızca bu hesap için Account → Stream → Edit yetkili (listeleme, yükleme, ayrıntı ve imzalı token işlemleri) sınırlı token oluşturun. `CLOUDFLARE_ACCOUNT_ID` ve `CLOUDFLARE_API_TOKEN` değerlerini Supabase Edge Function `dbs-api` secrets bölümüne eklediğinizde Stüdyo'da hesap videoları seçilebilir. `CLOUDFLARE_API_TOKEN`'ı Expo/React istemcisine vermeyin.
 4. `cloudflare/workers/wrangler.toml` dosyası Worker adını ve güvenli olmayan genel ayarları içerir. Cloudflare hesabınızla `npx wrangler login`, ardından `cd cloudflare/workers && npx wrangler secret put SUPABASE_SECRET_KEY`, aynı şekilde `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `STREAM_CUSTOMER_CODE` secret'larını tanımlayın. `SUPABASE_SECRET_KEY` sunucuda saklanır. `npx wrangler deploy` ile Worker'ı yayınlayın.
 5. Supabase `dbs-api` secret'larına Worker'ın gerçek HTTPS temel adresini `DBS_WORKER_URL` olarak koyun. Stüdyo → İçerik → Videolar'da ilgili bölümü ve Stream UID'yi bağlayıp hazır işaretleyin. Ücretsiz/vip/coin/kilitli durumları **iki ayrı hesapta** test edin: kilitli kullanıcıya HLS dönmemeli, yetkili kullanıcıya kısa süreli token dönmeli. 30 dakikayı aşan oynatmalarda token yenileme henüz ele alınmalıdır.
 
@@ -56,3 +56,7 @@ npx expo start --localhost --clear
 ```
 
 Aynı telefonda Expo Go 58 ile `exp://127.0.0.1:8081` açın. Hata çıkarsa Expo Go'daki kırmızı ekranın tam metnini ve Termux'taki **bundling sonrasındaki** hata satırlarını paylaşın. Preview sürümlerini rastgele yükseltmeyin; repo `58.0.0-preview.7` ve eşleşen native paketlere sabitlidir.
+
+## Yeni Stüdyo cihazdan yükleme
+
+Görsel bucket ve izinleri hazırdır. Poster/banner/thumbnail URL alanlarının yanında cihazdan seçim vardır. Bölüm ve fragman videoları Cloudflare Direct Creator Upload ile yüklenir (200 MB altı); büyük dosyalar için panel/tus ve Stream UID kullanılır. Dizi eklerken sezon, bölüm, video ve yayın adımları: [STUDIO_GUIDE_TR.md](STUDIO_GUIDE_TR.md).

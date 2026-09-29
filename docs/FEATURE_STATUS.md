@@ -1,3 +1,5 @@
+Current v0.4 refinement: Discover uses v0.3 momentum paging; hero gestures are confined to the animated three-poster viewport. Premium player, real 360p/480p/720p source choices, episode sheet, in-app trailers, Studio 10 + 5, sessions 5 + 5, artwork upload and guided content creation are implemented. Four licensed film adaptations provide 14 published portrait chapters; old vector fixtures are archived. See [STUDIO_GUIDE_TR.md](STUDIO_GUIDE_TR.md).
+
 # Kapsam ve gerçek durum — 2026-09-29
 
 Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırır. Hiçbir test/demonstrasyon gerçek ticari yayın olarak kabul edilmez.

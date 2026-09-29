@@ -18,6 +18,7 @@ export type Page =
   | "admin"
   | "help";
 export interface Series {
+  source_credit?: { creator: string; license: string; license_url: string; source_url: string; modifications: string };
   id: string;
   slug: string;
   title: string;
@@ -84,6 +85,7 @@ export interface Profile {
   created_at: string;
 }
 export interface Playback {
+  qualities?: { label: string; width: number; height: number; url: string }[];
   url: string;
   expires_at?: string;
   provider: "demo" | "cloudflare";

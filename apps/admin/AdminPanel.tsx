@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { api } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
@@ -60,6 +60,10 @@ export default function AdminPanel({ store, run }: {
   const [deleteName, setDeleteName] = useState("");
   const [section, setSection] = useState<Section>("content");
   const [table, setTable] = useState("dbs_series");
+  const pendingDraft = useRef<StudioRow | null>(null);
+  const [total, setTotal] = useState(0);
+  const [moreLoading, setMoreLoading] = useState(false);
+  const [guide, setGuide] = useState<{ table: string; row: StudioRow } | null>(null);
   const [rows, setRows] = useState<StudioRow[]>([]);
   const [series, setSeries] = useState<StudioRow[]>([]);
   const [seasons, setSeasons] = useState<StudioRow[]>([]);
@@ -75,15 +79,15 @@ export default function AdminPanel({ store, run }: {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api<{ rows: StudioRow[] }>("admin-list", { table: section === "logs" ? "dbs_admin_logs" : table });
-      setRows(data.rows || []);
+      const data = await api<{ rows: StudioRow[]; total: number }>("admin-list", { table: section === "logs" ? "dbs_admin_logs" : table, limit: 10, offset: 0 });
+      setRows(data.rows || []); setTotal(data.total || 0);
     } finally { setLoading(false); }
   }, [table, section]);
   const catalog = useCallback(async () => {
     const [s, seasonsResult, episodeResult] = await Promise.all([
-      api<{ rows: StudioRow[] }>("admin-list", { table: "dbs_series" }),
-      api<{ rows: StudioRow[] }>("admin-list", { table: "dbs_seasons" }),
-      api<{ rows: StudioRow[] }>("admin-list", { table: "dbs_episodes" }),
+      api<{ rows: StudioRow[] }>("admin-options", { table: "dbs_series" }),
+      api<{ rows: StudioRow[] }>("admin-options", { table: "dbs_seasons" }),
+      api<{ rows: StudioRow[] }>("admin-options", { table: "dbs_episodes" }),
     ]);
     setSeries(s.rows); setSeasons(seasonsResult.rows); setEpisodes(episodeResult.rows);
   }, []);
@@ -97,7 +101,8 @@ export default function AdminPanel({ store, run }: {
   }, [store.isAdmin, catalog, run]);
   useEffect(() => {
     if (!store.isAdmin || section === "users" || section === "metrics") return;
-    run(load); setEditor(null); setQuery("");
+    run(load); setEditor(pendingDraft.current); if (pendingDraft.current) setEditKey((key) => key + 1);
+    pendingDraft.current = null; setQuery("");
   }, [store.isAdmin, section, load, run]);
   useEffect(() => {
     if (!store.isAdmin || table !== "dbs_video_assets" || section !== "content") return;
@@ -109,9 +114,25 @@ export default function AdminPanel({ store, run }: {
       icon="shield-checkmark-outline" />;
   const open = (row: StudioRow) => { setEditor({ ...row }); setEditKey((current) => current + 1); setConfirmDelete(false); };
   const save = (row: StudioRow) => run(async () => {
-    await api("admin-save", { table, row });
+    const saved = await api<{ row: StudioRow }>("admin-save", { table, row });
+    setGuide({ table, row: saved.row });
     setEditor(null); await load(); await catalog(); await store.refreshCatalog();
   }, config.singular + " kaydedildi.");
+  const loadMore = () => run(async () => {
+    setMoreLoading(true);
+    try {
+      const result = await api<{ rows: StudioRow[]; total: number }>("admin-list", {
+        table: section === "logs" ? "dbs_admin_logs" : table, limit: 5, offset: rows.length });
+      setRows((current) => [...current, ...result.rows.filter((row) => !current.some((old) => (old.id || old.user_id) === (row.id || row.user_id)))]);
+      setTotal(result.total);
+    } finally { setMoreLoading(false); }
+  });
+  const nextForm = (target: string, values: StudioRow) => {
+    const template = studioTables.find((item) => item.table === target)?.template || {};
+    const draft = { ...template, ...values };
+    if (table === target) open(draft);
+    else { pendingDraft.current = draft; setTable(target); }
+  };
   const remove = () => {
     if (!confirmDelete) { setDeleteName(""); setConfirmDelete(true); return; }
     if (!editor?.id) return;
@@ -156,16 +177,38 @@ export default function AdminPanel({ store, run }: {
               : "Kayıtları düzenle; sıralama ve görünürlük değişikliklerini kaydet."
             : section === "logs" ? "Hangi yöneticinin hangi kaydı değiştirdiğini gör." : "Raporları incele ve durumlarını güncelle."}</Text>
         </View>
-        <View style={styles.wrap}>
-          <View style={{ flex: 1, minWidth: 170 }}>
+        {section === "content" && <View style={[styles.card, { gap: 12, padding: 18 }]}>
+          <Text style={styles.h3}>Dizi yayınlama adımları</Text>
+          <Text style={styles.body}>1. Diziyi kaydet → 2. Sezon ekle → 3. Bölüm oluştur → 4. Bölüme video yükle veya Stream videosu bağla.</Text>
+          {guide && <View style={{ gap: 10 }}>
+            <Text style={{ color: colors.pink, fontWeight: "700" }}>Kaydedildi: {guide.row.title || "Bölüm videosu"}</Text>
+            <View style={styles.wrap}>
+              {guide.table === "dbs_series" && <Button small icon="layers-outline" onPress={() => nextForm("dbs_seasons", { series_id: guide.row.id, number: 1 })}>Bu diziye sezon ekle</Button>}
+              {guide.table === "dbs_seasons" && <Button small icon="add-circle-outline" onPress={() => nextForm("dbs_episodes", { series_id: guide.row.series_id, season_id: guide.row.id, number: 1 })}>Bu sezona bölüm ekle</Button>}
+              {guide.table === "dbs_video_assets" && episodes.find((episode) => episode.id === guide.row.episode_id) && <>
+                <Button small icon="settings-outline" onPress={() => nextForm("dbs_episodes", episodes.find((episode) => episode.id === guide.row.episode_id)!)}>Bölüm ayarları / Yayınla</Button>
+                <Button small secondary icon="add" onPress={() => {
+                  const selected = episodes.find((episode) => episode.id === guide.row.episode_id)!;
+                  nextForm("dbs_episodes", { series_id: selected.series_id, season_id: selected.season_id,
+                    number: Math.max(...episodes.filter((episode) => episode.series_id === selected.series_id).map((episode) => Number(episode.number))) + 1 });
+                }}>Sıradaki bölümü ekle</Button>
+              </>}
+              {guide.table === "dbs_episodes" && <Button small icon="cloud-upload-outline" onPress={() => nextForm("dbs_video_assets", { episode_id: guide.row.id })}>Bölüme video yükle / bağla</Button>}
+            </View>
+          </View>}
+        </View>}
+        <View style={{ gap: 12, width: "100%", paddingBottom: 4 }}>
+          <View style={{ width: "100%" }}>
             <Field value={query} onChangeText={setQuery} placeholder="Listede ara…" />
           </View>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, minHeight: 44 }}>
           <Button secondary small icon="refresh" onPress={() => run(load)}>Yenile</Button>
           {section === "content" && config.template && role !== "support" &&
             <Button small icon="add" onPress={() => open(config.template || {})}>Yeni {config.singular}</Button>}
+          </View>
         </View>
         {!editor && (loading ? <Loading /> : <View style={{ gap: 10 }}>
-          <Text style={styles.body}>{visible.length} kayıt gösteriliyor · En fazla 100 kayıt yüklenir</Text>
+          <Text style={styles.body}>{visible.length} / {total} kayıt gösteriliyor · İlk 10 kayıt yüklenir</Text>
           {visible.map((row, index) => <Pressable key={row.id || row.user_id || index}
             accessibilityRole="button" accessibilityLabel={title(row, config) + " kaydını aç"}
             onPress={() => section === "logs" ? undefined : open(row)}
@@ -177,6 +220,7 @@ export default function AdminPanel({ store, run }: {
             <Text style={styles.body} numberOfLines={3}>{section === "logs"
               ? logDetail(row) : description(row, config, series)}</Text>
           </Pressable>)}
+          {rows.length < total && <Button secondary icon="chevron-down" disabled={moreLoading} onPress={loadMore}>{moreLoading ? "Yükleniyor…" : "Daha Fazla · 5 kayıt"}</Button>}
           {!visible.length && <Empty title="Kayıt yok" detail="Aramayı değiştir veya yeni kayıt oluştur." icon="albums-outline" />}
         </View>)}
         {editor && section !== "logs" && <View style={{ gap: 12 }}>

@@ -101,6 +101,7 @@ Deno.serve(async (req) => {
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
         return send(req, {
           url: asset.demo_url,
+          qualities: asset.renditions || [],
           provider: "demo",
           subtitles: [],
         });
@@ -137,6 +138,9 @@ Deno.serve(async (req) => {
     }
     if (
       body.action === "admin-list" ||
+      body.action === "admin-options" ||
+      body.action === "admin-upload-video" ||
+      body.action === "admin-video-status" ||
       body.action === "admin-save" ||
       body.action === "admin-grant" ||
       body.action === "admin-users" ||
@@ -240,6 +244,31 @@ Deno.serve(async (req) => {
           uid: v.uid, name: v.meta?.name || v.uid, ready: v.readyToStream === true,
         })) });
       }
+      if (body.action === "admin-upload-video" || body.action === "admin-video-status") {
+        const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
+        if (!["owner", "editor"].includes(membership.role)) return send(req, { error: "EDITOR_REQUIRED" }, 403);
+        if (!env("CLOUDFLARE_ACCOUNT_ID") || !env("CLOUDFLARE_API_TOKEN")) return send(req, { error: "STREAM_UPLOAD_NOT_CONFIGURED" }, 503);
+        const base = `https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream`;
+        const authHeaders = { Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}`, "Content-Type": "application/json" };
+        if (body.action === "admin-video-status") {
+          if (typeof body.uid !== "string" || !/^[a-f0-9]{32}$/.test(body.uid)) return send(req, { error: "INVALID_STREAM_UID" }, 400);
+          const response = await fetch(base + "/" + body.uid, { headers: authHeaders }); const result = await response.json();
+          if (!response.ok || !result.success) throw Error("STREAM_STATUS_FAILED");
+          return send(req, { ready: result.result.readyToStream === true, duration: result.result.duration,
+            publicURL: result.result.requireSignedURLs ? undefined : result.result.playback?.hls });
+        }
+        if (!["episode", "trailer"].includes(body.purpose)) return send(req, { error: "INVALID_UPLOAD_PURPOSE" }, 400);
+        if (body.purpose === "episode") await checked(admin.from("dbs_episodes").select("id").eq("id", body.episode).single());
+        const response = await fetch(base + "/direct_upload", { method: "POST", headers: authHeaders,
+          body: JSON.stringify({ maxDurationSeconds: 3600, expiry: new Date(Date.now() + 3600000).toISOString(),
+            requireSignedURLs: body.purpose === "episode", creator: user.id, meta: { name: String(body.name || "DraBornSeries video").slice(0,150) } }) });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw Error("STREAM_UPLOAD_FAILED");
+        await checked(admin.from("dbs_admin_logs").insert({ admin_id: user.id, action: "video_upload", target: "dbs_video_assets",
+          detail: { uid: result.result.uid, purpose: body.purpose, episode: body.episode || null } }));
+        return send(req, { uid: result.result.uid, uploadURL: result.result.uploadURL,
+          publicURL: body.purpose === "trailer" ? `https://videodelivery.net/${result.result.uid}/manifest/video.m3u8` : undefined });
+      }
       if (body.action === "admin-grant") {
         return send(
           req,
@@ -269,23 +298,24 @@ Deno.serve(async (req) => {
       }
       if (!tables.includes(body.table))
         return send(req, { error: "TABLE_NOT_ALLOWED" }, 400);
-      if (body.action === "admin-list") {
-        let query = admin.from(body.table).select("*").limit(100);
-        if (
-          body.table === "dbs_borncoins_transactions" ||
-          body.table === "dbs_admin_logs"
-        )
-          query = query.order("created_at", { ascending: false });
-        const rows = await checked(query);
+      if (body.action === "admin-list" || body.action === "admin-options") {
+        const options = body.action === "admin-options";
+        if (options && !["dbs_series", "dbs_seasons", "dbs_episodes"].includes(body.table))
+          return send(req, { error: "TABLE_NOT_ALLOWED" }, 400);
+        const limit = options ? 1000 : Math.max(1, Math.min(50, Number.isInteger(body.limit) ? body.limit : 10));
+        const offset = options ? 0 : Math.max(0, Math.min(100000, Number.isInteger(body.offset) ? body.offset : 0));
+        const primaryKey = ["dbs_profiles", "dbs_borncoins_wallet"].includes(body.table) ? "user_id" : "id";
+        const query = admin.from(body.table).select("*", { count: "exact" })
+          .order(primaryKey, { ascending: true }).range(offset, offset + limit - 1);
+        const result = await query;
+        if (result.error) throw result.error;
+        let rows = result.data || [];
         if (body.table === "dbs_admin_logs") {
           const ids = [...new Set(rows.map((row: any) => row.admin_id).filter(Boolean))];
-          const names = ids.length ? await checked(admin.from("dbs_profiles")
-            .select("user_id,username").in("user_id", ids)) : [];
-          return send(req, { rows: rows.map((row: any) => ({ ...row,
-            admin_name: names.find((name: any) => name.user_id === row.admin_id)?.username || "Yönetici",
-          })) });
+          const names = ids.length ? await checked(admin.from("dbs_profiles").select("user_id,username").in("user_id", ids)) : [];
+          rows = rows.map((row: any) => ({ ...row, admin_name: names.find((name: any) => name.user_id === row.admin_id)?.username || "Yönetici" }));
         }
-        return send(req, { rows });
+        return send(req, { rows, total: result.count || 0, offset, has_more: offset + rows.length < (result.count || 0) });
       }
       const { data: membership } = await admin
         .from("dbs_admin_users")
@@ -393,6 +423,18 @@ Deno.serve(async (req) => {
       );
       if (body.table === "dbs_video_assets" && row.provider !== "cloudflare")
         return send(req, { error: "CLOUDFLARE_REQUIRED" }, 400);
+      let uploadedVideo: any = null;
+      if (body.table === "dbs_video_assets") {
+        if (!env("CLOUDFLARE_ACCOUNT_ID") || !env("CLOUDFLARE_API_TOKEN")) return send(req, { error: "STREAM_UPLOAD_NOT_CONFIGURED" }, 503);
+        if (typeof row.stream_uid !== "string" || !/^[a-f0-9]{32}$/.test(row.stream_uid)) return send(req, { error: "INVALID_STREAM_UID" }, 400);
+        const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream/${row.stream_uid}`, {
+          method: "POST", headers: { Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ requireSignedURLs: true }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw Error("STREAM_STATUS_FAILED");
+        row.ready = result.result.readyToStream === true; uploadedVideo = result.result;
+      }
       if (body.table === "dbs_profiles" && row.user_id === user.id)
         return send(req, { error: "SELF_STATUS_CHANGE_DENIED" }, 400);
       const moderationTables = [
@@ -411,6 +453,22 @@ Deno.serve(async (req) => {
             .eq(primaryKey, row[primaryKey])
         : admin.from(body.table).upsert(row);
       const saved = await checked(write.select().single());
+      let changedSeries = saved.series_id;
+      if (uploadedVideo?.readyToStream && uploadedVideo.duration > 0) {
+        const values: Record<string, unknown> = { duration_seconds: Math.max(1, Math.ceil(uploadedVideo.duration)) };
+        if (uploadedVideo.input?.width > 0 && uploadedVideo.input?.height > 0)
+          values.orientation = uploadedVideo.input.height >= uploadedVideo.input.width ? "portrait" : "landscape";
+        const episode = await checked(admin.from("dbs_episodes").update(values).eq("id", saved.episode_id).select("series_id").single());
+        changedSeries = episode.series_id;
+      }
+      if (changedSeries && ["dbs_seasons", "dbs_episodes", "dbs_video_assets"].includes(body.table)) {
+        const [seasons, episodes] = await Promise.all([
+          admin.from("dbs_seasons").select("id", { count: "exact", head: true }).eq("series_id", changedSeries),
+          admin.from("dbs_episodes").select("id", { count: "exact", head: true }).eq("series_id", changedSeries),
+        ]);
+        if (seasons.error) throw seasons.error; if (episodes.error) throw episodes.error;
+        await checked(admin.from("dbs_series").update({ total_seasons: seasons.count || 0, total_episodes: episodes.count || 0 }).eq("id", changedSeries));
+      }
       await checked(
         admin.from("dbs_admin_logs").insert({
           admin_id: user.id,
