@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { api } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
 import { Button, Chip, Empty, Field, Icon, Loading, colors, styles } from "../../packages/ui/theme";
@@ -40,7 +40,7 @@ function description(row: StudioRow, config: StudioTable, allSeries: StudioRow[]
   return parts.join(" · ") || row.short_description || row.description || "Kaydı açarak düzenle";
 }
 function logTitle(row: StudioRow) {
-  return ({ save: "Kayıt düzenlendi", delete: "Taslak silindi", coin_grant: "BornCoins tanımlandı",
+  return ({ save: "Kayıt düzenlendi", delete: "Dizi silindi", catalog_replace: "Test kataloğu yenilendi", coin_grant: "BornCoins tanımlandı",
     vip_grant: "VIP tanımlandı" } as Record<string, string>)[row.action] || row.action || "Yönetici işlemi";
 }
 function logDetail(row: StudioRow) {
@@ -49,7 +49,7 @@ function logDetail(row: StudioRow) {
     (row.action === "coin_grant" || row.action === "vip_grant" ? "Kullanıcı hesabı" : "Kayıt");
   const detail = row.action === "coin_grant" ? info.coins + " BornCoins · " + (info.reason || "")
     : row.action === "vip_grant" ? info.days + " gün VIP · " + (info.reason || "")
-      : row.action === "delete" ? (info.title || "Boş taslak")
+      : row.action === "delete" ? (info.title || "Dizi")
         : row.action === "save" ? "Değiştirilen alan: " + (info.fields || []).length
           : "";
   return [target, detail, row.admin_name || "Yönetici", new Date(row.created_at).toLocaleString("tr-TR")].filter(Boolean).join(" · ");
@@ -57,6 +57,7 @@ function logDetail(row: StudioRow) {
 export default function AdminPanel({ store, run }: {
   store: Store; run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
 }) {
+  const [deleteName, setDeleteName] = useState("");
   const [section, setSection] = useState<Section>("content");
   const [table, setTable] = useState("dbs_series");
   const [rows, setRows] = useState<StudioRow[]>([]);
@@ -112,12 +113,12 @@ export default function AdminPanel({ store, run }: {
     setEditor(null); await load(); await catalog(); await store.refreshCatalog();
   }, config.singular + " kaydedildi.");
   const remove = () => {
-    if (!confirmDelete) { setConfirmDelete(true); return; }
+    if (!confirmDelete) { setDeleteName(""); setConfirmDelete(true); return; }
     if (!editor?.id) return;
     return run(async () => {
-      await api("admin-delete", { table: "dbs_series", id: editor.id, confirm: "DELETE" });
+      await api("admin-delete", { table: "dbs_series", id: editor.id, confirm: "DELETE", title: editor.title });
       setEditor(null); setConfirmDelete(false); await load(); await catalog(); await store.refreshCatalog();
-    }, "Boş dizi taslağı silindi.");
+    }, "Dizi ve bölümleri silindi.");
   };
   const visible = rows.filter((row) =>
     JSON.stringify(row).toLocaleLowerCase("tr-TR").includes(query.toLocaleLowerCase("tr-TR")));
@@ -163,7 +164,7 @@ export default function AdminPanel({ store, run }: {
           {section === "content" && config.template && role !== "support" &&
             <Button small icon="add" onPress={() => open(config.template || {})}>Yeni {config.singular}</Button>}
         </View>
-        {loading ? <Loading /> : <View style={{ gap: 10 }}>
+        {!editor && (loading ? <Loading /> : <View style={{ gap: 10 }}>
           <Text style={styles.body}>{visible.length} kayıt gösteriliyor · En fazla 100 kayıt yüklenir</Text>
           {visible.map((row, index) => <Pressable key={row.id || row.user_id || index}
             accessibilityRole="button" accessibilityLabel={title(row, config) + " kaydını aç"}
@@ -177,21 +178,24 @@ export default function AdminPanel({ store, run }: {
               ? logDetail(row) : description(row, config, series)}</Text>
           </Pressable>)}
           {!visible.length && <Empty title="Kayıt yok" detail="Aramayı değiştir veya yeni kayıt oluştur." icon="albums-outline" />}
-        </View>}
+        </View>)}
         {editor && section !== "logs" && <View style={{ gap: 12 }}>
           <StudioForm key={table + "-" + editKey} config={config} initial={editor}
             series={series} seasons={seasons} episodes={episodes} streamVideos={streamVideos}
             save={save} close={() => setEditor(null)} readOnly={role === "support"}
-            remove={table === "dbs_series" && editor.id && editor.status === "draft" && role === "owner" ? remove : undefined} />
-          {confirmDelete && <View style={styles.card}>
-            <Text style={{ color: colors.orange, fontWeight: "800" }}>
-              Bu işlem kalıcıdır ve yalnızca ilişkisiz, boş bir taslakta yapılabilir.
-            </Text>
-            <View style={styles.wrap}>
-              <Button icon="trash-outline" onPress={remove}>Boş taslağı kalıcı sil</Button>
-              <Button secondary onPress={() => setConfirmDelete(false)}>Vazgeç</Button>
+            remove={table === "dbs_series" && editor.id && role === "owner" ? remove : undefined} />
+          <Modal transparent visible={confirmDelete} animationType="fade" onRequestClose={() => setConfirmDelete(false)}>
+            <View style={{ flex: 1, backgroundColor: "#07030ed9", padding: 24, justifyContent: "center" }}>
+              <View style={[styles.card, { width: "100%", maxWidth: 480, alignSelf: "center", padding: 25, borderColor: "#ff5b8770" }]}>
+                <Icon name="trash-outline" color={colors.pink} size={32} />
+                <Text style={styles.h2}>Diziyi silmek istiyor musun?</Text>
+                <Text style={styles.body}>“{editor.title}” ve bu diziye ait sezonlar, bölümler ve video bağlantıları kalıcı olarak silinir. BornCoins hareketleri ve satın alma kayıtları korunur. Cloudflare dosyaları hesabından ayrıca yönetilir.</Text>
+                <Field label="Onaylamak için dizi adını yaz" value={deleteName} onChangeText={setDeleteName} placeholder={editor.title} />
+                <Button icon="trash-outline" disabled={deleteName !== editor.title} onPress={remove}>Diziyi ve bölümleri sil</Button>
+                <Button secondary onPress={() => setConfirmDelete(false)}>Vazgeç</Button>
+              </View>
             </View>
-          </View>}
+          </Modal>
         </View>}
       </View>}
   </View>;

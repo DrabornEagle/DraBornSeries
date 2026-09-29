@@ -21,6 +21,14 @@ begin
  if not denied then raise exception 'Non-admin obtained private analytics'; end if;
  denied:=false;begin perform drabornseries.dbs_admin_grant_vip(auth.uid(),7,'invalid owner',gen_random_uuid());exception when others then if sqlerrm like '%OWNER_REQUIRED%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'Non-owner granted VIP'; end if;
+ denied:=false;begin perform drabornseries.dbs_admin_delete_series(gen_random_uuid(),'Security fixture');exception when others then if sqlerrm like '%OWNER_REQUIRED%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'Non-owner deleted content'; end if;
+ insert into storage.objects(bucket_id,name,owner_id) values('dbs_series_avatars',auth.uid()::text||'/avatar.jpg',auth.uid()::text);
+ update storage.objects set metadata='{"mimetype":"image/jpeg"}' where bucket_id='dbs_series_avatars' and name=auth.uid()::text||'/avatar.jpg';
+ denied:=false;begin insert into storage.objects(bucket_id,name,owner_id) values('dbs_series_avatars',gen_random_uuid()::text||'/avatar.jpg',auth.uid()::text);exception when insufficient_privilege then denied:=true;end;
+ if not denied then raise exception 'Uploaded into another account folder'; end if;
+ denied:=false;begin update storage.objects set name=gen_random_uuid()::text||'/avatar.jpg' where bucket_id='dbs_series_avatars' and name=auth.uid()::text||'/avatar.jpg';exception when insufficient_privilege then denied:=true;end;
+ if not denied then raise exception 'Reassigned avatar to another account'; end if;
  result:=drabornseries.dbs_claim_daily();
  if (result->>'coins')::int<>2 then raise exception 'First daily reward mismatch'; end if;
  begin perform drabornseries.dbs_claim_daily();exception when others then if sqlerrm like '%ALREADY_CLAIMED%' then denied:=true;else raise;end if;end;
@@ -38,6 +46,13 @@ begin
  perform drabornseries.dbs_save_progress(target,3,'offline-old-device',now()-interval '1 hour');
  select position_seconds into amount from drabornseries.dbs_watch_progress where user_id=auth.uid() and episode_id=target;
  if amount<>42 then raise exception 'Old offline progress overwrote newer state'; end if;
+ perform drabornseries.dbs_save_progress(target,1,'test-device',now());
+ perform drabornseries.dbs_save_progress(target,42,'test-device',now());
+ select view_count into amount from drabornseries.dbs_series where slug='dbs-security-test-'||current_setting('dbs.test_user');
+ if amount<>1 then raise exception 'Seeking counted the same account play again: %',amount; end if;
+ insert into drabornseries.dbs_likes(user_id,series_id) select auth.uid(),id from drabornseries.dbs_series where slug='dbs-security-test-'||current_setting('dbs.test_user');
+ select like_count into amount from drabornseries.dbs_series where slug='dbs-security-test-'||current_setting('dbs.test_user');
+ if amount<>1 then raise exception 'Like counter did not reflect real activity'; end if;
  denied:=false;begin update drabornseries.dbs_borncoins_wallet set balance=99999 where user_id=auth.uid();exception when insufficient_privilege then denied:=true;end;
  if not denied then raise exception 'Client modified balance'; end if;
  denied:=false;begin update drabornseries.dbs_profiles set status='blocked' where user_id=auth.uid();exception when insufficient_privilege then denied:=true;end;
@@ -68,7 +83,7 @@ insert into drabornseries.dbs_admin_users(user_id,role) values(current_setting('
 select set_config('dbs.vip_request',gen_random_uuid()::text,true);
 set local role authenticated;
 do $$
-declare expiry timestamptz; again timestamptz; stats jsonb; grants integer;
+declare expiry timestamptz; again timestamptz; stats jsonb; grants integer; target_series_id uuid; denied boolean:=false; result jsonb;
 begin
  expiry:=drabornseries.dbs_admin_grant_vip(auth.uid(),7,'Support compensation',current_setting('dbs.vip_request')::uuid);
  again:=drabornseries.dbs_admin_grant_vip(auth.uid(),7,'Support compensation',current_setting('dbs.vip_request')::uuid);
@@ -77,7 +92,25 @@ begin
  if grants<>1 then raise exception 'VIP grant was duplicated'; end if;
  stats:=drabornseries.dbs_admin_metrics();
  if (stats->>'vip_users')::integer<1 then raise exception 'Admin analytics omitted VIP'; end if;
+ select id into target_series_id from drabornseries.dbs_series where slug='dbs-security-test-'||current_setting('dbs.test_user');
+ insert into drabornseries.dbs_content_reports(user_id,series_id,kind,body) values(auth.uid(),target_series_id,'Video açılmıyor','Delete fixture report');
+ denied:=false;begin perform drabornseries.dbs_admin_delete_series(target_series_id,'wrong title');exception when others then if sqlerrm like '%CONFIRMATION_REQUIRED%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'Deletion accepted a wrong title'; end if;
+ perform set_config('dbs.deleted_series',target_series_id::text,true);
+ result:=drabornseries.dbs_admin_delete_series(target_series_id,'Security fixture');
+ if not (result->>'deleted')::boolean or (result->>'episodes')::integer<>2 then raise exception 'Published series deletion failed'; end if;
+ if exists(select 1 from drabornseries.dbs_series where id=target_series_id) then raise exception 'Deleted series retained'; end if;
+ if exists(select 1 from drabornseries.dbs_episodes where series_id=target_series_id) then raise exception 'Cascade did not remove episodes'; end if;
+ if not exists(select 1 from drabornseries.dbs_borncoins_transactions where user_id=auth.uid() and kind='unlock') then raise exception 'Deletion lost financial history'; end if;
+ if not exists(select 1 from drabornseries.dbs_content_reports where user_id=auth.uid() and series_id is null and body like '%Security fixture%') then raise exception 'Report history lost'; end if;
+ result:=drabornseries.dbs_admin_delete_series(target_series_id,'Security fixture');
+ if not (result->>'already_deleted')::boolean then raise exception 'Delete retry not idempotent'; end if;
 end $$;
+reset role;
+do $$ begin
+ if not exists(select 1 from drabornseries.dbs_admin_logs where admin_id=current_setting('dbs.test_user')::uuid and action='delete' and detail->>'id'=current_setting('dbs.deleted_series')) then raise exception 'Deletion audit missing'; end if;
+end $$;
+set local role authenticated;
 select drabornseries.dbs_delete_account();
 reset role;
 do $$ begin
@@ -87,4 +120,4 @@ do $$ begin
  if not exists(select 1 from auth.users where id=current_setting('dbs.test_user')::uuid) then raise exception 'Shared auth user unexpectedly deleted'; end if;
 end $$;
 rollback;
-select 'PASS: tasks, wallet, unlock, RLS, admin metrics, owner-only idempotent VIP grant, session revocation, account deletion' as result;
+select 'PASS: tasks, wallet, unlock, RLS, admin metrics, owner-only idempotent VIP grant, published series deletion, avatar RLS, counters, session revocation, account deletion' as result;

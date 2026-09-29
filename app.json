@@ -3,7 +3,7 @@
     "name": "DraBornSeries",
     "slug": "drabornseries",
     "scheme": "drabornseries",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "icon": "./assets/icons/icon.png",
@@ -48,7 +48,15 @@
           "supportsPictureInPicture": true
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Profil fotoğrafını cihazından seçebilmen için fotoğraflarına erişim gerekir.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "baseUrl": "/DraBornSeries"

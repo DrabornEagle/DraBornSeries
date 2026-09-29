@@ -14,6 +14,9 @@ import {
   colors,
   styles,
 } from "../../packages/ui/theme";
+import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
+import { pickProfilePhoto, uploadProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
+import { config } from "../../packages/shared/config";
 import { translations } from "../../packages/shared/i18n";
 type Props = {
   page: Page;
@@ -26,6 +29,7 @@ export default function Account({ page, store, go, run }: Props) {
     [promo, setPromo] = useState(""),
     [username, setUsername] = useState(store.profile?.username || ""),
     [name, setName] = useState(store.profile?.full_name || ""),
+    [photo, setPhoto] = useState<ProfilePhoto | null>(null),
     [avatar, setAvatar] = useState(store.profile?.avatar_url || ""),
     [sessions, setSessions] = useState<any[]>([]),
     [achievements, setAchievements] = useState<any[]>([]),
@@ -122,11 +126,11 @@ export default function Account({ page, store, go, run }: Props) {
       <View style={{ gap: 24 }}>
         <Text style={styles.h1}>Nasıl yardımcı olabiliriz?</Text>
         <View style={styles.card}>
-          <Text style={styles.h3}>DraBornSeries · v0.1.0</Text>
+          <Text style={styles.h3}>DraBornSeries · v{config.version} · Kod {config.versionCode}</Text>
           <Text style={styles.body}>
-            Bu sürüm Expo Go ve web üzerinde erken erişim testidir. Gerçek
-            diziler henüz yüklenmedi. Big Buck Bunny ve Sintel açık lisanslı
-            test içerikleridir. BornCoins satın alma, VIP satışı, ödüllü
+            Bu sürüm Expo Go ve web üzerinde erken erişim testidir. Bu
+            sürümde dikey animasyon test dizilerini bölüm bölüm izleyebilirsin.
+            Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. BornCoins satın alma, VIP satışı, ödüllü
             reklamlar ve push bildirimleri üretim bağlantıları açıldığında
             etkinleşir.
           </Text>
@@ -474,12 +478,9 @@ export default function Account({ page, store, go, run }: Props) {
             value={name}
             onChangeText={setName}
           />
-          <Field
-            label="Profil fotoğrafı URL (HTTPS)"
-            value={avatar}
-            onChangeText={setAvatar}
-            autoCapitalize="none"
-          />
+          <ProfilePhotoPicker uri={photo?.uri || avatar}
+            onPick={() => run(async () => { const selected = await pickProfilePhoto(); if (selected) setPhoto(selected); })}
+            onRemove={() => { setPhoto(null); setAvatar(""); }} />
           <View style={styles.wrap}>
             {(["tr", "en"] as const).map((language) => (
               <Chip
@@ -495,19 +496,23 @@ export default function Account({ page, store, go, run }: Props) {
               run(async () => {
                 if (username.length < 3)
                   throw Error("Kullanıcı adı en az 3 karakter olmalı.");
-                if (avatar && !avatar.startsWith("https://"))
-                  throw Error("Fotoğraf adresi HTTPS olmalı.");
+                const avatarUrl = photo ? await uploadProfilePhoto(store.session!.user.id, photo) : avatar;
+                if (!avatarUrl) {
+                  const { error } = await db.storage.from("dbs_series_avatars").remove([store.session!.user.id + "/avatar.jpg"]);
+                  if (error) throw error;
+                }
                 await requireData(
                   db
                     .from("dbs_profiles")
                     .update({
                       username,
                       full_name: name,
-                      avatar_url: avatar,
+                      avatar_url: avatarUrl || null,
                       language: store.language,
                     })
                     .eq("user_id", store.session!.user.id),
                 );
+                setPhoto(null);
                 await store.refreshAccount();
               }, "Profilin kaydedildi.")
             }

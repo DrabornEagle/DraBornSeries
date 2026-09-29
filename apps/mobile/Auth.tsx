@@ -7,6 +7,8 @@ import { db, deviceId, rpc, requireData } from "../../packages/api/client";
 import { config } from "../../packages/shared/config";
 import { Button, Field, colors, styles } from "../../packages/ui/theme";
 import type { Store } from "../../packages/api/store";
+import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
+import { pickProfilePhoto, stageProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
 import { translations } from "../../packages/shared/i18n";
 WebBrowser.maybeCompleteAuthSession();
 export default function Auth({
@@ -25,7 +27,8 @@ export default function Auth({
     ),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
-    [username, setUsername] = useState("");
+    [username, setUsername] = useState(""),
+    [photo, setPhoto] = useState<ProfilePhoto | null>(null);
   const t = translations(store.language);
   async function submit() {
     if (mode === "reset") {
@@ -45,6 +48,7 @@ export default function Auth({
       return;
     }
     if (mode === "register") {
+      await stageProfilePhoto(email, photo);
       const { data, error } = await db.auth.signUp({
         email,
         password,
@@ -190,6 +194,9 @@ export default function Auth({
             autoCapitalize="none"
           />
         )}
+        {mode === "register" && <ProfilePhotoPicker optional uri={photo?.uri}
+          onPick={() => run(async () => { const selected = await pickProfilePhoto(); if (selected) setPhoto(selected); })}
+          onRemove={() => setPhoto(null)} />}
         {mode !== "reset" && (
           <Field
             label={t.email}

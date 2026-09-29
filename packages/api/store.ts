@@ -1,3 +1,4 @@
+import { restoreProfilePhoto } from "./avatar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -52,7 +53,7 @@ export function useStore() {
       setSeries(shows);
       setEpisodes(eps);
       await AsyncStorage.setItem(
-        "dbs-catalog",
+        "dbs-catalog-v04",
         JSON.stringify({ series: shows, episodes: eps }),
       );
       setError("");
@@ -74,6 +75,7 @@ export function useStore() {
         label: Platform.OS === "web" ? "Web tarayıcı" : "Android · Expo Go",
         platform: Platform.OS,
       });
+      await restoreProfilePhoto(current.user);
       const results = await Promise.all([
         requireData(
           db.from("dbs_profiles").select("*").eq("user_id", uid).single(),
@@ -139,7 +141,7 @@ export function useStore() {
     }
   }, []);
   useEffect(() => {
-    AsyncStorage.getItem("dbs-catalog").then((cached) => {
+    AsyncStorage.getItem("dbs-catalog-v04").then((cached) => {
       if (cached) {
         try {
           const parsed = JSON.parse(cached);

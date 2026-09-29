@@ -18,7 +18,7 @@ import * as Linking from "expo-linking";
 import { useStore } from "../../packages/api/store";
 import { db, requireData } from "../../packages/api/client";
 import { translations } from "../../packages/shared/i18n";
-import { filterSeries, readableError } from "../../packages/shared/domain";
+import { filterSeries } from "../../packages/shared/domain";
 import {
   colors,
   styles,
@@ -39,6 +39,8 @@ import Commerce from "./Commerce";
 import Discover from "./Discover";
 import Splash from "../../packages/ui/Splash";
 import AdminPanel from "../admin/AdminPanel";
+import ErrorPopup from "../../packages/ui/ErrorPopup";
+import { config } from "../../packages/shared/config";
 const navItems: [Page, React.ComponentProps<typeof Icon>["name"]][] = [
   ["home", "home-outline"],
   ["feed", "play-circle-outline"],
@@ -99,6 +101,8 @@ function Main() {
     [libraryTab, setLibraryTab] = useState("favorites"),
     [recent, setRecent] = useState<string[]>([]),
     [toast, setToast] = useState(""),
+    [actionError, setActionError] = useState(""),
+    [dismissedError, setDismissedError] = useState(""),
     [previewRegion, setPreviewRegion] = useState("hero"),
     [busy, setBusy] = useState(false);
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null),
@@ -131,7 +135,7 @@ function Main() {
         await fn();
         if (success) setToast(success);
       } catch (err) {
-        setToast(readableError(err));
+        setActionError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
         if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -140,6 +144,7 @@ function Main() {
     },
     [],
   );
+  useEffect(() => { if (!store.error) setDismissedError(""); }, [store.error]);
   useEffect(() => {
     Animated.timing(fade, {
       toValue: 1,
@@ -533,7 +538,7 @@ function Main() {
                 onPress={() => go("help")}
               />
               <Text style={{ color: "#675d72", fontSize: 10 }}>
-                DraBornEagle © 2026{`\n`}DraBornSeries v0.3.0
+                DraBornEagle © 2026{`\n`}DraBornSeries v{config.version}
               </Text>
             </View>
           </View>
@@ -600,7 +605,9 @@ function Main() {
                     justifyContent: "center",
                   }}
                 >
-                  <Icon name="person-outline" size={18} color={colors.purple} />
+                  {store.profile?.avatar_url ? <Image source={{ uri: store.profile.avatar_url }}
+                    style={{ width: 34, height: 34, borderRadius: 12 }} />
+                    : <Icon name="person-outline" size={18} color={colors.purple} />}
                 </Pressable>
               </View>
             </View>
@@ -659,30 +666,6 @@ function Main() {
                     </Button>
                   </View>
                 )}
-                {store.error && (
-                  <View
-                    style={[
-                      styles.card,
-                      { marginBottom: 20, padding: 16, borderColor: "#824e57" },
-                    ]}
-                  >
-                    <Text style={{ color: colors.orange }}>
-                      Bağlantı veya hesap sorunu: {readableError(store.error)}
-                    </Text>
-                    <Button
-                      small
-                      secondary
-                      onPress={() =>
-                        run(async () => {
-                          await store.refreshCatalog();
-                          await store.refreshAccount();
-                        })
-                      }
-                    >
-                      {t.retry}
-                    </Button>
-                  </View>
-                )}
                 {renderPage()}
                 <View
                   style={{
@@ -704,7 +687,7 @@ function Main() {
                     </Pressable>
                     <Text style={{ fontSize: 11, color: "#665b70" }}>•</Text>
                     <Text style={{ fontSize: 11, color: "#665b70" }}>
-                      Erken erişim · v0.3.0
+                      Erken erişim · v{config.version}
                     </Text>
                     <Pressable
                       onPress={() =>
@@ -813,6 +796,12 @@ function Main() {
           </Pressable>
         </View>
       )}
+      <ErrorPopup error={actionError || (store.error !== dismissedError ? store.error : "")}
+        busy={busy} onClose={() => { setActionError(""); setDismissedError(store.error); }}
+        onRetry={() => run(async () => {
+          setActionError(""); setDismissedError("");
+          await store.refreshCatalog(); await store.refreshAccount();
+        })} />
       <Splash ready={!store.loading} />
     </SafeAreaView>
   );

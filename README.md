@@ -1,8 +1,18 @@
-# DraBornSeries · v0.3.0
+# DraBornSeries · v0.4.0 · versionCode 1
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
-Bu sürüm resmi ticari lansman değildir. Gerçek dizi hakları ve videoları, Cloudflare hesabı, Google OAuth, Play Console/Billing, RTDN/iade sistemi, AdMob SSV ve Android push bağlantıları henüz tamamlanmadı. Ayrıntılı durum: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+Bu sürüm resmi ticari lansman değildir. Ticari içerik hakları, Cloudflare hesabı, Google OAuth, Play Console/Billing, RTDN/iade sistemi, AdMob SSV ve Android push bağlantıları henüz tamamlanmadı. Ayrıntılı durum: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.4 değişiklikleri
+
+- Yardım, uygulama, API ve Android sürümü `0.4.0`; `versionCode: 1`.
+- Keşfet okları kaldırıldı. Her parmak hareketi veya mouse/trackpad kaydırma hareketi bir video değiştirir; ivme birkaç videoyu birden atlamaz. Klavye ve erişilebilirlik desteği devam eder.
+- Ana sayfa vitrininde sağa/sola parmak kaydırma; gerçek hesaba bağlı izlenme ve beğeni göstergeleri. Örnek sayaç üretilmez.
+- Eski Big Buck Bunny, Sintel ve Pexels örnekleri katalogdan kaldırıldı. Özgün vektör animasyon **Neon Postası (5 bölüm)** ve **Yıldız Tohumu (3 bölüm)** eklendi. Her bölüm 24 saniye, 540×960, Türkçe hikâye yazıları ve özgün müzik içerir. AI videosu değildir.
+- Web fullscreen videonun boyut sınırı kaldırıldı. Chrome/Android'in geçici tam ekrandan çıkış güvenlik bildirimi tarayıcıya aittir; site kodu bunu kapatamaz.
+- Bağlantı/hesap hataları anlaşılır popup; profil ve isteğe bağlı kayıt fotoğrafını cihazdan seçme, kare 512 px hazırlama ve hesapla senkron kaydetme.
+- Stüdyo'da yayınlanmış dizi, sezon ve bölümleri atomik silme; dizi adıyla onay, yalnızca owner yetkisi, finansal kayıtları ve rapor/audit izini koruma. Cloudflare dosyalarını silmez.
 
 ## Çalışan özellikler
 
@@ -13,7 +23,7 @@ Bu sürüm resmi ticari lansman değildir. Gerçek dizi hakları ve videoları, 
 - Canlı katalog, dizi/bölüm detayları, tür/isim/oyuncu/etiket arama, geçmiş ve filtreler.
 - Expo Video (Android) ve HTML5/HLS.js (web) oynatıcı: devam, ileri/geri, ses, fullscreen, cihazın desteklediği PiP ve kaynağın sunduğu kalite seçenekleri.
 - BornCoins defteri, atomik ve tekrarlanabilir güvenli bölüm satın alma, günlük ödül, 7 günlük streak, promosyon kodu ve doğrulanan tek kullanımlık karşılama/favori/profil görevleri.
-- Mağazada altı BornCoins paketi ve haftalık, aylık, yıllık VIP plan kartları bulunur. Ürünler kapalıdır; Expo Go üzerinden gerçek satın alma ve uydurma fiyat gösterilmez.
+- Mağazada altı BornCoins paketi ve haftalık, aylık, yıllık VIP plan kartları örnek fiyatlarla gösterilir. Kartlarda fiyatın örnek olduğu belirtilir; Expo Go üzerinden gerçek satın alma yapılmaz.
 - Hesap bazlı favoriler, puan, moderasyona gönderilen yorumlar, spoiler, beğeni/şikayet.
 - İzleme ilerlemesinin cihazlar arası senkronizasyonu ve bağlantı sonrası yerel progress kuyruğunun gönderilmesi.
 - Katalog/medya/kullanıcı/cüzdan/rapor/yorum/altyazı/ana sayfa yönetimi için web admin paneli.

@@ -35,3 +35,5 @@ Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırı
 | Official Launch | Hazır değil. Gerçek içerikler, üretim hizmet bağlantıları, ödeme/reklam lifecycle ve cihaz testleri zorunlu. |
 
 İleri geliştirmede tüm yeni tablolar aynı `drabornseries` şemasında `dbs_` adıyla oluşturulmalıdır; mevcut DraBornStyle dbs_ tabloları kullanılmamalıdır.
+
+V0.4: Özgün 9:16 vektör animasyon mini diziler (5+3 bölüm) test CDN üzerinden çalışır. Profil fotoğrafı cihazdan seçilir ve ortak Supabase hesabıyla senkronlanır. Stüdyo silme, bölüm içeren yayınlanmış dizilerde owner rolü ve adla onay ile çalışır. Ticari Cloudflare/ödeme/reklam bağlantıları henüz üretim değildir.

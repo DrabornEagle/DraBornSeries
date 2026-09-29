@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "neon-postasi",
+    "title": "Neon Postası",
+    "short_description": "Bir teslimat. Bir şehir. Yeniden yanan bir ışık.",
+    "accent": "#ff5aa8",
+    "license": "DraBornSeries original procedural animation, story and soundtrack. Test exhibition authorized by the project owner.",
+    "width": 540,
+    "height": 960,
+    "duration_seconds": 24,
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Son Teslimat",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ba50ea49-2fa6-42a2-acd8-84309cc0c8ef.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/c2c3a746-9bf4-4f1d-9484-423e34db784f.jpg"
+      },
+      {
+        "number": 2,
+        "title": "Kayıp Sinyal",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ccaf0286-a5d7-49bb-aac5-73af8b4fc91e.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/18854490-4194-4207-accd-625ec46ce13c.jpg"
+      },
+      {
+        "number": 3,
+        "title": "Fırtınanın İçinden",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/e4b0cd3a-cb69-4d41-899e-c5f831f8c7d6.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/340fa58d-c579-4090-b7f2-8d436c13ccbf.jpg"
+      },
+      {
+        "number": 4,
+        "title": "Işığın Sırrı",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/7c3ec94a-68d6-4043-9b07-d6724302f8d4.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f5657765-8102-4f85-bdd7-ccb17d14eea7.jpg"
+      },
+      {
+        "number": 5,
+        "title": "Yeni Bir Şafak",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/21aa68b4-9a8f-45ed-ba6a-e9ecd5c5acde.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f1cf20b7-24f7-4cb5-8454-828b74917ae6.jpg"
+      }
+    ]
+  },
+  {
+    "slug": "yildiz-tohumu",
+    "title": "Yıldız Tohumu",
+    "short_description": "Küçük bir tohum, karanlık bir gökyüzünü değiştirebilir.",
+    "accent": "#7ee9ca",
+    "license": "DraBornSeries original procedural animation, story and soundtrack. Test exhibition authorized by the project owner.",
+    "width": 540,
+    "height": 960,
+    "duration_seconds": 24,
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Gökyüzünden Gelen Çağrı",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f6c5a524-08ab-4594-9f66-b9b15ae14219.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/3c0c3802-0f87-4091-aeab-2aea73f86196.jpg"
+      },
+      {
+        "number": 2,
+        "title": "Karanlık Bahçe",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/3d3794a5-f8e7-4f9a-9f5a-afda33602703.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/dbe9517d-9f90-4c28-a75b-598b766d1f5e.jpg"
+      },
+      {
+        "number": 3,
+        "title": "Birlikte Parlıyoruz",
+        "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/1a944ffc-b25f-4575-bc6f-64787d039268.mp4",
+        "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/07438359-951a-4309-beb8-b705dc469ff3.jpg"
+      }
+    ]
+  }
+]

@@ -15,6 +15,7 @@ export default function VideoPlayer({
 }: VideoProps) {
   const video = useRef<HTMLVideoElement>(null),
     hls = useRef<Hls | null>(null),
+    [fullscreen, setFullscreen] = useState(false),
     [levels, setLevels] = useState<number[]>([]),
     [quality, setQuality] = useState(-1),
     [error, setError] = useState(""),
@@ -63,8 +64,14 @@ export default function VideoPlayer({
       el.load();
     };
   }, [source.url, initialTime]);
+  useEffect(() => {
+    const changed = () => setFullscreen(document.fullscreenElement === video.current);
+    document.addEventListener("fullscreenchange", changed);
+    return () => document.removeEventListener("fullscreenchange", changed);
+  }, []);
   return (
     <View style={{ gap: 15 }}>
+      <style>{`.dbs-player:fullscreen { width: 100vw !important; height: 100vh !important; max-height: none !important; border-radius: 0; object-fit: contain; background: black; }`}</style>
       <View
         style={{
           backgroundColor: "#000",
@@ -75,14 +82,17 @@ export default function VideoPlayer({
       >
         <video
           ref={video}
+          className="dbs-player"
           controls
           playsInline
           controlsList="nodownload"
           crossOrigin={source.subtitles.length ? "anonymous" : undefined}
           style={{
             width: "100%",
-            maxHeight: "70vh",
-            aspectRatio: portrait ? "9 / 16" : "16 / 9",
+            maxHeight: fullscreen ? "none" : "70vh",
+            height: fullscreen ? "100vh" : undefined,
+            objectFit: "contain",
+            aspectRatio: fullscreen ? undefined : portrait ? "9 / 16" : "16 / 9",
             background: "#000",
           }}
           onTimeUpdate={() => {

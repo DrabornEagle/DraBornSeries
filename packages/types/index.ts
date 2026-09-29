@@ -45,6 +45,7 @@ export interface Series {
   total_seasons: number;
   average_duration: number;
   view_count: number;
+  like_count: number;
   rating: number;
   featured_order: number | null;
   license?: string;

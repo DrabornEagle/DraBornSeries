@@ -13,6 +13,8 @@ import type { Store } from "../api/store";
 import { usePreview } from "../api/preview";
 import InlineVideo from "./InlineVideo";
 import { Button, Icon, colors, styles } from "./theme";
+import SwipeSurface from "./SwipeSurface";
+import { compactCount } from "../shared/domain";
 export function Artwork({
   series,
   hero = false,
@@ -139,14 +141,13 @@ export function Poster({
             >
               {series.status === "coming_soon"
                 ? "YAKINDA"
-                : series.is_demo
-                  ? "DİKEY DEMO"
-                  : series.is_vip
-                    ? "VIP"
-                    : "DRABORN"}
+                : `${compactCount(series.view_count)} izlenme`}
             </Text>
           </View>
-          {preview && <Icon name="volume-mute" size={13} />}
+          <View style={{ backgroundColor: "#181320dc", borderRadius: 5, padding: 4, flexDirection: "row", gap: 3, alignItems: "center" }}>
+            <Icon name="heart" size={10} color={colors.pink} />
+            <Text style={{ color: "#fff", fontSize: 8 }}>{compactCount(series.like_count)}</Text>
+          </View>
         </View>
         <View style={{ position: "absolute", bottom: 13, left: 12, right: 10 }}>
           {rank && (
@@ -282,14 +283,15 @@ export function Home({
     [category, setCategory] = useState("Sana özel");
   const published = store.series.filter((s) => s.status === "published"),
     featured = published.length ? published : store.series;
+  const wrap = (value: number) => ((value % Math.max(1, featured.length)) + featured.length) % Math.max(1, featured.length);
   const [seed] = useState(() => Math.floor(Math.random() * 1000));
   useEffect(() => {
     const timer = setInterval(() => setTick((t) => t + 1), 9000);
     return () => clearInterval(timer);
   }, []);
-  const hero = featured[(tick + seed) % Math.max(1, featured.length)],
-    side = featured[(tick + seed + 1) % Math.max(1, featured.length)],
-    left = featured[(tick + seed + 2) % Math.max(1, featured.length)];
+  const hero = featured[wrap(tick + seed)],
+    side = featured[wrap(tick + seed + 1)],
+    left = featured[wrap(tick + seed + 2)];
   if (!hero) return null;
   const first = store.episodes.find(
     (e) => e.series_id === hero.id && e.access_type === "free",
@@ -322,7 +324,7 @@ export function Home({
           alignItems: "center",
         }}
       >
-        {["Sana özel", "Yeni", "Romantik", "Dram", "Gizem", "Komedi"].map(
+        {["Sana özel", "Yeni", "Animasyon", "Macera", "Romantik", "Dram", "Gizem", "Komedi"].map(
           (v) => (
             <Pressable key={v} onPress={() => setCategory(v)}>
               <Text
@@ -348,6 +350,8 @@ export function Home({
           ),
         )}
       </ScrollView>
+      <SwipeSurface axis="horizontal" extent={width} onStep={(step) => setTick((current) => current + step)}
+        label="Öne çıkan diziler. Diğer diziler için sağa veya sola kaydır.">
       <LinearGradient
         colors={["#32192e", "#180e26", "#0b0811"]}
         start={{ x: 0, y: 0 }}
@@ -450,7 +454,7 @@ export function Home({
                     letterSpacing: 1,
                   }}
                 >
-                  DİKEY HİKÂYE
+                  {compactCount(hero.view_count)} izlenme · ♥ {compactCount(hero.like_count)}
                 </Text>
               </View>
               <View
@@ -548,6 +552,7 @@ export function Home({
           </View>
         </View>
       </LinearGradient>
+      </SwipeSurface>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 27 }}>
         {[
           ["bag-handle", "Mağaza", colors.pink, onStore],

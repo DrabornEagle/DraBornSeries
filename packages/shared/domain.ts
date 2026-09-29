@@ -66,8 +66,12 @@ export function clientCanWatch(
 }
 export const readableError = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
+  if (/failed to fetch|network request failed|networkerror|load failed|timeout/i.test(message))
+    return "İnternet bağlantını kontrol et. Kaydedilmiş içeriklerin burada; bağlantı geldiğinde tekrar deneyebilirsin.";
   const known: Record<string, string> = {
     AUTH_REQUIRED: "Devam etmek için hesabına giriş yap.",
+    OWNER_REQUIRED: "Bu işlem için proje sahibi yetkisi gerekir.",
+    CONFIRMATION_REQUIRED: "Dizi adını doğru yazarak silme işlemini onayla.",
     ACCOUNT_UNAVAILABLE: "Bu hesap şu anda kullanılamıyor.",
     ALREADY_CLAIMED: "Bu ödülü zaten aldın.",
     TASK_INCOMPLETE: "Önce görev açıklamasındaki adımı tamamla.",
@@ -85,3 +89,9 @@ export const readableError = (error: unknown) => {
     Object.entries(known).find(([k]) => message.includes(k))?.[1] || message
   );
 };
+
+export function compactCount(value: number) {
+  const count = Math.max(0, Number(value) || 0);
+  return count >= 1000000 ? `${(count / 1000000).toFixed(1).replace(".0", "")} Mn`
+    : count >= 1000 ? `${(count / 1000).toFixed(1).replace(".0", "")} B` : String(count);
+}

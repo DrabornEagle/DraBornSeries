@@ -203,7 +203,7 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
     <View style={styles.wrap}>
       {!readOnly && <Button icon="save-outline" onPress={submit}>Değişiklikleri kaydet</Button>}
       <Button secondary onPress={close}>Vazgeç</Button>
-      {remove && <Button secondary icon="trash-outline" onPress={remove}>Boş taslağı sil</Button>}
+      {remove && <Button secondary icon="trash-outline" onPress={remove}>Diziyi sil</Button>}
     </View>
   </View>;
 }

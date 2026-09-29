@@ -1,11 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
   Pressable,
   Text,
   View,
   Share,
-  Platform,
   ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,6 +15,9 @@ import { Artwork } from "../../packages/ui/Catalog";
 import { Button, Icon, colors, Empty } from "../../packages/ui/theme";
 import { config } from "../../packages/shared/config";
 import { saveProgress } from "../../packages/api/progress";
+import SwipeSurface from "../../packages/ui/SwipeSurface";
+import { adjacentIndex } from "../../packages/shared/gestures";
+import { compactCount } from "../../packages/shared/domain";
 type Entry = { episode: Episode; series: Series };
 function Scene({
   item,
@@ -207,7 +208,7 @@ function Scene({
               letterSpacing: 2,
             }}
           >
-            DİKEY DEMO · BÖLÜM {item.episode.number}
+            BÖLÜM {item.episode.number} · {compactCount(item.series.view_count)} izlenme · {compactCount(item.series.like_count)} beğeni
           </Text>
           <Text
             numberOfLines={2}
@@ -262,7 +263,6 @@ export default function Discover({
 }) {
   const [height, setHeight] = useState(650),
     [index, setIndex] = useState(0);
-  const list = useRef<FlatList<Entry>>(null);
   const [seed] = useState(() => Math.floor(Math.random() * 2147483647));
   const items = useMemo(() => {
     let state = seed;
@@ -304,89 +304,18 @@ export default function Discover({
         setHeight(Math.max(300, Math.round(e.nativeEvent.layout.height)))
       }
     >
-      <FlatList
-        ref={list}
-        data={items}
-        keyExtractor={(v) => v.episode.id}
-        pagingEnabled
-        snapToInterval={height}
-        decelerationRate="fast"
-        showsVerticalScrollIndicator={false}
-        getItemLayout={(_, i) => ({
-          length: height,
-          offset: height * i,
-          index: i,
-        })}
-        onScroll={(e) =>
-          setIndex(
-            Math.min(
-              items.length - 1,
-              Math.max(0, Math.round(e.nativeEvent.contentOffset.y / height)),
-            ),
-          )
-        }
-        scrollEventThrottle={80}
-        initialNumToRender={2}
-        windowSize={3}
-        maxToRenderPerBatch={2}
-        renderItem={({ item, index: i }) => (
-          <Scene
-            item={item}
-            active={index === i}
-            height={height}
-            onSeries={() => onSeries(item.series)}
-            onWatch={() =>
-              onEpisode(
-                store.episodes.find(
-                  (e) => e.series_id === item.series.id && e.number === 1,
-                ) || item.episode,
-              )
-            }
-            favorite={store.favorites.includes(item.series.id)}
-            onLike={() =>
-              store.session
-                ? run(() => store.toggleFavorite(item.series.id))
-                : onLogin()
-            }
-          />
-        )}
-      />
-      {Platform.OS === "web" && (
-        <View style={{ position: "absolute", right: 15, top: "43%", gap: 10 }}>
-          <Pressable
-            accessibilityLabel="Önceki hikâye"
-            onPress={() =>
-              list.current?.scrollToIndex({
-                index: Math.max(0, index - 1),
-                animated: true,
-              })
-            }
-            style={{
-              padding: 12,
-              borderRadius: 40,
-              backgroundColor: "#392143",
-            }}
-          >
-            <Icon name="chevron-up" />
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Sonraki hikâye"
-            onPress={() =>
-              list.current?.scrollToIndex({
-                index: (index + 1) % items.length,
-                animated: true,
-              })
-            }
-            style={{
-              padding: 12,
-              borderRadius: 40,
-              backgroundColor: "#392143",
-            }}
-          >
-            <Icon name="chevron-down" />
-          </Pressable>
-        </View>
-      )}
+      <SwipeSurface axis="vertical" extent={height} style={{ flex: 1, overflow: "hidden" }}
+        label="Keşfet videoları. Sonraki video için yukarı, önceki için aşağı kaydır."
+        onStep={(step) => setIndex((current) => adjacentIndex(current, step, items.length))}>
+        <Scene key={items[Math.min(index, items.length - 1)].episode.id}
+          item={items[Math.min(index, items.length - 1)]} active height={height}
+          onSeries={() => onSeries(items[index].series)}
+          onWatch={() => onEpisode(store.episodes.find((e) =>
+            e.series_id === items[index].series.id && e.number === 1) || items[index].episode)}
+          favorite={store.favorites.includes(items[index].series.id)}
+          onLike={() => store.session
+            ? run(() => store.toggleFavorite(items[index].series.id)) : onLogin()} />
+      </SwipeSurface>
     </View>
   );
 }

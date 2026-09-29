@@ -94,8 +94,8 @@ export default function SeriesDetail({
         >
           <Text style={styles.eyebrow}>
             {series.is_demo
-              ? "AÇIK LİSANSLI TEST KOLEKSİYONU"
-              : "DRABORN ORIGINALS · GELİŞTİRMEDE"}
+              ? "DRABORN ORIGINALS · ANİMASYON"
+              : "DRABORN ORIGINALS"}
           </Text>
           <Text style={[styles.h1, { fontSize: compact ? 42 : 58 }]}>
             {series.title}

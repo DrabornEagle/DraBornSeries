@@ -8,10 +8,8 @@ rows=[
  dict(slug='kiyi',title='Kıyı',short_description='Denizin sakladığını hiçbir şehir unutamaz.',description='Kaybolan bir tekne, terk edilmiş bir otel ve birbiriyle kesişen üç hayat. Özgün gizem konsepti; yakında.',genres=['Gizem','Dram'],accent='#40cec3',poster_url='https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=720&q=85'),
  dict(slug='neon-kalp',title='Neon Kalp',short_description='Bu şehirde herkesin bir ritmi var.',description='İlk konserine hazırlanan bir müzisyen, komşusuyla kaydettiği bir şarkıyla beklenmedik bir yolculuğa çıkar. Özgün romantik müzik konsepti; yakında.',genres=['Romantik','Müzik'],accent='#eb568b',poster_url='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=720&q=85'),
  dict(slug='yuksek-sezon',title='Yüksek Sezon',short_description='Küçük bir otel. Çok büyük meseleler.',description='Bir aile otelinin yeni çalışanları, sezonun ilk gününde kendilerini komik bir yanlış anlaşılmanın içinde bulur. Özgün komedi konsepti; yakında.',genres=['Komedi'],accent='#e4b45c',poster_url='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=720&q=85'),
- dict(slug='big-buck-bunny',title='Big Buck Bunny',short_description='Oynatıcı ve bölüm erişimini denemek için açık lisanslı kısa film.',description='Blender Foundation tarafından hazırlanan açık lisanslı animasyon. Bu test koleksiyonundaki bütün bölümler aynı filme bağlanır; farklı bölüm kilitlerini denemek içindir. Ticari DraBornSeries dizisi değildir.',genres=['Animasyon','Komedi'],accent='#83b993',poster_url='https://peach.blender.org/wp-content/uploads/title_anouncement.jpg',is_demo=True,status='published',total_episodes=8,license='© Blender Foundation | peach.blender.org | CC BY 3.0',production_year=2008),
- dict(slug='sintel',title='Sintel',short_description='Bir dostu bulmak için çıkılan büyülü yolculuk.',description='Blender Foundation açık filminin 52 saniyelik resmî fragmanı. DraBornSeries video oynatıcısını test etmek için sunulur. © Blender Foundation / sintel.org — Creative Commons Attribution 3.0.',genres=['Animasyon','Fantastik'],accent='#e48d57',poster_url='https://download.blender.org/durian/trailer/sintel_trailer-1080p.jpg',is_demo=True,status='published',total_episodes=1,license='© Blender Foundation | sintel.org | CC BY 3.0',production_year=2010)
+
 ]
-rows=rows[:6]
 quote=lambda value: "'"+str(value).replace("'","''")+"'"
 def value(v):
  if isinstance(v,bool): return 'true' if v else 'false'
@@ -28,7 +26,7 @@ for number in [50,100,250,500,1000,2500]:
 sql+="insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_vip_monthly','vip',0,false) on conflict do nothing;\n"
 for genre in sorted(set(g for r in rows for g in r['genres'])):
  sql+=f"insert into drabornseries.dbs_genres(id,name) values({quote(genre)},{quote(genre)}) on conflict do nothing;\n"
-for key,data in {'release':{'version':'0.3.0','stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
+for key,data in {'release':{'version':'0.4.0','versionCode':1,'stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
  sql+=f"insert into drabornseries.dbs_app_settings values({quote(key)},{quote(json.dumps(data))}::jsonb,true) on conflict do nothing;\n"
 sql+="insert into drabornseries.dbs_promo_codes(code,coins,max_uses,expires_at) values('DBS2026',30,10000,now()+interval '90 days') on conflict do nothing;\n"
 for number,(name,desc) in enumerate([('İlk Bölüm','İlk bölümünü tamamla'),('Maratoncu','10 bölüm tamamla'),('Series Hunter','10 farklı dizi izle'),('Collector','20 diziyi listene ekle'),('7 Day Streak','7 gün günlük ödül al')]):

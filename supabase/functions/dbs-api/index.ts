@@ -54,7 +54,8 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.3.0",
+        version: "0.4.0",
+        versionCode: 1,
         cloudflare: !!env("DBS_WORKER_URL"),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
@@ -128,6 +129,9 @@ Deno.serve(async (req) => {
     if (body.action === "delete-account") {
       if (body.confirm !== "DELETE")
         return send(req, { error: "CONFIRM_REQUIRED" }, 400);
+      // Only this application's avatar; the shared Auth account and other apps remain intact.
+      const { error: avatarError } = await admin.storage.from("dbs_series_avatars").remove([user.id + "/avatar.jpg"]);
+      if (avatarError) throw avatarError;
       await checked(client.rpc("dbs_delete_account"));
       return send(req, { deleted: true, scope: "DraBornSeries" });
     }
@@ -255,21 +259,13 @@ Deno.serve(async (req) => {
         })) });
       }
       if (body.action === "admin-delete") {
-        const { data: owner } = await admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single();
-        if (owner?.role !== "owner" || body.table !== "dbs_series" || body.confirm !== "DELETE")
-          return send(req, { error: "OWNER_REQUIRED" }, 403);
-        if (typeof body.id !== "string") return send(req, { error: "INVALID_ID" }, 400);
-        const series = await checked(admin.from("dbs_series").select("id,status,title").eq("id", body.id).single());
-        if (series.status !== "draft")
-          return send(req, { error: "ONLY_EMPTY_DRAFT_CAN_BE_DELETED" }, 409);
-        const references = await Promise.all([
-          "dbs_episodes", "dbs_favorites", "dbs_likes", "dbs_ratings", "dbs_comments",
-        ].map((table) => admin.from(table).select("*", { count: "exact", head: true }).eq("series_id", series.id)));
-        if (references.some((r) => r.error || r.count))
-          return send(req, { error: "SERIES_HAS_REFERENCES" }, 409);
-        await checked(admin.from("dbs_series").delete().eq("id", series.id));
-        await checked(admin.from("dbs_admin_logs").insert({ admin_id: user.id, action: "delete", target: "dbs_series", detail: { id: series.id, title: series.title } }));
-        return send(req, { deleted: true });
+        if (body.table !== "dbs_series" || body.confirm !== "DELETE")
+          return send(req, { error: "CONFIRMATION_REQUIRED" }, 400);
+        if (typeof body.id !== "string" || typeof body.title !== "string")
+          return send(req, { error: "INVALID_ID" }, 400);
+        return send(req, await checked(client.rpc("dbs_admin_delete_series", {
+          series: body.id, confirmation: body.title,
+        })));
       }
       if (!tables.includes(body.table))
         return send(req, { error: "TABLE_NOT_ALLOWED" }, 400);

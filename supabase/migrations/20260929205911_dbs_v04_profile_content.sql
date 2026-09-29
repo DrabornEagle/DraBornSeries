@@ -1,3 +1,88 @@
+-- DraBornSeries only: shared Auth/Storage remain isolated by bucket and ownership.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values('dbs_series_avatars','dbs_series_avatars',true,2097152,array['image/jpeg'])
+on conflict(id) do update set public=excluded.public,file_size_limit=excluded.file_size_limit,allowed_mime_types=excluded.allowed_mime_types;
+create policy dbs_avatar_read on storage.objects for select to anon,authenticated
+using(bucket_id='dbs_series_avatars');
+create policy dbs_avatar_insert on storage.objects for insert to authenticated
+with check(bucket_id='dbs_series_avatars' and name=(select auth.uid())::text||'/avatar.jpg' and (select dbs_series_private.dbs_active()));
+create policy dbs_avatar_update on storage.objects for update to authenticated
+using(bucket_id='dbs_series_avatars' and name=(select auth.uid())::text||'/avatar.jpg' and (select dbs_series_private.dbs_active()))
+with check(bucket_id='dbs_series_avatars' and name=(select auth.uid())::text||'/avatar.jpg' and (select dbs_series_private.dbs_active()));
+create policy dbs_avatar_delete on storage.objects for delete to authenticated
+using(bucket_id='dbs_series_avatars' and name=(select auth.uid())::text||'/avatar.jpg' and (select dbs_series_private.dbs_active()));
+
+create function dbs_series_private.dbs_admin_delete_series(series uuid, confirmation text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare target drabornseries.dbs_series; episode_count integer; snapshot jsonb;
+begin
+  if not dbs_series_private.dbs_admin() or not exists(
+    select 1 from drabornseries.dbs_admin_users where user_id=auth.uid() and role='owner') then
+    raise exception 'OWNER_REQUIRED';
+  end if;
+  select * into target from drabornseries.dbs_series s where s.id=series for update;
+  if target.id is null then return jsonb_build_object('deleted',false,'already_deleted',true); end if;
+  if confirmation is distinct from target.title then raise exception 'CONFIRMATION_REQUIRED'; end if;
+  select count(*) into episode_count from drabornseries.dbs_episodes where series_id=target.id;
+  snapshot:=jsonb_build_object('id',target.id,'title',target.title,'slug',target.slug,
+    'series',to_jsonb(target),'episodes',coalesce((select jsonb_agg(to_jsonb(e)) from drabornseries.dbs_episodes e where series_id=target.id),'[]'::jsonb),
+    'unlocks',coalesce((select jsonb_agg(jsonb_build_object('id',u.id,'user_id',u.user_id,'episode_id',u.episode_id,'transaction_id',u.transaction_id,'source',u.source))
+      from drabornseries.dbs_episode_unlocks u join drabornseries.dbs_episodes e on e.id=u.episode_id where e.series_id=target.id),'[]'::jsonb));
+  -- Reports keep their original narrative and a readable reference to removed content.
+  update drabornseries.dbs_content_reports r set series_id=null,episode_id=null,
+    body=coalesce(r.body,'')||E'\nSilinen dizi: '||target.title||' ('||target.id||')'
+    where r.series_id=target.id or r.episode_id in(select id from drabornseries.dbs_episodes where series_id=target.id);
+  delete from drabornseries.dbs_series where id=target.id;
+  insert into drabornseries.dbs_admin_logs(admin_id,action,target,detail)
+    values(auth.uid(),'delete','dbs_series',snapshot);
+  return jsonb_build_object('deleted',true,'episodes',episode_count);
+end $$;
+revoke all on function dbs_series_private.dbs_admin_delete_series(uuid,text) from public,anon,authenticated;
+grant execute on function dbs_series_private.dbs_admin_delete_series(uuid,text) to authenticated;
+create function drabornseries.dbs_admin_delete_series(series uuid, confirmation text)
+returns jsonb language sql security invoker set search_path='' as $$
+  select dbs_series_private.dbs_admin_delete_series(series,confirmation)
+$$;
+revoke all on function drabornseries.dbs_admin_delete_series(uuid,text) from public,anon,authenticated;
+grant execute on function drabornseries.dbs_admin_delete_series(uuid,text) to authenticated;
+
+-- Counters come from account activity, never from illustrative seed numbers.
+create function dbs_series_private.dbs_series_like_count() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+  update drabornseries.dbs_series set like_count=greatest(0,like_count+case when tg_op='INSERT' then 1 else -1 end)
+    where id=case when tg_op='INSERT' then new.series_id else old.series_id end;
+  return null;
+end $$;
+revoke all on function dbs_series_private.dbs_series_like_count() from public,anon,authenticated;
+create trigger dbs_series_like_counter after insert or delete on drabornseries.dbs_likes
+for each row execute function dbs_series_private.dbs_series_like_count();
+create function dbs_series_private.dbs_series_view_count() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+  if new.position_seconds>=least(5,new.duration_seconds/2) and
+    (tg_op='INSERT' or old.position_seconds<least(5,new.duration_seconds/2)) then
+    -- One counted play per account/episode. Backward seeking must not count again.
+    perform pg_advisory_xact_lock(hashtextextended(new.user_id::text||new.episode_id::text,0));
+    if not exists(select 1 from drabornseries.dbs_watch_history where user_id=new.user_id and episode_id=new.episode_id) then
+      insert into drabornseries.dbs_watch_history(user_id,episode_id,watched_seconds,device_id)
+        values(new.user_id,new.episode_id,new.position_seconds,new.device_id);
+      update drabornseries.dbs_series set view_count=view_count+1
+        where id=(select series_id from drabornseries.dbs_episodes where id=new.episode_id);
+    end if;
+  end if;
+  return null;
+end $$;
+revoke all on function dbs_series_private.dbs_series_view_count() from public,anon,authenticated;
+create index dbs_history_account_episode on drabornseries.dbs_watch_history(user_id,episode_id);
+create trigger dbs_series_view_counter after insert or update on drabornseries.dbs_watch_progress
+for each row execute function dbs_series_private.dbs_series_view_count();
+update drabornseries.dbs_series s set like_count=(select count(*) from drabornseries.dbs_likes where series_id=s.id);
+
+insert into drabornseries.dbs_app_settings(key,value)
+values('release','{"version":"0.4.0","versionCode":1,"channel":"expo-go-web"}')
+on conflict(key) do update set value=excluded.value;
+
 -- Replace the legacy landscape and disconnected stock samples with original 9:16 micro-series.
 -- Ledger/purchase records survive content removal; reports retain a named reference.
 insert into drabornseries.dbs_admin_logs(action,target,detail)
