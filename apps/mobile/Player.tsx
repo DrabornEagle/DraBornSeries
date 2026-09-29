@@ -180,10 +180,6 @@ export default function Player({
       <Button small secondary icon="flag-outline" onPress={onReport}>
         Video sorunu bildir
       </Button>
-      <Text style={{ color: colors.muted, fontSize: 11, lineHeight: 18 }}>
-        Test filmleri açık lisanslıdır. Üretim videolarının adresleri erişim
-        kontrolünden sonra kısa süreli olarak oluşturulur.
-      </Text>
     </View>
   );
 }
