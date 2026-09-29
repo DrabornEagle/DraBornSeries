@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Share,
+  Linking,
   Text,
   View,
   Pressable,
@@ -109,6 +110,11 @@ export default function SeriesDetail({
                 {progress
                   ? `${t.continue} · ${formatTime(progress.position_seconds)}`
                   : t.play}
+              </Button>
+            )}
+            {!!series.trailer_url && series.trailer_url.startsWith("https://") && (
+              <Button secondary icon="videocam-outline" onPress={() => run(() => Linking.openURL(series.trailer_url!))}>
+                Fragmanı izle
               </Button>
             )}
             <Button

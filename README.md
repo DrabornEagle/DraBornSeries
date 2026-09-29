@@ -1,4 +1,4 @@
-# DraBornSeries · v0.2.0
+# DraBornSeries · v0.3.0
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
@@ -50,7 +50,7 @@ Aynı telefondaki Expo Go'da `exp://127.0.0.1:8081` adresini aç. Başka cihaz a
 
 Güncelleme: `cd "$HOME/DraBornSeries" && git pull --ff-only && npm ci && npx expo start --localhost --clear`
 
-Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sürümleri Expo Go 58 paket eşlemelerine göre sabitlendi. Bu hâlâ preview SDK'dır. Yerel gerçek Android cihazda dokunmatik/video testi kullanıcı tarafından Expo Go ile yapılmalıdır.
+Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sürümleri Expo Go 58 paket eşlemelerine göre sabitlendi. Bu hâlâ preview SDK'dır. Termux'ta React Native DevTools `arm64` kurulumu uyarısı çıksa da `Android Bundled` ve QR görünüyorsa Metro çalışıyor; gerçek uygulama hatasını Expo Go kırmızı ekranı ve bundling sonrası kayıtla belirleyin. Yerel gerçek Android cihazda dokunmatik/video testi kullanıcı tarafından Expo Go ile yapılmalıdır.
 
 ## Test hesabı ve içerik
 
@@ -77,4 +77,4 @@ GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalı�
 
 ## Güvenlik
 
-İstemci yalnızca publishable anahtarı içerir. Service role, Google hizmet hesabı, Stream anahtarı veya başka secret repo içinde yoktur. Coin/VIP/purchase tablolarında client write grant yoktur. Ödeme doğrulama adaptörü, ürünler ve servis sırları etkinleştirilene kadar kapalıdır. `docs/INTEGRATIONS.md` kalan üretim bağlantılarını açıklar.
+İstemci yalnızca publishable anahtarı içerir. Service role, Google hizmet hesabı, Stream anahtarı veya başka secret repo içinde yoktur. Coin/VIP/purchase tablolarında client write grant yoktur. Ödeme doğrulama adaptörü, ürünler ve servis sırları etkinleştirilene kadar kapalıdır. Stüdyo içerik formları, kullanıcı ayrıntıları, yönetici işlem kayıtları ve gerçek veriye dayalı temel istatistikleri sunar. Mağaza örnek fiyatlarını gösterir; ödeme açmaz. [Hesap bağlantılarını adım adım kurma](docs/OWNER_SETUP_TR.md) ve [üretim entegrasyonu sınırları](docs/INTEGRATIONS.md) ayrı belgelendi.

@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.2.0",
+        version: "0.3.0",
         cloudflare: !!env("DBS_WORKER_URL"),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
@@ -134,7 +134,14 @@ Deno.serve(async (req) => {
     if (
       body.action === "admin-list" ||
       body.action === "admin-save" ||
-      body.action === "admin-grant"
+      body.action === "admin-grant" ||
+      body.action === "admin-users" ||
+      body.action === "admin-user" ||
+      body.action === "admin-vip-grant" ||
+      body.action === "admin-metrics" ||
+      body.action === "admin-delete" ||
+      body.action === "admin-stream-videos"
+      || body.action === "admin-me"
     ) {
       if (!(await checked(client.rpc("dbs_is_admin"))))
         return send(req, { error: "ADMIN_REQUIRED" }, 403);
@@ -162,6 +169,73 @@ Deno.serve(async (req) => {
         "dbs_audio_tracks",
         "dbs_promo_codes",
       ];
+      if (body.action === "admin-me") {
+        const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
+        return send(req, { role: membership.role });
+      }
+      if (body.action === "admin-metrics")
+        return send(req, { metrics: await checked(client.rpc("dbs_admin_metrics")) });
+      if (body.action === "admin-users") {
+        const page = Math.max(0, Math.min(1000, Number(body.page) || 0));
+        const search = String(body.search || "").trim().slice(0, 80);
+        let query = admin.from("dbs_profiles")
+          .select("user_id,username,full_name,avatar_url,status,created_at", { count: "exact" })
+          .order("created_at", { ascending: false })
+          .range(page * 25, page * 25 + 24);
+        if (search) {
+          if (/^[a-f0-9-]{36}$/i.test(search)) query = query.eq("user_id", search);
+          else {
+            const safe = search.replace(/[^\p{L}\p{N} _-]/gu, "");
+            if (safe) query = query.or(`username.ilike.%${safe}%,full_name.ilike.%${safe}%`);
+          }
+        }
+        const { data: profiles, error, count } = await query;
+        if (error) throw Error(error.message);
+        const ids = (profiles || []).map((p: any) => p.user_id);
+        if (!ids.length) return send(req, { rows: [], total: count || 0 });
+        const [wallets, memberships] = await Promise.all([
+          checked(admin.from("dbs_borncoins_wallet").select("user_id,balance").in("user_id", ids)),
+          checked(admin.from("dbs_vip_subscriptions")
+            .select("user_id,status,expires_at")
+            .in("user_id", ids).in("status", ["active", "grace"])
+            .gt("expires_at", new Date().toISOString())
+            .order("expires_at", { ascending: false })),
+        ]);
+        return send(req, { total: count || 0, rows: profiles.map((p: any) => ({
+          ...p,
+          balance: wallets.find((w: any) => w.user_id === p.user_id)?.balance || 0,
+          vip_until: memberships.find((v: any) => v.user_id === p.user_id)?.expires_at || null,
+        })) });
+      }
+      if (body.action === "admin-user") {
+        if (typeof body.user_id !== "string" || !/^[a-f0-9-]{36}$/i.test(body.user_id))
+          return send(req, { error: "INVALID_USER" }, 400);
+        const id = body.user_id;
+        const [profile, wallet, vip, transactions, purchases, unlocks, reports, authUser] = await Promise.all([
+          checked(admin.from("dbs_profiles").select("user_id,username,full_name,avatar_url,status,created_at").eq("user_id", id).single()),
+          checked(admin.from("dbs_borncoins_wallet").select("balance,updated_at").eq("user_id", id).maybeSingle()),
+          checked(admin.from("dbs_vip_subscriptions").select("id,provider,product_id,status,starts_at,expires_at,auto_renew").eq("user_id", id).order("expires_at", { ascending: false }).limit(20)),
+          checked(admin.from("dbs_borncoins_transactions").select("id,amount,balance_after,kind,description,created_at").eq("user_id", id).order("created_at", { ascending: false }).limit(30)),
+          checked(admin.from("dbs_purchases").select("id,product_id,order_id,status,quantity,created_at").eq("user_id", id).order("created_at", { ascending: false }).limit(30)),
+          checked(admin.from("dbs_episode_unlocks").select("id,episode_id,source,created_at").eq("user_id", id).order("created_at", { ascending: false }).limit(30)),
+          checked(admin.from("dbs_reports").select("id,kind,body,status,created_at").eq("user_id", id).order("created_at", { ascending: false }).limit(20)),
+          admin.auth.admin.getUserById(id),
+        ]);
+        return send(req, { profile, email: authUser.data.user?.email || null,
+          wallet, vip, transactions, purchases, unlocks, reports });
+      }
+      if (body.action === "admin-stream-videos") {
+        if (!env("CLOUDFLARE_ACCOUNT_ID") || !env("CLOUDFLARE_API_TOKEN"))
+          return send(req, { configured: false, videos: [] });
+        const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream?per_page=50`, {
+          headers: { Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}` },
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw Error("STREAM_LIST_FAILED");
+        return send(req, { configured: true, videos: (result.result || []).map((v: any) => ({
+          uid: v.uid, name: v.meta?.name || v.uid, ready: v.readyToStream === true,
+        })) });
+      }
       if (body.action === "admin-grant") {
         return send(
           req,
@@ -174,6 +248,28 @@ Deno.serve(async (req) => {
             }),
           ),
         );
+      }
+      if (body.action === "admin-vip-grant") {
+        return send(req, { expires_at: await checked(client.rpc("dbs_admin_grant_vip", {
+          account: body.user_id, days: body.days, reason: body.reason, request_id: body.request_id,
+        })) });
+      }
+      if (body.action === "admin-delete") {
+        const { data: owner } = await admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single();
+        if (owner?.role !== "owner" || body.table !== "dbs_series" || body.confirm !== "DELETE")
+          return send(req, { error: "OWNER_REQUIRED" }, 403);
+        if (typeof body.id !== "string") return send(req, { error: "INVALID_ID" }, 400);
+        const series = await checked(admin.from("dbs_series").select("id,status,title").eq("id", body.id).single());
+        if (series.status !== "draft")
+          return send(req, { error: "ONLY_EMPTY_DRAFT_CAN_BE_DELETED" }, 409);
+        const references = await Promise.all([
+          "dbs_episodes", "dbs_favorites", "dbs_likes", "dbs_ratings", "dbs_comments",
+        ].map((table) => admin.from(table).select("*", { count: "exact", head: true }).eq("series_id", series.id)));
+        if (references.some((r) => r.error || r.count))
+          return send(req, { error: "SERIES_HAS_REFERENCES" }, 409);
+        await checked(admin.from("dbs_series").delete().eq("id", series.id));
+        await checked(admin.from("dbs_admin_logs").insert({ admin_id: user.id, action: "delete", target: "dbs_series", detail: { id: series.id, title: series.title } }));
+        return send(req, { deleted: true });
       }
       if (!tables.includes(body.table))
         return send(req, { error: "TABLE_NOT_ALLOWED" }, 400);
@@ -205,6 +301,7 @@ Deno.serve(async (req) => {
           "short_description",
           "poster_url",
           "banner_url",
+          "trailer_url",
           "genres",
           "tags",
           "cast_names",

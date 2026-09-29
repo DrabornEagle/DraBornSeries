@@ -28,6 +28,7 @@ export interface Series {
   short_description: string;
   poster_url: string | null;
   banner_url: string | null;
+  trailer_url?: string | null;
   genres: string[];
   tags: string[];
   cast_names: string[];

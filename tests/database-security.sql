@@ -17,6 +17,10 @@ do $$
 declare amount bigint; target uuid; result jsonb; denied boolean:=false;
 begin
  if drabornseries.dbs_is_admin() then raise exception 'Test user must not be admin'; end if;
+ denied:=false;begin perform drabornseries.dbs_admin_metrics();exception when others then if sqlerrm like '%ADMIN_REQUIRED%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'Non-admin obtained private analytics'; end if;
+ denied:=false;begin perform drabornseries.dbs_admin_grant_vip(auth.uid(),7,'invalid owner',gen_random_uuid());exception when others then if sqlerrm like '%OWNER_REQUIRED%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'Non-owner granted VIP'; end if;
  result:=drabornseries.dbs_claim_daily();
  if (result->>'coins')::int<>2 then raise exception 'First daily reward mismatch'; end if;
  begin perform drabornseries.dbs_claim_daily();exception when others then if sqlerrm like '%ALREADY_CLAIMED%' then denied:=true;else raise;end if;end;
@@ -60,7 +64,20 @@ begin
 end $$;
 reset role;
 update drabornseries.dbs_user_sessions set revoked_at=null where user_id=current_setting('dbs.test_user')::uuid;
+insert into drabornseries.dbs_admin_users(user_id,role) values(current_setting('dbs.test_user')::uuid,'owner');
+select set_config('dbs.vip_request',gen_random_uuid()::text,true);
 set local role authenticated;
+do $$
+declare expiry timestamptz; again timestamptz; stats jsonb; grants integer;
+begin
+ expiry:=drabornseries.dbs_admin_grant_vip(auth.uid(),7,'Support compensation',current_setting('dbs.vip_request')::uuid);
+ again:=drabornseries.dbs_admin_grant_vip(auth.uid(),7,'Support compensation',current_setting('dbs.vip_request')::uuid);
+ if expiry<>again then raise exception 'VIP retry changed expiry'; end if;
+ select count(*) into grants from drabornseries.dbs_vip_subscriptions where user_id=auth.uid() and provider='admin';
+ if grants<>1 then raise exception 'VIP grant was duplicated'; end if;
+ stats:=drabornseries.dbs_admin_metrics();
+ if (stats->>'vip_users')::integer<1 then raise exception 'Admin analytics omitted VIP'; end if;
+end $$;
 select drabornseries.dbs_delete_account();
 reset role;
 do $$ begin
@@ -70,4 +87,4 @@ do $$ begin
  if not exists(select 1 from auth.users where id=current_setting('dbs.test_user')::uuid) then raise exception 'Shared auth user unexpectedly deleted'; end if;
 end $$;
 rollback;
-select 'PASS: task prerequisites/idempotency, daily idempotency, promo, atomic unlock, stale progress, wallet/purchase/profile protections, RLS isolation, session revocation, isolated account deletion' as result;
+select 'PASS: tasks, wallet, unlock, RLS, admin metrics, owner-only idempotent VIP grant, session revocation, account deletion' as result;

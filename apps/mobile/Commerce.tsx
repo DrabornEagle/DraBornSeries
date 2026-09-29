@@ -22,6 +22,7 @@ import {
   styles,
 } from "../../packages/ui/theme";
 import { rewardDays } from "../../packages/shared/domain";
+import { examplePrice } from "../../packages/shared/pricing";
 type Props = {
   page: Page;
   store: Store;
@@ -258,8 +259,8 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                 VIP kapsamındaki bölümlere {length} erişim
               </Text>
               <View style={[styles.row, { justifyContent: "space-between" }]}>
-                <Text style={{ color: "#ac929f", fontSize: 11 }}>
-                  Google Play fiyatı yayında gösterilir
+                <Text style={{ color: "#ffe0b3", fontSize: 16, fontWeight: "900" }}>
+                  {examplePrice(product?.id || "dbs_vip_" + id)}
                 </Text>
                 <Text
                   style={{
@@ -268,7 +269,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                     fontSize: 19,
                   }}
                 >
-                  {product?.active ? "Mağazada" : "Yakında"}
+                  Satış kapalı
                 </Text>
               </View>
               {i === 1 && (
@@ -387,7 +388,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                   <Text
                     style={{ color: "#b3a0bd", fontSize: 12, marginTop: 12 }}
                   >
-                    Google Play · Yakında
+                    {examplePrice(p.id)} · Satış kapalı
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -412,8 +413,9 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
           Hesap haklarını yenile
         </Button>
         <Text style={styles.body}>
-          Paketler hazır. Satın alma ve mağaza fiyatları Google Play bağlantısı
-          açıldığında kullanılabilir. Web ve Android aynı cüzdanı kullanır.
+          Gösterilen tutarlar örnektir; ödeme alınmaz. Gerçek fiyat ve onay
+          Google Play ürünleri bağlandığında gösterilir. Web ve Android aynı
+          cüzdanı kullanır.
         </Text>
       </View>
     );
@@ -1074,6 +1076,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                 ? "Seçtiğin VIP paketi aynı hesabınla Android ve webde geçerli olacak."
                 : "BornCoins ile uygun bölümleri kalıcı olarak hesabına açabilirsin."}
             </Text>
+            {checkout && <Text style={[styles.h2, { color: colors.orange }]}>{examplePrice(checkout.id)}</Text>}
             <View style={[panel, { borderColor: "#a94a78" }]}>
               <Text
                 style={{ color: "#ffb7d2", fontSize: 15, fontWeight: "800" }}
@@ -1084,7 +1087,8 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                 {Platform.OS === "web"
                   ? "Satın alma, Google Play sürümünden yapılacak."
                   : "Expo Go içinde gerçek ödeme alınamaz."}{" "}
-                Fiyatlar ve ödeme onayı Google Play bağlantısıyla gösterilecek.
+                Bu tutar yalnızca örnektir. Gerçek fiyat ve ödeme onayı Google
+                Play bağlantısıyla gösterilecek.
               </Text>
             </View>
             <Button
