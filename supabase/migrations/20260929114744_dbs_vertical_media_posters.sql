@@ -1,0 +1,3 @@
+-- Restore working imagery for the RDNE Stock project demo without touching other apps.
+update drabornseries.dbs_series set poster_url='https://images.pexels.com/videos/9242223/affection-beach-couple-family-9242223.jpeg?auto=compress&cs=tinysrgb&w=600',banner_url='https://images.pexels.com/videos/9242223/affection-beach-couple-family-9242223.jpeg?auto=compress&cs=tinysrgb&w=600' where slug='kiyida-ikimiz' and is_demo;
+update drabornseries.dbs_episodes set thumbnail_url='https://images.pexels.com/videos/9242223/affection-beach-couple-family-9242223.jpeg?auto=compress&cs=tinysrgb&w=600' where series_id=(select id from drabornseries.dbs_series where slug='kiyida-ikimiz' and is_demo);
