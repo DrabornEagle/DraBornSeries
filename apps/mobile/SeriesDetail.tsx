@@ -97,9 +97,9 @@ export default function SeriesDetail({
           }}
         >
           <Text style={styles.eyebrow}>
-            {series.is_demo
-              ? "DRABORN ORIGINALS · ANİMASYON"
-              : "DRABORN ORIGINALS"}
+            {series.source_credit?.creator
+              ? "LİSANSLI FİLM · DİKEY UYARLAMA"
+              : series.is_demo ? "DİKEY TEST KOLEKSİYONU" : "DRABORNSERIES"}
           </Text>
           <Text style={[styles.h1, { fontSize: compact ? 42 : 58 }]}>
             {series.title}

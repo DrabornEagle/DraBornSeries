@@ -7,7 +7,7 @@ import PlayerChrome from "./PlayerChrome";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
-    [fullscreen, setFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
+    [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
     [playing, setPlaying] = useState(false), [muted, setMuted] = useState(false), [time, setTime] = useState(initialTime),
     [duration, setDuration] = useState(0);
@@ -29,6 +29,15 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     const changed = () => setFullscreen(document.fullscreenElement === (container.current as unknown as HTMLElement));
     document.addEventListener("fullscreenchange", changed); return () => document.removeEventListener("fullscreenchange", changed);
   }, []);
+  useEffect(() => {
+    if (!viewportFullscreen) return;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setViewportFullscreen(false); };
+    document.addEventListener("keydown", escape);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener("keydown", escape); };
+  }, [viewportFullscreen]);
+  const expanded = fullscreen || viewportFullscreen;
   const replace = (url: string) => {
     const el = video.current; if (!el) return;
     const position = el.currentTime, resume = !el.paused; setError(""); setBuffering(true);
@@ -39,11 +48,13 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
     : levels.map((level, index) => ({ key: "h:" + index, label: Math.min(level.width, level.height) + "p" })) )];
-  return <View ref={container} nativeID="dbs-premium-player" style={{ width: "100%", alignSelf: "center", maxWidth: portrait ? 420 : 1100,
-    maxHeight: fullscreen ? undefined : 760, aspectRatio: portrait ? 9 / 16 : 16 / 9, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
-    <style>{`#dbs-premium-player:fullscreen { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
-      #dbs-premium-player:fullscreen video { object-fit: cover !important; object-position: center top; }
-      #dbs-premium-player video::-webkit-media-controls { display: none !important; }`}</style>
+  return <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: portrait ? 420 : 1100,
+    maxHeight: expanded ? undefined : 760, aspectRatio: portrait ? 9 / 16 : 16 / 9, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
+    <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
+      #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
+      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: cover !important; object-position: center top; }
+      #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
+      ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
     <video ref={video} playsInline controls={false} controlsList="nodownload" crossOrigin={source.subtitles.length ? "anonymous" : undefined}
       style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
@@ -55,13 +66,18 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       {source.subtitles.map((item) => <track key={item.language} kind="subtitles" src={item.url} srcLang={item.language} label={item.label} />)}
     </video>
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
-      quality={quality} choices={choices} fullscreen={fullscreen} error={error}
+      quality={quality} choices={choices} fullscreen={expanded} error={error}
       onPlay={() => { if (playing) video.current?.pause(); else video.current?.play().catch(() => {}); }}
       onSeek={(value) => { if (video.current) video.current.currentTime = value; }}
       onMute={() => { if (video.current) { video.current.muted = !muted; setMuted(!muted); } }}
       onFullscreen={() => {
-        if (fullscreen) document.exitFullscreen?.().catch(() => {});
-        else (container.current as unknown as HTMLElement)?.requestFullscreen?.().catch(() => { setError("Tarayıcın tam ekranı desteklemiyor."); });
+        if (viewportFullscreen) setViewportFullscreen(false);
+        else if (fullscreen) document.exitFullscreen?.().catch(() => {});
+        else {
+          const target = container.current as unknown as HTMLElement;
+          if (target?.requestFullscreen) target.requestFullscreen().catch(() => setViewportFullscreen(true));
+          else setViewportFullscreen(true);
+        }
       }}
       onQuality={(key) => { setQuality(choices.find((choice) => choice.key === key)?.label || "Otomatik");
         if (key.startsWith("h:") && hls.current) hls.current.currentLevel = Number(key.slice(2));

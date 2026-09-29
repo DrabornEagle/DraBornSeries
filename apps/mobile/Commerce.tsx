@@ -117,11 +117,13 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
   const [products, setProducts] = useState<Product[]>([]),
     [selected, setSelected] = useState("monthly"),
     [checkout, setCheckout] = useState<Product | null>(null),
+    [checkoutVisible, setCheckoutVisible] = useState(false),
     [reward, setReward] = useState<number | null>(null),
     [filter, setFilter] = useState("all"),
     [promo, setPromo] = useState(""),
     [tasks, setTasks] = useState<any[]>([]),
     [claims, setClaims] = useState<string[]>([]);
+  const openCheckout = (product: Product) => { setCheckout(product); setCheckoutVisible(true); };
   useEffect(() => {
     requireData(
       db.from("dbs_google_play_products").select("*").order("sort_order"),
@@ -219,7 +221,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
           <Pressable
             key={id}
             accessibilityRole="radio"
-            accessibilityState={{ selected: active }}
+            accessibilityState={{ selected: active, checked: active }}
             accessibilityLabel={title + " VIP"}
             onPress={() => setSelected(id)}
           >
@@ -344,7 +346,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
                 key={p.id}
                 accessibilityRole="button"
                 accessibilityLabel={`${p.coins} BornCoins paketi`}
-                onPress={() => setCheckout(p)}
+                onPress={() => openCheckout(p)}
                 style={{ width: "47.8%", flexGrow: 1, minWidth: 135 }}
               >
                 <LinearGradient
@@ -485,7 +487,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
         {planCards}
         <AnimatedCTA
           icon="diamond"
-          onPress={() => currentPlan && setCheckout(currentPlan)}
+          onPress={() => currentPlan && openCheckout(currentPlan)}
           style={{ alignSelf: "stretch" }}
         >
           Seçili paketi incele
@@ -1033,10 +1035,10 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
         {body}
       </View>
       <Modal
-        visible={checkout !== null}
+        visible={checkoutVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setCheckout(null)}
+        onRequestClose={() => setCheckoutVisible(false)}
       >
         <View
           style={{
@@ -1069,7 +1071,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
               </Text>
               <Pressable
                 accessibilityLabel="Kapat"
-                onPress={() => setCheckout(null)}
+                onPress={() => setCheckoutVisible(false)}
               >
                 <Icon name="close-circle" size={30} />
               </Pressable>
@@ -1106,7 +1108,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             </View>
             <Button
               onPress={() => {
-                setCheckout(null);
+                setCheckoutVisible(false);
                 run(async () => { throw Error(Platform.OS === "web"
                   ? "Google Play ödeme bağlantısı henüz etkin değil. Satın alma, Google Play Android sürümünde açılacak. Hesabından ücret alınmadı."
                   : "Expo Go içinde Google Play ödemesi açılamaz. Ödeme için Google Play bağlantısı ve development build gerekir. Hesabından ücret alınmadı."); });

@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   PanResponder,
+  Platform,
   Image,
   Pressable,
   ScrollView,
   Text,
   View,
   useWindowDimensions,
+  type ViewStyle,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import type { Series, Episode } from "../types";
@@ -267,6 +269,8 @@ function FeaturedPosters({ entries, tick, compact, store, active, onStep, onSele
   onStep: (step: number) => void; onSelect: (series: Series) => void;
 }) {
   const phase = useRef(new Animated.Value(0)).current;
+  const surface = useRef<React.ElementRef<typeof View>>(null);
+  const suppressClickUntil = useRef(0);
   const previous = useRef(tick);
   const step = useRef(onStep); step.current = onStep;
   useEffect(() => {
@@ -279,13 +283,67 @@ function FeaturedPosters({ entries, tick, compact, store, active, onStep, onSele
   }, [tick, phase]);
   const responder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 12 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.3,
+    onMoveShouldSetPanResponderCapture: (_, gesture) => Math.abs(gesture.dx) > 12 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.3,
+    onPanResponderGrant: () => { suppressClickUntil.current = Infinity; },
     onPanResponderRelease: (_, gesture) => {
+      setTimeout(() => { suppressClickUntil.current = 0; }, 400);
       if (Math.abs(gesture.dx) > 30) step.current(gesture.dx < 0 ? 1 : -1);
     },
+    onPanResponderTerminationRequest: () => false,
   })).current;
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const node = surface.current as unknown as HTMLElement | null;
+    if (!node) return;
+    let origin: { x: number; y: number; id: number } | null = null;
+    let dragging = false;
+    const down = (event: PointerEvent) => {
+      if (!event.isPrimary || event.button !== 0) return;
+      origin = { x: event.clientX, y: event.clientY, id: event.pointerId }; dragging = false;
+    };
+    const move = (event: PointerEvent) => {
+      if (!origin || event.pointerId !== origin.id) return;
+      const dx = event.clientX - origin.x, dy = event.clientY - origin.y;
+      if (!dragging && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        dragging = true; node.setPointerCapture?.(event.pointerId);
+      }
+      if (dragging) { event.preventDefault(); suppressClickUntil.current = Date.now() + 1000; }
+    };
+    const up = (event: PointerEvent) => {
+      if (!origin || event.pointerId !== origin.id) return;
+      const dx = event.clientX - origin.x;
+      if (dragging) {
+        event.preventDefault(); event.stopPropagation(); suppressClickUntil.current = Date.now() + 400;
+        if (Math.abs(dx) > 30) step.current(dx < 0 ? 1 : -1);
+      }
+      origin = null; dragging = false;
+    };
+    const cancel = () => { origin = null; dragging = false; };
+    const click = (event: MouseEvent) => {
+      if (Date.now() < suppressClickUntil.current) { event.preventDefault(); event.stopImmediatePropagation(); }
+    };
+    const key = (event: KeyboardEvent) => {
+      if (event.target !== node || event.repeat) return;
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+        event.preventDefault(); step.current(event.key === "ArrowRight" ? 1 : -1);
+      }
+    };
+    node.addEventListener("pointerdown", down); node.addEventListener("pointermove", move);
+    node.addEventListener("pointerup", up); node.addEventListener("pointercancel", cancel);
+    node.addEventListener("click", click, true); node.addEventListener("keydown", key);
+    return () => {
+      node.removeEventListener("pointerdown", down); node.removeEventListener("pointermove", move);
+      node.removeEventListener("pointerup", up); node.removeEventListener("pointercancel", cancel);
+      node.removeEventListener("click", click, true); node.removeEventListener("keydown", key);
+    };
+  }, []);
   const height = compact ? 300 : 388, cardWidth = height * 9 / 16, spacing = cardWidth * 0.86;
-  return <View {...responder.panHandlers} accessibilityLabel="Vitrindeki üç görsel arasında sağa veya sola kaydır"
-    style={{ height, width: compact ? "100%" : 370, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+  return <View ref={surface} {...(Platform.OS === "web" ? {} : responder.panHandlers)} accessibilityLabel="Vitrindeki üç görsel arasında sağa veya sola kaydır"
+    tabIndex={Platform.OS === "web" ? 0 : undefined}
+    accessibilityActions={[{ name: "increment", label: "Sonraki afiş" }, { name: "decrement", label: "Önceki afiş" }]}
+    onAccessibilityAction={(event) => step.current(event.nativeEvent.actionName === "increment" ? 1 : -1)}
+    style={[{ height, width: compact ? "100%" : 370, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+      Platform.OS === "web" ? { touchAction: "pan-y" } as ViewStyle : undefined]}>
     {[-1, 0, 1].map((slot) => {
       const series = entries[((tick + slot) % entries.length + entries.length) % entries.length];
       const position = Animated.add(phase, slot);
@@ -294,7 +352,7 @@ function FeaturedPosters({ entries, tick, compact, store, active, onStep, onSele
         transform: [{ translateX: Animated.multiply(position, spacing) },
           { scale: position.interpolate({ inputRange: [-2, -1, 0, 1, 2], outputRange: [0.7, 0.84, 1, 0.84, 0.7] }) },
           { rotate: position.interpolate({ inputRange: [-2, 0, 2], outputRange: ["-18deg", "0deg", "18deg"] }) }] }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={series.title} onPress={() => onSelect(series)}
+        <Pressable accessibilityRole="button" accessibilityLabel={series.title} onPress={() => { if (Date.now() >= suppressClickUntil.current) onSelect(series); }}
           style={{ flex: 1, borderRadius: 20, overflow: "hidden", borderWidth: 1, borderColor: "#f5badb60" }}>
           <MotionArtwork series={series} episode={store.episodes.find((e) => e.series_id === series.id && e.access_type === "free")}
             active={slot === 0 && active} />
