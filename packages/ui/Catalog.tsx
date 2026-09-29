@@ -20,9 +20,10 @@ export function Artwork({
   series: Series;
   hero?: boolean;
 }) {
-  const [failed, setFailed] = useState(false);
   const uri =
     (hero ? series.banner_url : series.poster_url) || series.poster_url;
+  const [failedUri, setFailedUri] = useState<string | null>(null);
+  const failed = !!uri && failedUri === uri;
   return (
     <View style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <LinearGradient
@@ -32,7 +33,7 @@ export function Artwork({
       {!failed && uri && (
         <Image
           source={{ uri }}
-          onError={() => setFailed(true)}
+          onError={() => setFailedUri(uri)}
           resizeMode="cover"
           style={{ width: "100%", height: "100%" }}
         />
