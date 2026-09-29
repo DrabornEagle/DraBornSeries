@@ -533,7 +533,7 @@ function Main() {
                 onPress={() => go("help")}
               />
               <Text style={{ color: "#675d72", fontSize: 10 }}>
-                DraBornEagle © 2026{`\n`}DraBornSeries v0.2.0
+                DraBornEagle © 2026{`\n`}DraBornSeries v0.3.0
               </Text>
             </View>
           </View>
@@ -704,7 +704,7 @@ function Main() {
                     </Pressable>
                     <Text style={{ fontSize: 11, color: "#665b70" }}>•</Text>
                     <Text style={{ fontSize: 11, color: "#665b70" }}>
-                      Erken erişim · v0.2.0
+                      Erken erişim · v0.3.0
                     </Text>
                     <Pressable
                       onPress={() =>

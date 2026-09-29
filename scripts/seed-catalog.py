@@ -28,7 +28,7 @@ for number in [50,100,250,500,1000,2500]:
 sql+="insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_vip_monthly','vip',0,false) on conflict do nothing;\n"
 for genre in sorted(set(g for r in rows for g in r['genres'])):
  sql+=f"insert into drabornseries.dbs_genres(id,name) values({quote(genre)},{quote(genre)}) on conflict do nothing;\n"
-for key,data in {'release':{'version':'0.2.0','stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
+for key,data in {'release':{'version':'0.3.0','stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
  sql+=f"insert into drabornseries.dbs_app_settings values({quote(key)},{quote(json.dumps(data))}::jsonb,true) on conflict do nothing;\n"
 sql+="insert into drabornseries.dbs_promo_codes(code,coins,max_uses,expires_at) values('DBS2026',30,10000,now()+interval '90 days') on conflict do nothing;\n"
 for number,(name,desc) in enumerate([('İlk Bölüm','İlk bölümünü tamamla'),('Maratoncu','10 bölüm tamamla'),('Series Hunter','10 farklı dizi izle'),('Collector','20 diziyi listene ekle'),('7 Day Streak','7 gün günlük ödül al')]):
