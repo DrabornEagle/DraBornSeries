@@ -1,7 +1,9 @@
 import type { Language } from "../types";
 const tr = {
   home: "Ana Sayfa",
-  browse: "Keşfet",
+  feed: "Keşfet",
+  store: "Mağaza",
+  browse: "Katalog",
   search: "Ara",
   library: "Listem",
   wallet: "BornCoins",
@@ -69,7 +71,9 @@ const tr = {
 };
 const en: typeof tr = {
   home: "Home",
-  browse: "Discover",
+  feed: "Discover",
+  store: "Store",
+  browse: "Browse",
   search: "Search",
   library: "My List",
   wallet: "BornCoins",

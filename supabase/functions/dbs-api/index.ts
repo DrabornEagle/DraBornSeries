@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.1.0",
+        version: "0.2.0",
         cloudflare: !!env("DBS_WORKER_URL"),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
@@ -293,18 +293,29 @@ Deno.serve(async (req) => {
         return send(req, { error: "CLOUDFLARE_REQUIRED" }, 400);
       if (body.table === "dbs_profiles" && row.user_id === user.id)
         return send(req, { error: "SELF_STATUS_CHANGE_DENIED" }, 400);
-      const saved = await checked(
-        admin.from(body.table).upsert(row).select().single(),
-      );
+      const moderationTables = [
+        "dbs_profiles",
+        "dbs_comments",
+        "dbs_reports",
+        "dbs_content_reports",
+      ];
+      const primaryKey = body.table === "dbs_profiles" ? "user_id" : "id";
+      if (moderationTables.includes(body.table) && !row[primaryKey])
+        return send(req, { error: "ROW_ID_REQUIRED" }, 400);
+      const write = moderationTables.includes(body.table)
+        ? admin
+            .from(body.table)
+            .update({ status: row.status })
+            .eq(primaryKey, row[primaryKey])
+        : admin.from(body.table).upsert(row);
+      const saved = await checked(write.select().single());
       await checked(
-        admin
-          .from("dbs_admin_logs")
-          .insert({
-            admin_id: user.id,
-            action: "save",
-            target: body.table,
-            detail: { id: saved.id || saved.user_id, fields: Object.keys(row) },
-          }),
+        admin.from("dbs_admin_logs").insert({
+          admin_id: user.id,
+          action: "save",
+          target: body.table,
+          detail: { id: saved.id || saved.user_id, fields: Object.keys(row) },
+        }),
       );
       return send(req, { row: saved });
     }

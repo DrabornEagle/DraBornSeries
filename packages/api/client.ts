@@ -1,5 +1,5 @@
 import "react-native-url-polyfill/auto";
-import { createClient, processLock } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, Platform } from "react-native";
 import { config } from "../shared/config";
@@ -11,7 +11,6 @@ export const db = createClient(config.supabaseUrl, config.publishableKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: Platform.OS === "web",
-    lock: processLock,
     flowType: "pkce",
   },
 });

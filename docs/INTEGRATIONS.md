@@ -14,7 +14,7 @@ Full DRM and screenshot prevention are not provided. Signed tokens remain bearer
 
 Server verifier: `dbs-play-verify`. Secret `DBS_GOOGLE_SERVICE_ACCOUNT` must contain a Play-authorized service account JSON. Native Billing must set `obfuscatedAccountId = SHA256(Supabase user UUID)`. The verifier checks the authoritative product, purchase state, owning account, quantity and expiry. Atomic ledger operations prevent duplicate credit. Consumables are consumed after credit; subscriptions are acknowledged after grant. Pending purchases never grant entitlement.
 
-Products: `dbs_coins_50`, `dbs_coins_100`, `dbs_coins_250`, `dbs_coins_500`, `dbs_coins_1000`, `dbs_coins_2500`, `dbs_vip_monthly`. No currency amount is hardcoded in the checkout; prices must come from Play Billing product details.
+Products: `dbs_coins_50`, `dbs_coins_100`, `dbs_coins_250`, `dbs_coins_500`, `dbs_coins_1000`, `dbs_coins_2500`, `dbs_vip_weekly`, `dbs_vip_monthly`, `dbs_vip_yearly`. The six coin cards show base plus proposed bonus amounts; the verified server catalog credits the configured total, once. No currency amount is hardcoded in the checkout; prices must come from Play Billing product details. All nine products are inactive until native Billing and lifecycle reconciliation work.
 
 **Not yet connected:** native Billing (Expo Go cannot load it), Play products, Google service account, Pub/Sub RTDN with authenticated push, renewal and refund/chargeback reconciliation. The verifier must remain disabled until the lifecycle is complete; an initial verified purchase alone is not a complete billing system. No real checkout is exposed in this release.
 

@@ -1,6 +1,6 @@
 {
   "name": "drabornseries",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "index.ts",
   "engines": {
@@ -16,7 +16,7 @@
     "build:web": "expo export --platform web && node scripts/finalize-web.mjs",
     "export:android": "expo export --platform android --output-dir dist-android",
     "sync:web": "node scripts/sync-web.mjs",
-    "db:new": "supabase migration new"
+    "db:new": "npx --yes supabase@2.118.0 migration new"
   },
   "dependencies": {
     "expo": "58.0.0-preview.7",
@@ -48,7 +48,6 @@
     "typescript": "5.9.3",
     "tsx": "4.20.6",
     "eslint": "9.39.1",
-    "eslint-config-expo": "58.0.2",
-    "supabase": "2.118.0"
+    "eslint-config-expo": "58.0.2"
   }
 }

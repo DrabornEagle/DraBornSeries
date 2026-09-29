@@ -42,6 +42,13 @@ export default function VideoPlayer({
       );
       instance.on(Events.ERROR, (_event, data) => {
         if (data.fatal)
+          console.warn(
+            "DraBornSeries playback",
+            data.type,
+            data.details,
+            data.response?.code,
+          );
+        if (data.fatal)
           setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene.");
       });
     } else {
@@ -71,7 +78,7 @@ export default function VideoPlayer({
           controls
           playsInline
           controlsList="nodownload"
-          crossOrigin="anonymous"
+          crossOrigin={source.subtitles.length ? "anonymous" : undefined}
           style={{
             width: "100%",
             maxHeight: "70vh",

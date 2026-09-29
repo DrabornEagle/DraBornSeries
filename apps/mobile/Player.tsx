@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Text, View, Switch } from "react-native";
 import type { Store } from "../../packages/api/store";
 import type { Episode, Playback } from "../../packages/types";
@@ -41,6 +41,23 @@ export default function Player({
   const [initialTime] = useState(
     progress?.completed ? 0 : progress?.position_seconds || 0,
   );
+  const autoAttempted = useRef(false);
+  useEffect(() => {
+    if (
+      !allowed &&
+      !autoAttempted.current &&
+      store.session &&
+      store.profile?.preferences?.auto_unlock === true &&
+      ["coins", "vip_or_coins"].includes(episode.access_type) &&
+      store.balance >= episode.coin_price
+    ) {
+      autoAttempted.current = true;
+      run(async () => {
+        await rpc("dbs_unlock_episode", { episode: episode.id });
+        await store.refreshAccount();
+      }, `${episode.coin_price} BornCoins kullanılarak bölüm açıldı.`);
+    }
+  }, [allowed, episode, store, run]);
   const sequence = store.episodes.filter(
       (e) => e.series_id === episode.series_id,
     ),

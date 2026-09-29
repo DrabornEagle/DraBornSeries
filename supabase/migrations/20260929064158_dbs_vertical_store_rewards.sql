@@ -1,40 +1,66 @@
--- Development catalog: original concepts are not presented as released shows.
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,title_en,short_description,description,genres,accent,poster_url,banner_url,featured_order) values('coming_soon','TR',2026,'13+',0,'gece-hatti','Gece Hattı','Night Line','Bir telefon. İki yabancı. Sabaha kadar saklanamayacak bir sır.','Gece yarısı gelen bir arama, yolları asla kesişmemesi gereken iki insanı aynı sahil yolunda buluşturur. Şehrin ışıkları sönerken gerçeğe giden tek yol birbirlerine güvenmektir. DraBornSeries için geliştirilmekte olan özgün dizi konsepti; bölümleri henüz yayınlanmadı.',array['Gerilim','Dram']::text[],'#f547a5','https://www.draborneagle.com/DraBornSeries/media/gece-hatti.png','https://www.draborneagle.com/DraBornSeries/media/gece-hatti.png',1) on conflict(slug) do nothing;
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,short_description,description,genres,accent,poster_url,featured_order) values('coming_soon','TR',2026,'13+',0,'son-yaz','Son Yazdan Kalan','Bazı vedalar, yeni bir hikâyenin ilk cümlesidir.','Yıllar sonra sahil kasabasına dönen Deniz, çocukluğundan kalan bir mektubun izini sürer. Özgün romantik dram konsepti; yakında.',array['Romantik','Dram']::text[],'#fc915f','https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&q=85',2) on conflict(slug) do nothing;
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,short_description,description,genres,accent,poster_url,is_vip) values('coming_soon','TR',2026,'13+',0,'sifir-noktasi','Sıfır Noktası','Dünya durduğunda, zaman sana ne anlatır?','Her gece tam 03.17’de şehirdeki tüm saatler durur. Bunu hatırlayan tek kişi genç bir saat ustasıdır. Özgün bilimkurgu konsepti; yakında.',array['Bilimkurgu','Gizem']::text[],'#9b7cfa','https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=720&q=85',true) on conflict(slug) do nothing;
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,short_description,description,genres,accent,poster_url) values('coming_soon','TR',2026,'13+',0,'kiyi','Kıyı','Denizin sakladığını hiçbir şehir unutamaz.','Kaybolan bir tekne, terk edilmiş bir otel ve birbiriyle kesişen üç hayat. Özgün gizem konsepti; yakında.',array['Gizem','Dram']::text[],'#40cec3','https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=720&q=85') on conflict(slug) do nothing;
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,short_description,description,genres,accent,poster_url) values('coming_soon','TR',2026,'13+',0,'neon-kalp','Neon Kalp','Bu şehirde herkesin bir ritmi var.','İlk konserine hazırlanan bir müzisyen, komşusuyla kaydettiği bir şarkıyla beklenmedik bir yolculuğa çıkar. Özgün romantik müzik konsepti; yakında.',array['Romantik','Müzik']::text[],'#eb568b','https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=720&q=85') on conflict(slug) do nothing;
-insert into drabornseries.dbs_series(status,country,production_year,age_rating,total_episodes,slug,title,short_description,description,genres,accent,poster_url) values('coming_soon','TR',2026,'13+',0,'yuksek-sezon','Yüksek Sezon','Küçük bir otel. Çok büyük meseleler.','Bir aile otelinin yeni çalışanları, sezonun ilk gününde kendilerini komik bir yanlış anlaşılmanın içinde bulur. Özgün komedi konsepti; yakında.',array['Komedi']::text[],'#e4b45c','https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=720&q=85') on conflict(slug) do nothing;
-insert into drabornseries.dbs_seasons(series_id,number,title) select id,1,'Sezon 1' from drabornseries.dbs_series on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_50','coins',50,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_50',50,0,50) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_100','coins',100,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_100',100,0,100) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_250','coins',250,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_250',250,0,250) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_500','coins',500,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_500',500,0,500) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_1000','coins',1000,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_1000',1000,0,1000) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_2500','coins',2500,false) on conflict do nothing;
-insert into drabornseries.dbs_borncoins_products values('dbs_coins_2500',2500,0,2500) on conflict do nothing;
-insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_vip_monthly','vip',0,false) on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Bilimkurgu','Bilimkurgu') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Dram','Dram') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Gerilim','Gerilim') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Gizem','Gizem') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Komedi','Komedi') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Müzik','Müzik') on conflict do nothing;
-insert into drabornseries.dbs_genres(id,name) values('Romantik','Romantik') on conflict do nothing;
-insert into drabornseries.dbs_app_settings values('release','{"version": "0.2.0", "stage": "expo_go_test"}'::jsonb,true) on conflict do nothing;
-insert into drabornseries.dbs_app_settings values('integrations','{"billing": false, "ads": false, "cloudflare": false, "push": false}'::jsonb,true) on conflict do nothing;
-insert into drabornseries.dbs_app_settings values('daily_rewards','[2, 3, 5, 5, 7, 10, 20]'::jsonb,true) on conflict do nothing;
-insert into drabornseries.dbs_promo_codes(code,coins,max_uses,expires_at) values('DBS2026',30,10000,now()+interval '90 days') on conflict do nothing;
-insert into drabornseries.dbs_achievements(id,name,description) values('achievement-0','İlk Bölüm','İlk bölümünü tamamla') on conflict do nothing;
-insert into drabornseries.dbs_achievements(id,name,description) values('achievement-1','Maratoncu','10 bölüm tamamla') on conflict do nothing;
-insert into drabornseries.dbs_achievements(id,name,description) values('achievement-2','Series Hunter','10 farklı dizi izle') on conflict do nothing;
-insert into drabornseries.dbs_achievements(id,name,description) values('achievement-3','Collector','20 diziyi listene ekle') on conflict do nothing;
-insert into drabornseries.dbs_achievements(id,name,description) values('achievement-4','7 Day Streak','7 gün günlük ödül al') on conflict do nothing;
+-- DraBornSeries v0.2. Additive changes remain inside the Series schema.
+alter table drabornseries.dbs_google_play_products
+  add column title text,
+  add column billing_period text check (billing_period in ('weekly','monthly','yearly')),
+  add column bonus_coins integer not null default 0 check (bonus_coins>=0),
+  add column sort_order integer not null default 0;
+
+insert into drabornseries.dbs_google_play_products(id,kind,coins,active,title,bonus_coins,sort_order) values
+ ('dbs_coins_50','coins',50,false,'50 BornCoins',0,10),
+ ('dbs_coins_100','coins',110,false,'100 + 10 BornCoins',10,20),
+ ('dbs_coins_250','coins',280,false,'250 + 30 BornCoins',30,30),
+ ('dbs_coins_500','coins',580,false,'500 + 80 BornCoins',80,40),
+ ('dbs_coins_1000','coins',1200,false,'1.000 + 200 BornCoins',200,50),
+ ('dbs_coins_2500','coins',3100,false,'2.500 + 600 BornCoins',600,60)
+ on conflict(id) do update set title=excluded.title,coins=excluded.coins,bonus_coins=excluded.bonus_coins,sort_order=excluded.sort_order;
+insert into drabornseries.dbs_borncoins_products(id,coins,bonus,sort_order)
+ select id,coins-bonus_coins,bonus_coins,sort_order from drabornseries.dbs_google_play_products where kind='coins'
+ on conflict(id) do update set coins=excluded.coins,bonus=excluded.bonus,sort_order=excluded.sort_order;
+insert into drabornseries.dbs_google_play_products(id,kind,coins,active,title,billing_period,sort_order) values
+ ('dbs_vip_weekly','vip',0,false,'DraBornSeries Haftalık VIP','weekly',100),
+ ('dbs_vip_monthly','vip',0,false,'DraBornSeries Aylık VIP','monthly',110),
+ ('dbs_vip_yearly','vip',0,false,'DraBornSeries Yıllık VIP','yearly',120)
+ on conflict(id) do update set title=excluded.title,billing_period=excluded.billing_period,sort_order=excluded.sort_order;
+
+insert into drabornseries.dbs_tasks(id,name,name_en,description,data) values
+ ('welcome','DraBornSeries’e hoş geldin','Welcome to DraBornSeries','E-posta hesabınla giriş yap; bir defalık karşılama ödülünü al.','{"coins":80,"kind":"welcome"}'),
+ ('favorite','İlk hikâyeni listene ekle','Start your collection','Bir diziyi Listem’e ekle, sonra ödülünü al.','{"coins":10,"kind":"favorite"}'),
+ ('profile','Profilini kişiselleştir','Make it yours','Ayarlar bölümünde adını veya profil fotoğrafını kaydet.','{"coins":10,"kind":"profile"}')
+ on conflict(id) do update set name=excluded.name,name_en=excluded.name_en,description=excluded.description,data=excluded.data;
+
+create function dbs_series_private.dbs_claim_task(task text) returns jsonb
+ language plpgsql security definer set search_path='' as $$
+declare definition drabornseries.dbs_tasks; amount integer;
+begin
+ if not dbs_series_private.dbs_active() then raise exception 'AUTH_REQUIRED'; end if;
+ select * into definition from drabornseries.dbs_tasks t where t.id=task and t.active;
+ if definition.id is null or task not in ('welcome','favorite','profile') then raise exception 'TASK_UNAVAILABLE'; end if;
+ -- All concurrent claims by this account serialize before the claimed check.
+ perform 1 from drabornseries.dbs_borncoins_wallet where user_id=auth.uid() for update;
+ if exists(select 1 from drabornseries.dbs_user_tasks where user_id=auth.uid() and tasks_id=task and claimed_at is not null) then raise exception 'ALREADY_CLAIMED'; end if;
+ if task='welcome' and not exists(select 1 from auth.users where id=auth.uid() and email_confirmed_at is not null) then raise exception 'EMAIL_UNCONFIRMED'; end if;
+ if task='favorite' and not exists(select 1 from drabornseries.dbs_favorites where user_id=auth.uid()) then raise exception 'TASK_INCOMPLETE'; end if;
+ if task='profile' and not exists(select 1 from drabornseries.dbs_profiles where user_id=auth.uid() and (length(trim(coalesce(full_name,'')))>=2 or coalesce(avatar_url,'') like 'https://%')) then raise exception 'TASK_INCOMPLETE'; end if;
+ amount:=(definition.data->>'coins')::integer;
+ if amount is null or amount<=0 or amount>1000 then raise exception 'TASK_UNAVAILABLE'; end if;
+ perform dbs_series_private.dbs_ledger(auth.uid(),amount,'task','task:'||auth.uid()||':'||task,definition.name);
+ insert into drabornseries.dbs_user_tasks(user_id,tasks_id,progress,claimed_at) values(auth.uid(),task,1,now())
+ on conflict(user_id,tasks_id) do update set progress=1,claimed_at=excluded.claimed_at;
+ return jsonb_build_object('coins',amount,'task',task);
+end $$;
+create function drabornseries.dbs_claim_task(task text) returns jsonb
+ language sql security invoker set search_path='' as $$ select dbs_series_private.dbs_claim_task(task) $$;
+revoke all on function dbs_series_private.dbs_claim_task(text) from public,anon,authenticated;
+revoke all on function drabornseries.dbs_claim_task(text) from public,anon,authenticated;
+grant execute on function dbs_series_private.dbs_claim_task(text) to authenticated,service_role;
+grant execute on function drabornseries.dbs_claim_task(text) to authenticated,service_role;
+
+-- Preserve historical unlock/ledger references; retire the landscape demos.
+update drabornseries.dbs_series set status='archived',featured_order=null where slug in ('big-buck-bunny','sintel') and is_demo;
+update drabornseries.dbs_episodes set status='archived' where series_id in (select id from drabornseries.dbs_series where slug in ('big-buck-bunny','sintel') and is_demo);
+insert into drabornseries.dbs_app_settings(key,value,public) values('release','{"version":"0.2.0","stage":"expo_go_test","format":"vertical"}',true)
+ on conflict(key) do update set value=excluded.value;
+
 -- Vertical demo scenes. Public third-party samples, not protected production content.
 insert into drabornseries.dbs_series(slug,title,short_description,description,genres,accent,poster_url,banner_url,license,status,is_demo,featured_order,total_episodes,average_duration,production_year,age_rating) values('sehir-isiklari','Şehir Işıkları','Geceyi aydınlatan küçük bir karşılaşma.','Geceyi aydınlatan küçük bir karşılaşma. Bu koleksiyondaki bölümler, 9:16 oynatıcı ve kaydırmalı keşfet deneyimi için lisanslı kısa demo sahneleridir; tamamlanmış bir dizi yapımı değildir.',array['Romantik','Dram']::text[],'#ef4795','https://images.pexels.com/videos/5909013/pexels-photo-5909013.jpeg?auto=compress&cs=tinysrgb&w=600','https://images.pexels.com/videos/5909013/pexels-photo-5909013.jpeg?auto=compress&cs=tinysrgb&w=600','Pexels License · pexels.com/license/ · Katerina Holmes','published',true,1,2,12,2026,'13+') on conflict(slug) do update set title=excluded.title,short_description=excluded.short_description,description=excluded.description,genres=excluded.genres,accent=excluded.accent,poster_url=excluded.poster_url,banner_url=excluded.banner_url,license=excluded.license,status=excluded.status,is_demo=excluded.is_demo,featured_order=excluded.featured_order,total_episodes=excluded.total_episodes,average_duration=excluded.average_duration,production_year=excluded.production_year,age_rating=excluded.age_rating;
 insert into drabornseries.dbs_seasons(series_id,number,title) select id,1,'İlk bakış' from drabornseries.dbs_series where slug='sehir-isiklari' on conflict do nothing;

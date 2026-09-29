@@ -1,4 +1,4 @@
-# DraBornSeries · v0.1.0
+# DraBornSeries · v0.2.0
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
@@ -6,11 +6,14 @@ Bu sürüm resmi ticari lansman değildir. Gerçek dizi hakları ve videoları, 
 
 ## Çalışan özellikler
 
-- Özgün koyu/neon arayüz, oluşturulmuş uygulama ikonu, splash ve Gece Hattı konsept görseli; telefon/tablet/masaüstü düzeni.
+- Özgün Miami neon arayüz; 1,7 saniyelik animasyonlu splash/loading, logo, Gece Hattı konsept afişi ve BornCoins hediye illüstrasyonu; telefon/tablet/masaüstü düzeni.
+- Ana sayfada sırayla değişen dikey afişler ve sesiz kısa video önizlemeleri; Keşfet'te ekran boyunda yukarı/aşağı kaydırılan dikey sahneler, favori, ses ve “Tümünü izle”. Düşük bağlantıda afişe dönüş ve ayarlardan otomatik önizlemeyi kapatma.
+- Ana Sayfa / Keşfet / Listem / Ödüller / Profil alt menüsü; özgün Mağaza, VIP, cüzdan, görevler ve profil ekranları.
 - Ortak Supabase Auth e-posta hesabı; profil, dil tercihleri, oturum listesi ve uygulama verisi silme.
 - Canlı katalog, dizi/bölüm detayları, tür/isim/oyuncu/etiket arama, geçmiş ve filtreler.
 - Expo Video (Android) ve HTML5/HLS.js (web) oynatıcı: devam, ileri/geri, ses, fullscreen, cihazın desteklediği PiP ve kaynağın sunduğu kalite seçenekleri.
-- BornCoins defteri, atomik ve tekrarlanabilir güvenli bölüm satın alma, günlük ödül, 7 günlük streak, promosyon kodu.
+- BornCoins defteri, atomik ve tekrarlanabilir güvenli bölüm satın alma, günlük ödül, 7 günlük streak, promosyon kodu ve doğrulanan tek kullanımlık karşılama/favori/profil görevleri.
+- Mağazada altı BornCoins paketi ve haftalık, aylık, yıllık VIP plan kartları bulunur. Ürünler kapalıdır; Expo Go üzerinden gerçek satın alma ve uydurma fiyat gösterilmez.
 - Hesap bazlı favoriler, puan, moderasyona gönderilen yorumlar, spoiler, beğeni/şikayet.
 - İzleme ilerlemesinin cihazlar arası senkronizasyonu ve bağlantı sonrası yerel progress kuyruğunun gönderilmesi.
 - Katalog/medya/kullanıcı/cüzdan/rapor/yorum/altyazı/ana sayfa yönetimi için web admin paneli.
@@ -36,8 +39,9 @@ Tüm 59 tablo `dbs_` ile başlar ve RLS açıktır. Ayrıcalıklı yardımcılar
 ```bash
 pkg update -y && pkg install -y nodejs-lts git
 cd "$HOME"
-git clone https://github.com/DrabornEagle/DraBornSeries.git
+[ -d DraBornSeries/.git ] || git clone https://github.com/DrabornEagle/DraBornSeries.git
 cd DraBornSeries
+git pull --ff-only
 npm ci
 npx expo start --localhost --clear
 ```
@@ -50,9 +54,11 @@ Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sürüml
 
 ## Test hesabı ve içerik
 
-Kendi e-posta hesabını oluştur. Cüzdan ekranında **DBS2026** kodunu kullanarak bir kez 30 BornCoins alabilirsin. Günlük ödül de aktiftir. Big Buck Bunny test koleksiyonu, aynı açık lisanslı film üzerinden ücretsiz/coin/reklam/VIP erişim türlerini gösterir. Özgün dizi konseptleri **Yakında** durumundadır; yayınlanmış gerçek dizi gibi gösterilmez.
+Kendi e-posta hesabını oluştur. Ödüller'den doğrulanmış e-posta hesabına bir defa 80 BornCoins karşılama ödülü, ilk favori ve kişiselleştirilmiş profil için ayrı görev ödülleri alabilirsin. Cüzdanda **DBS2026** kodu bir defa 30 BornCoins verir; günlük ödül de aktiftir. İlk bakış kataloğunda **4 koleksiyon / 8 lisanslı 9:16 demo sahnesi** vardır. Bunlar tamamlanmış diziler değildir. Altı özgün dizi konsepti **Yakında** durumundadır. Eski yatay test filmleri arşivlendi; eski kullanıcı geçmişi silinmedi.
 
 Yönetici: doğrulanmış `draborneagle@gmail.com` hesabı. Profil → **DraBornSeries Stüdyo**, veya `?page=admin`. Bu yalnızca UI gizleme değildir; backend role kontrolü yapar.
+
+Admin hesabının istenen şifreyle gerçek giriş ve backend rol testi yapıldı. Şifre kaynak koda, dokümanlara veya otomasyona yazılmadı. Supabase Auth aynı projedeki diğer uygulamalar tarafından da paylaşıldığı için bu hesabın şifresi o oturumlarda da güncellendi.
 
 ## Geliştirme
 

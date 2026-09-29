@@ -9,8 +9,9 @@ rows=[
  dict(slug='neon-kalp',title='Neon Kalp',short_description='Bu şehirde herkesin bir ritmi var.',description='İlk konserine hazırlanan bir müzisyen, komşusuyla kaydettiği bir şarkıyla beklenmedik bir yolculuğa çıkar. Özgün romantik müzik konsepti; yakında.',genres=['Romantik','Müzik'],accent='#eb568b',poster_url='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=720&q=85'),
  dict(slug='yuksek-sezon',title='Yüksek Sezon',short_description='Küçük bir otel. Çok büyük meseleler.',description='Bir aile otelinin yeni çalışanları, sezonun ilk gününde kendilerini komik bir yanlış anlaşılmanın içinde bulur. Özgün komedi konsepti; yakında.',genres=['Komedi'],accent='#e4b45c',poster_url='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=720&q=85'),
  dict(slug='big-buck-bunny',title='Big Buck Bunny',short_description='Oynatıcı ve bölüm erişimini denemek için açık lisanslı kısa film.',description='Blender Foundation tarafından hazırlanan açık lisanslı animasyon. Bu test koleksiyonundaki bütün bölümler aynı filme bağlanır; farklı bölüm kilitlerini denemek içindir. Ticari DraBornSeries dizisi değildir.',genres=['Animasyon','Komedi'],accent='#83b993',poster_url='https://peach.blender.org/wp-content/uploads/title_anouncement.jpg',is_demo=True,status='published',total_episodes=8,license='© Blender Foundation | peach.blender.org | CC BY 3.0',production_year=2008),
- dict(slug='sintel',title='Sintel',short_description='Bir dostu bulmak için çıkılan büyülü yolculuk.',description='Blender Foundation açık filmi. DraBornSeries video oynatıcısını test etmek için sunulur. © Blender Foundation / sintel.org — Creative Commons Attribution 3.0.',genres=['Animasyon','Fantastik'],accent='#e48d57',poster_url='https://download.blender.org/durian/trailer/sintel_trailer-1080p.jpg',is_demo=True,status='published',total_episodes=1,license='© Blender Foundation | sintel.org | CC BY 3.0',production_year=2010)
+ dict(slug='sintel',title='Sintel',short_description='Bir dostu bulmak için çıkılan büyülü yolculuk.',description='Blender Foundation açık filminin 52 saniyelik resmî fragmanı. DraBornSeries video oynatıcısını test etmek için sunulur. © Blender Foundation / sintel.org — Creative Commons Attribution 3.0.',genres=['Animasyon','Fantastik'],accent='#e48d57',poster_url='https://download.blender.org/durian/trailer/sintel_trailer-1080p.jpg',is_demo=True,status='published',total_episodes=1,license='© Blender Foundation | sintel.org | CC BY 3.0',production_year=2010)
 ]
+rows=rows[:6]
 quote=lambda value: "'"+str(value).replace("'","''")+"'"
 def value(v):
  if isinstance(v,bool): return 'true' if v else 'false'
@@ -22,20 +23,17 @@ for row in rows:
  row={'status':'coming_soon','country':'TR','production_year':2026,'age_rating':'13+','total_episodes':0,**row}
  sql+='insert into drabornseries.dbs_series('+','.join(row)+') values('+','.join(value(v) for v in row.values())+') on conflict(slug) do nothing;\n'
 sql+="insert into drabornseries.dbs_seasons(series_id,number,title) select id,1,'Sezon 1' from drabornseries.dbs_series on conflict do nothing;\n"
-for idx,(kind,coins) in enumerate([('free',0),('free',0),('free',0),('coins',10),('ad',0),('coins',15),('vip',0),('vip_or_coins',20)],1):
- sql+=f"insert into drabornseries.dbs_episodes(series_id,season_id,number,title,duration_seconds,access_type,coin_price,status,description) select s.id,se.id,{idx},'Erişim testi {idx} · {kind}',596,'{kind}',{coins},'published','Aynı açık lisanslı film üzerinden bölüm erişim testi.' from drabornseries.dbs_series s join drabornseries.dbs_seasons se on se.series_id=s.id where s.slug='big-buck-bunny' on conflict do nothing;\n"
-sql+="insert into drabornseries.dbs_episodes(series_id,season_id,number,title,duration_seconds,access_type,status) select s.id,se.id,1,'Sintel · Açık film',888,'free','published' from drabornseries.dbs_series s join drabornseries.dbs_seasons se on se.series_id=s.id where s.slug='sintel' on conflict do nothing;\n"
-sql+="insert into drabornseries.dbs_video_assets(episode_id,provider,demo_url,ready) select e.id,'demo',case when s.slug='sintel' then 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' else 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' end,true from drabornseries.dbs_episodes e join drabornseries.dbs_series s on s.id=e.series_id where s.is_demo on conflict do nothing;\n"
 for number in [50,100,250,500,1000,2500]:
- sql+=f"insert into drabornseries.dbs_google_play_products values('dbs_coins_{number}','coins',{number},false) on conflict do nothing;\ninsert into drabornseries.dbs_borncoins_products values('dbs_coins_{number}',{number},0,{number}) on conflict do nothing;\n"
-sql+="insert into drabornseries.dbs_google_play_products values('dbs_vip_monthly','vip',0,false) on conflict do nothing;\n"
+ sql+=f"insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_coins_{number}','coins',{number},false) on conflict do nothing;\ninsert into drabornseries.dbs_borncoins_products values('dbs_coins_{number}',{number},0,{number}) on conflict do nothing;\n"
+sql+="insert into drabornseries.dbs_google_play_products(id,kind,coins,active) values('dbs_vip_monthly','vip',0,false) on conflict do nothing;\n"
 for genre in sorted(set(g for r in rows for g in r['genres'])):
  sql+=f"insert into drabornseries.dbs_genres(id,name) values({quote(genre)},{quote(genre)}) on conflict do nothing;\n"
-for key,data in {'release':{'version':'0.1.0','stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
+for key,data in {'release':{'version':'0.2.0','stage':'expo_go_test'},'integrations':{'billing':False,'ads':False,'cloudflare':False,'push':False},'daily_rewards':[2,3,5,5,7,10,20]}.items():
  sql+=f"insert into drabornseries.dbs_app_settings values({quote(key)},{quote(json.dumps(data))}::jsonb,true) on conflict do nothing;\n"
 sql+="insert into drabornseries.dbs_promo_codes(code,coins,max_uses,expires_at) values('DBS2026',30,10000,now()+interval '90 days') on conflict do nothing;\n"
 for number,(name,desc) in enumerate([('İlk Bölüm','İlk bölümünü tamamla'),('Maratoncu','10 bölüm tamamla'),('Series Hunter','10 farklı dizi izle'),('Collector','20 diziyi listene ekle'),('7 Day Streak','7 gün günlük ödül al')]):
  sql+=f"insert into drabornseries.dbs_achievements(id,name,description) values('achievement-{number}',{quote(name)},{quote(desc)}) on conflict do nothing;\n"
+sql+=Path('supabase/seed/vertical.sql').read_text()
 Path('supabase/seed/catalog.sql').write_text(sql)
 Path('packages/shared/catalog-fallback.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2))
-print('Catalog prepared: 8 series, 9 test episodes')
+print('Catalog prepared: 6 upcoming concepts, 4 vertical demo collections, 8 scenes')

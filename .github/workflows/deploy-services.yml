@@ -17,8 +17,8 @@ jobs:
       - run: npm ci
       - name: Check configured access
         run: test -n "$SUPABASE_ACCESS_TOKEN"
-      - run: npx supabase functions deploy dbs-api --project-ref xpdiwyxnnrmyvpcqwuyb
-      - run: npx supabase functions deploy dbs-play-verify --project-ref xpdiwyxnnrmyvpcqwuyb
+      - run: npx --yes supabase@2.118.0 functions deploy dbs-api --project-ref xpdiwyxnnrmyvpcqwuyb
+      - run: npx --yes supabase@2.118.0 functions deploy dbs-play-verify --project-ref xpdiwyxnnrmyvpcqwuyb
   worker:
     runs-on: ubuntu-latest
     environment: production

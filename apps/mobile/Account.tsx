@@ -172,13 +172,11 @@ export default function Account({ page, store, go, run }: Props) {
               store.session
                 ? run(async () => {
                     await requireData(
-                      db
-                        .from("dbs_reports")
-                        .insert({
-                          user_id: store.session!.user.id,
-                          kind: reportKind,
-                          body: reportBody.trim() || reportKind,
-                        }),
+                      db.from("dbs_reports").insert({
+                        user_id: store.session!.user.id,
+                        kind: reportKind,
+                        body: reportBody.trim() || reportKind,
+                      }),
                     );
                     setReportBody("");
                   }, "Bildirimin yönetim paneline iletildi.")
@@ -219,7 +217,7 @@ export default function Account({ page, store, go, run }: Props) {
         >
           <Text style={styles.eyebrow}>BORNCOINS CÜZDANIN</Text>
           <View style={styles.row}>
-            <Icon name="logo-bitcoin" size={42} color={colors.orange} />
+            <Icon name="dbs-coin" size={42} color={colors.orange} />
             <Text
               style={{
                 fontSize: 58,
@@ -253,7 +251,7 @@ export default function Account({ page, store, go, run }: Props) {
                 },
               ]}
             >
-              <Icon name="logo-bitcoin" color={colors.orange} size={30} />
+              <Icon name="dbs-coin" color={colors.orange} size={30} />
               <Text
                 style={{ fontSize: 28, fontWeight: "900", color: colors.text }}
               >
@@ -359,7 +357,7 @@ export default function Account({ page, store, go, run }: Props) {
               >
                 <Text style={styles.body}>{index + 1}. Gün</Text>
                 <Icon
-                  name={index === 6 ? "gift" : "logo-bitcoin"}
+                  name={index === 6 ? "gift" : "dbs-coin"}
                   color={colors.orange}
                 />
                 <Text style={styles.h3}>+{coins}</Text>
@@ -518,6 +516,35 @@ export default function Account({ page, store, go, run }: Props) {
           </Button>
         </View>
         <View style={styles.card}>
+          <Text style={styles.h3}>İzleme tercihleri</Text>
+          <View style={styles.row}>
+            <View style={{ flex: 1, gap: 7 }}>
+              <Text style={styles.label}>Otomatik video önizlemeleri</Text>
+              <Text style={styles.body}>
+                Ana sayfada kısa, sessiz önizlemeler oynat.
+              </Text>
+            </View>
+            <Switch
+              value={store.profile?.preferences?.previews !== false}
+              trackColor={{ true: colors.pink }}
+              onValueChange={(value) =>
+                run(async () => {
+                  await requireData(
+                    db
+                      .from("dbs_profiles")
+                      .update({
+                        preferences: {
+                          ...store.profile?.preferences,
+                          previews: value,
+                        },
+                      })
+                      .eq("user_id", store.session!.user.id),
+                  );
+                  await store.refreshAccount();
+                })
+              }
+            />
+          </View>
           <Text style={styles.h3}>Bildirim tercihleri</Text>
           <View style={styles.row}>
             <Switch
@@ -526,12 +553,10 @@ export default function Account({ page, store, go, run }: Props) {
                 setNotifications(value);
                 run(async () => {
                   await requireData(
-                    db
-                      .from("dbs_notification_preferences")
-                      .upsert({
-                        user_id: store.session!.user.id,
-                        new_episodes: value,
-                      }),
+                    db.from("dbs_notification_preferences").upsert({
+                      user_id: store.session!.user.id,
+                      new_episodes: value,
+                    }),
                   );
                 });
               }}

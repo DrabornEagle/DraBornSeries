@@ -50,7 +50,7 @@ await writeFile(
   "dist/DBS-SOURCE.json",
   JSON.stringify(
     {
-      version: "0.1.0",
+      version: JSON.parse(await readFile("package.json", "utf8")).version,
       commit,
       builtAt: new Date().toISOString(),
       schema: "drabornseries",

@@ -2,38 +2,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db, deviceId, rpc } from "./client";
 type Pending = { episode: string; seconds: number; observed_at: string };
 let queue: Promise<void> = Promise.resolve();
-export function saveProgress(episode: string, seconds: number) {
-  queue = queue
-    .catch(() => {})
-    .then(async () => {
-      const {
-        data: { session },
-      } = await db.auth.getSession();
-      if (!session) return;
-      const key = `dbs-progress-${session.user.id}`;
-      const pending: Record<string, Pending> = JSON.parse(
-        (await AsyncStorage.getItem(key)) || "{}",
-      );
-      pending[episode] = {
-        episode,
-        seconds,
-        observed_at: new Date().toISOString(),
-      };
-      await AsyncStorage.setItem(key, JSON.stringify(pending));
-      await flushProgress();
-    });
+function serialized(work: () => Promise<void>) {
+  queue = queue.catch(() => {}).then(work);
   return queue;
 }
-export async function flushProgress() {
-  const {
-    data: { session },
-  } = await db.auth.getSession();
-  if (!session) return;
-  const key = `dbs-progress-${session.user.id}`;
+async function flushFor(userId: string) {
+  const key = `dbs-progress-${userId}`;
   const pending: Record<string, Pending> = JSON.parse(
     (await AsyncStorage.getItem(key)) || "{}",
   );
   for (const [episode, entry] of Object.entries(pending)) {
+    const {
+      data: { session },
+    } = await db.auth.getSession();
+    if (session?.user.id !== userId) break;
     try {
       await rpc("dbs_save_progress", { ...entry, device: await deviceId() });
       delete pending[episode];
@@ -42,4 +24,29 @@ export async function flushProgress() {
     }
   }
   await AsyncStorage.setItem(key, JSON.stringify(pending));
+}
+export function saveProgress(episode: string, seconds: number) {
+  const observed_at = new Date().toISOString();
+  const currentSession = db.auth.getSession();
+  return serialized(async () => {
+    const {
+      data: { session },
+    } = await currentSession;
+    if (!session) return;
+    const key = `dbs-progress-${session.user.id}`;
+    const pending: Record<string, Pending> = JSON.parse(
+      (await AsyncStorage.getItem(key)) || "{}",
+    );
+    pending[episode] = { episode, seconds, observed_at };
+    await AsyncStorage.setItem(key, JSON.stringify(pending));
+    await flushFor(session.user.id);
+  });
+}
+export function flushProgress() {
+  return serialized(async () => {
+    const {
+      data: { session },
+    } = await db.auth.getSession();
+    if (session) await flushFor(session.user.id);
+  });
 }

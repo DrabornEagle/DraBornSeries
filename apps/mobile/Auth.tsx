@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { Image, Platform, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { db, deviceId, rpc, requireData } from "../../packages/api/client";
 import { config } from "../../packages/shared/config";
-import { Button, Field, Icon, colors, styles } from "../../packages/ui/theme";
+import { Button, Field, colors, styles } from "../../packages/ui/theme";
 import type { Store } from "../../packages/api/store";
 import { translations } from "../../packages/shared/i18n";
 WebBrowser.maybeCompleteAuthSession();
@@ -103,12 +104,73 @@ export default function Auth({
       <View
         style={[
           styles.card,
-          { maxWidth: 480, width: "100%", padding: 30, gap: 23 },
+          {
+            maxWidth: 480,
+            width: "100%",
+            padding: 24,
+            gap: 23,
+            backgroundColor: "#160f20",
+            borderRadius: 27,
+            overflow: "hidden",
+          },
         ]}
       >
-        <View style={styles.row}>
-          <Icon name="play-circle" color={colors.pink} size={37} />
-          <Text style={styles.h2}>DraBornSeries</Text>
+        <View
+          style={{
+            height: 250,
+            marginHorizontal: -24,
+            marginTop: -24,
+            overflow: "hidden",
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 10,
+              transform: [{ rotate: "-12deg" }],
+              marginTop: -30,
+              marginHorizontal: -25,
+            }}
+          >
+            {store.series
+              .filter((s) => s.poster_url)
+              .slice(0, 4)
+              .map((s, i) => (
+                <Image
+                  key={s.id}
+                  source={{ uri: s.poster_url! }}
+                  style={{
+                    width: 125,
+                    height: 225,
+                    borderRadius: 13,
+                    marginTop: i % 2 ? 40 : 0,
+                  }}
+                />
+              ))}
+          </View>
+          <LinearGradient
+            colors={["#160f2010", "#160f20"]}
+            style={{ position: "absolute", inset: 0 }}
+          />
+          <View style={{ position: "absolute", bottom: 18, left: 24, gap: 12 }}>
+            <Image
+              source={require("../../assets/icons/icon.png")}
+              style={{ width: 62, height: 62, borderRadius: 19 }}
+            />
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 29,
+                fontWeight: "900",
+                letterSpacing: -1,
+              }}
+            >
+              DraBorn<Text style={{ color: colors.pink }}>Series</Text>
+            </Text>
+            <Text style={{ color: "#e1b8d7", fontSize: 11, letterSpacing: 2 }}>
+              HİKÂYEN BURADA BAŞLASIN
+            </Text>
+          </View>
         </View>
         <Text style={styles.h1}>
           {mode === "register"

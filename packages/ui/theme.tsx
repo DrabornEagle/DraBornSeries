@@ -72,10 +72,36 @@ export function Icon({
   size = 20,
   color = colors.text,
 }: {
-  name: React.ComponentProps<typeof Ionicons>["name"];
+  name: React.ComponentProps<typeof Ionicons>["name"] | "dbs-coin";
   size?: number;
   color?: string;
 }) {
+  if (name === "dbs-coin")
+    return (
+      <View
+        accessibilityLabel="BornCoins"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderWidth: Math.max(1.5, size / 14),
+          borderColor: color,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text
+          style={{
+            color,
+            fontSize: size * 0.58,
+            fontWeight: "900",
+            lineHeight: size * 0.7,
+          }}
+        >
+          B
+        </Text>
+      </View>
+    );
   return <Ionicons name={name} size={size} color={color} />;
 }
 export function Button({

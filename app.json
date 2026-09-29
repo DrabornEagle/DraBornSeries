@@ -1,1 +1,57 @@
-{"expo":{"name":"DraBornSeries","slug":"drabornseries","scheme":"drabornseries","version":"0.1.0","orientation":"default","userInterfaceStyle":"dark","icon":"./assets/icons/icon.png","splash":{"image":"./assets/icons/icon.png","resizeMode":"contain","backgroundColor":"#09080f"},"android":{"package":"com.draborneagle.drabornseries","versionCode":1,"edgeToEdgeEnabled":true,"intentFilters":[{"action":"VIEW","autoVerify":true,"data":[{"scheme":"https","host":"www.draborneagle.com","pathPrefix":"/DraBornSeries"}],"category":["BROWSABLE","DEFAULT"]}]},"web":{"bundler":"metro","output":"single","name":"DraBornSeries","favicon":"./assets/icons/icon.png"},"plugins":[["expo-video",{"supportsBackgroundPlayback":false,"supportsPictureInPicture":true}],"expo-web-browser"],"experiments":{"baseUrl":"/DraBornSeries"}}}
+{
+  "expo": {
+    "name": "DraBornSeries",
+    "slug": "drabornseries",
+    "scheme": "drabornseries",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icons/icon.png",
+    "splash": {
+      "image": "./assets/icons/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#09080f"
+    },
+    "android": {
+      "package": "com.draborneagle.drabornseries",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "www.draborneagle.com",
+              "pathPrefix": "/DraBornSeries"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "DraBornSeries",
+      "favicon": "./assets/icons/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": true
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "baseUrl": "/DraBornSeries"
+    }
+  }
+}

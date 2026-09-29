@@ -1,6 +1,8 @@
 export type Language = "tr" | "en";
 export type Page =
   | "home"
+  | "feed"
+  | "store"
   | "browse"
   | "search"
   | "library"
