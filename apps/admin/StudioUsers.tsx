@@ -56,7 +56,7 @@ export default function StudioUsers({ role, run }: {
       <Text style={styles.h2}>Kullanıcı yönetimi</Text>
       <Text style={styles.body}>Kişiyi bul, hesabını aç ve tüm işlemleri aynı ekranda incele. Yetki gerektiren değişiklikler kayda alınır.</Text>
     </View>
-    <View style={styles.wrap}>
+    {!selected && <><View style={styles.wrap}>
       <View style={{ flex: 1, minWidth: 190 }}>
         <Field label="Kullanıcı ara" placeholder="Kullanıcı adı, ad veya UUID" value={search} onChangeText={setSearch} onSubmitEditing={() => { setPage(0); setApplied(search.trim()); }} />
       </View>
@@ -67,7 +67,7 @@ export default function StudioUsers({ role, run }: {
     <View style={{ gap: 9 }}>{rows.map((user) => <Pressable key={user.user_id} accessibilityRole="button"
       accessibilityLabel={user.username + " kullanıcısını aç"}
       onPress={() => run(() => open(user.user_id))}
-      style={[styles.card, { padding: 17, borderColor: selected?.profile.user_id === user.user_id ? colors.pink : colors.line }]}>
+      style={[styles.card, { padding: 17, borderColor: colors.line }]}>
       <View style={[styles.row, { alignItems: "center" }]}>
         {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 43, height: 43, borderRadius: 15 }} />
           : <View style={{ width: 43, height: 43, borderRadius: 15, backgroundColor: "#432141", alignItems: "center", justifyContent: "center" }}>
@@ -87,7 +87,7 @@ export default function StudioUsers({ role, run }: {
     <View style={styles.wrap}>
       {page > 0 && <Button secondary onPress={() => setPage(page - 1)}>Önceki 25</Button>}
       {(page + 1) * 25 < total && <Button secondary onPress={() => setPage(page + 1)}>Sonraki 25</Button>}
-    </View>
+    </View></>}
     {selected && <View style={[styles.card, { borderColor: "#804376", gap: 19 }]}>
       <View style={[styles.row, { justifyContent: "space-between" }]}>
         <View style={{ flex: 1 }}>

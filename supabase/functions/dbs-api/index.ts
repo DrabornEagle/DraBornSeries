@@ -280,7 +280,16 @@ Deno.serve(async (req) => {
           body.table === "dbs_admin_logs"
         )
           query = query.order("created_at", { ascending: false });
-        return send(req, { rows: await checked(query) });
+        const rows = await checked(query);
+        if (body.table === "dbs_admin_logs") {
+          const ids = [...new Set(rows.map((row: any) => row.admin_id).filter(Boolean))];
+          const names = ids.length ? await checked(admin.from("dbs_profiles")
+            .select("user_id,username").in("user_id", ids)) : [];
+          return send(req, { rows: rows.map((row: any) => ({ ...row,
+            admin_name: names.find((name: any) => name.user_id === row.admin_id)?.username || "Yönetici",
+          })) });
+        }
+        return send(req, { rows });
       }
       const { data: membership } = await admin
         .from("dbs_admin_users")

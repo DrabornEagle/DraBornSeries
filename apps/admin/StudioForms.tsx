@@ -93,6 +93,7 @@ export const studioTables: StudioTable[] = [
 export const statusLabel = (value: string) => status.find(([key]) => key === value)?.[1] || ({
   free: "Ücretsiz", coins: "BornCoins", ad: "Reklam", vip: "VIP",
   vip_or_coins: "VIP / BornCoins", active: "Aktif", suspended: "Askıda", blocked: "Engelli",
+  open: "Açık", reviewing: "İnceleniyor", resolved: "Çözüldü", pending: "Beklemede",
 } as Record<string, string>)[value] || value;
 
 function fieldGroup(table: string, key: string) {

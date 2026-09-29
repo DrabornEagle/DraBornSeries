@@ -39,6 +39,21 @@ function description(row: StudioRow, config: StudioTable, allSeries: StudioRow[]
     parts.push(row.ready ? "Oynatmaya hazır" : "Video işleniyor");
   return parts.join(" · ") || row.short_description || row.description || "Kaydı açarak düzenle";
 }
+function logTitle(row: StudioRow) {
+  return ({ save: "Kayıt düzenlendi", delete: "Taslak silindi", coin_grant: "BornCoins tanımlandı",
+    vip_grant: "VIP tanımlandı" } as Record<string, string>)[row.action] || row.action || "Yönetici işlemi";
+}
+function logDetail(row: StudioRow) {
+  const info = row.detail || {};
+  const target = studioTables.find((item) => item.table === row.target)?.label ||
+    (row.action === "coin_grant" || row.action === "vip_grant" ? "Kullanıcı hesabı" : "Kayıt");
+  const detail = row.action === "coin_grant" ? info.coins + " BornCoins · " + (info.reason || "")
+    : row.action === "vip_grant" ? info.days + " gün VIP · " + (info.reason || "")
+      : row.action === "delete" ? (info.title || "Boş taslak")
+        : row.action === "save" ? "Değiştirilen alan: " + (info.fields || []).length
+          : "";
+  return [target, detail, row.admin_name || "Yönetici", new Date(row.created_at).toLocaleString("tr-TR")].filter(Boolean).join(" · ");
+}
 export default function AdminPanel({ store, run }: {
   store: Store; run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
 }) {
@@ -155,14 +170,11 @@ export default function AdminPanel({ store, run }: {
             onPress={() => section === "logs" ? undefined : open(row)}
             style={[styles.card, { padding: 18, gap: 8 }]}>
             <View style={[styles.row, { justifyContent: "space-between" }]}>
-              <Text style={[styles.h3, { flex: 1 }]} numberOfLines={2}>{section === "logs" ? (row.action || "İşlem") : title(row, config)}</Text>
+              <Text style={[styles.h3, { flex: 1 }]} numberOfLines={2}>{section === "logs" ? logTitle(row) : title(row, config)}</Text>
               {section !== "logs" && <Icon name="chevron-forward" color={colors.pink} />}
             </View>
             <Text style={styles.body} numberOfLines={3}>{section === "logs"
-              ? (row.target || "Kayıt") + " · " + new Date(row.created_at).toLocaleString("tr-TR")
-              : description(row, config, series)}</Text>
-            {section === "logs" && <Text style={[styles.body, { fontSize: 12 }]} numberOfLines={2}>
-              {JSON.stringify(row.detail || {})}</Text>}
+              ? logDetail(row) : description(row, config, series)}</Text>
           </Pressable>)}
           {!visible.length && <Empty title="Kayıt yok" detail="Aramayı değiştir veya yeni kayıt oluştur." icon="albums-outline" />}
         </View>}
