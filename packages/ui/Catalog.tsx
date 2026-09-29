@@ -645,11 +645,6 @@ export function Home({
         series={store.series.filter((s) => s.status === "coming_soon")}
         onSelect={onSelect}
       />
-      <Text style={{ color: "#76687c", fontSize: 10, lineHeight: 17 }}>
-        İlk bakış koleksiyonundaki videolar, dikey izleme deneyimi için
-        kullanılan lisanslı kısa demo sahneleridir. Tam dizi yapımları
-        yayınlandıkça kataloğa eklenecek.
-      </Text>
     </View>
   );
 }
