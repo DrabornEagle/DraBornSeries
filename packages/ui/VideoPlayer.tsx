@@ -1,16 +1,34 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Text, View } from "react-native";
+import { AppState, Modal, Text, View, useWindowDimensions } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
 import { useVideoPlayer, VideoView, isPictureInPictureSupported, type VideoTrack } from "expo-video";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
 import { colors } from "./theme";
+import RotateHint from "./RotateHint";
+// Serialize orientation changes so closing quickly cannot leave ALL applied.
+let orientationQueue = Promise.resolve();
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const [status, setStatus] = useState("loading"), [error, setError] = useState(""),
     [tracks, setTracks] = useState<VideoTrack[]>([]), [quality, setQuality] = useState("Otomatik"),
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
     [fullscreen, setFullscreen] = useState(false), [time, setTime] = useState(initialTime), [duration, setDuration] = useState(0);
   const videoView = useRef<VideoView>(null);
+  const { width, height } = useWindowDimensions();
+  useEffect(() => {
+    if (!fullscreen) return;
+    let previous = ScreenOrientation.OrientationLock.PORTRAIT_UP;
+    orientationQueue = orientationQueue.then(async () => {
+      previous = await ScreenOrientation.getOrientationLockAsync();
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.ALL);
+    }).catch(() => {});
+    return () => {
+      orientationQueue = orientationQueue.then(() => ScreenOrientation.lockAsync(
+        previous === ScreenOrientation.OrientationLock.UNKNOWN ? ScreenOrientation.OrientationLock.PORTRAIT_UP : previous,
+      )).catch(() => {});
+    };
+  }, [fullscreen]);
   const current = useRef(initialTime), lastSaved = useRef(0), resumed = useRef(false), resumeTime = useRef(initialTime),
     shouldPlay = useRef(true), progressCallback = useRef(onProgress), endCallback = useRef(onEnd);
   progressCallback.current = onProgress; endCallback.current = onEnd;
@@ -34,7 +52,13 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     });
     const endSub = player.addListener("playToEnd", () => { progressCallback.current(current.current); endCallback.current(); });
     ready();
-    return () => { statusSub.remove(); timeSub.remove(); endSub.remove(); playingSub.remove(); progressCallback.current(current.current); };
+    let foreground = AppState.currentState === "active";
+    const stateSub = AppState.addEventListener("change", (state) => {
+      if (state !== "active" && foreground) { shouldPlay.current = player.playing; player.pause(); }
+      else if (state === "active" && shouldPlay.current) player.play();
+      foreground = state === "active";
+    });
+    return () => { statusSub.remove(); timeSub.remove(); endSub.remove(); playingSub.remove(); stateSub.remove(); progressCallback.current(current.current); };
   }, [player]);
   const replace = async (url: string, forcePlay = false) => {
     resumeTime.current = current.current; shouldPlay.current = forcePlay || player.playing;
@@ -54,7 +78,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const render = (expanded: boolean) => <View style={{ flex: expanded ? 1 : undefined, backgroundColor: "#05020a", overflow: "hidden",
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : portrait ? 9 / 16 : 16 / 9, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : portrait ? 420 : 1100, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
-      contentFit="cover" surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
+      contentFit={portrait && !expanded ? "cover" : "contain"} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality}
       onSeek={(value) => { player.currentTime = value; current.current = value; setTime(value); }}
@@ -66,10 +90,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onAudio={(key) => { player.audioTrack = player.availableAudioTracks[Number(key)]; }}
       subtitles={player.availableSubtitleTracks.length ? [{ key: "off", label: "Altyazı kapalı" }, ...player.availableSubtitleTracks.map((item, index) => ({ key: String(index), label: item.label || item.language }))] : undefined}
       onSubtitle={(key) => { player.subtitleTrack = key === "off" ? null : player.availableSubtitleTracks[Number(key)]; }} />
+    {expanded && <RotateHint fullscreen landscapeVideo={!portrait} landscapeScreen={width > height} />}
   </View>;
   return <View>
     {fullscreen ? <View style={{ aspectRatio: portrait ? 9 / 16 : 16 / 9, maxHeight: 720, justifyContent: "center", alignItems: "center" }}><Text style={{ color: colors.muted }}>Tam ekran oynatılıyor</Text></View> : render(false)}
-    <Modal visible={fullscreen} animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={() => setFullscreen(false)}>
+    <Modal visible={fullscreen} animationType="fade" statusBarTranslucent navigationBarTranslucent supportedOrientations={["portrait", "landscape-left", "landscape-right"]} onRequestClose={() => setFullscreen(false)}>
       {fullscreen && <><StatusBar hidden />{render(true)}</>}
     </Modal>
   </View>;

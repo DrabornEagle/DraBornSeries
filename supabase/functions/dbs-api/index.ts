@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
+import { assertPlayableStream, naturalConflict, streamUID, verifyStreamWebhook } from "./stream.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const admin = createClient(
   env("SUPABASE_URL"),
@@ -33,6 +34,18 @@ const checked = async (result: any) => {
   if (error) throw Error(error.message);
   return data;
 };
+const streamConfigured = () => !!env("CLOUDFLARE_ACCOUNT_ID") && !!env("CLOUDFLARE_API_TOKEN");
+const cfBase = () => `https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream`;
+const cfHeaders = () => ({ Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}`, "Content-Type": "application/json" });
+async function getStreamVideo(uid: string) {
+  const response = await fetch(cfBase() + "/" + uid, { headers: cfHeaders() });
+  const data = await response.json();
+  if (!response.ok || !data.success) throw Error("STREAM_STATUS_FAILED");
+  return data.result;
+}
+async function reconcileVideo(video: any) {
+  return checked(admin.rpc("dbs_complete_stream_upload", { upload_uid: video.uid, details: video }));
+}
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { status: 204, headers: headers(req) });
@@ -41,7 +54,17 @@ Deno.serve(async (req) => {
   try {
     if (Number(req.headers.get("content-length") || 0) > 100000)
       return send(req, { error: "BODY_TOO_LARGE" }, 413);
-    const body = await req.json();
+    const raw = await req.text();
+    if (raw.length > 100000) return send(req, { error: "BODY_TOO_LARGE" }, 413);
+    if (req.headers.has("Webhook-Signature")) {
+      if (!(await verifyStreamWebhook(raw, req.headers.get("Webhook-Signature")!, env("DBS_STREAM_WEBHOOK_SECRET"))))
+        return send(req, { error: "INVALID_WEBHOOK_SIGNATURE" }, 401);
+      const video = JSON.parse(raw);
+      if (!streamUID(video.uid)) return send(req, { error: "INVALID_STREAM_UID" }, 400);
+      await reconcileVideo(video);
+      return send(req, { received: true });
+    }
+    const body = JSON.parse(raw);
     const authorization = req.headers.get("authorization") || "";
     const client = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
       db: { schema: "drabornseries" },
@@ -54,9 +77,12 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.4.0",
+        version: "0.5.0",
         versionCode: 1,
-        cloudflare: !!env("DBS_WORKER_URL"),
+        cloudflare: streamConfigured(),
+        worker: !!env("DBS_WORKER_URL"),
+        uploads: streamConfigured(),
+        webhook: !!env("DBS_STREAM_WEBHOOK_SECRET"),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
       });
@@ -106,8 +132,26 @@ Deno.serve(async (req) => {
           subtitles: [],
         });
       }
-      if (!env("DBS_WORKER_URL"))
-        return send(req, { error: "STREAM_NOT_CONFIGURED" }, 503);
+      // The Edge function has already checked the real user's entitlement.
+      // It can sign directly too, without requiring a separate Worker/code.
+      if (streamConfigured()) {
+        if (!streamUID(asset.stream_uid)) return send(req, { error: "INVALID_STREAM_UID" }, 409);
+        const video = await getStreamVideo(asset.stream_uid);
+        if (!video.readyToStream) return send(req, { error: "VIDEO_NOT_READY" }, 409);
+        if (!episode.dbs_series.is_demo && !video.requireSignedURLs)
+          return send(req, { error: "VIDEO_MUST_REQUIRE_SIGNED_URLS" }, 503);
+        if (!video.requireSignedURLs && episode.dbs_series.is_demo)
+          return send(req, { url: video.playback.hls, provider: "cloudflare", subtitles: [] });
+        const expires = Math.floor(Date.now() / 1000) + 7200;
+        const response = await fetch(cfBase() + "/" + asset.stream_uid + "/token", {
+          method: "POST", headers: cfHeaders(), body: JSON.stringify({ exp: expires }),
+        });
+        const signed = await response.json();
+        if (!response.ok || !signed.success || !signed.result?.token) throw Error("SIGNING_UNAVAILABLE");
+        return send(req, { provider: "cloudflare", url: `https://videodelivery.net/${signed.result.token}/manifest/video.m3u8`,
+          expires_at: new Date(expires * 1000).toISOString(), subtitles: [] });
+      }
+      if (!env("DBS_WORKER_URL")) return send(req, { error: "STREAM_NOT_CONFIGURED" }, 503);
       const response = await fetch(env("DBS_WORKER_URL") + "/playback", {
         method: "POST",
         headers: {
@@ -141,6 +185,8 @@ Deno.serve(async (req) => {
       body.action === "admin-options" ||
       body.action === "admin-upload-video" ||
       body.action === "admin-video-status" ||
+      body.action === "admin-video-uploaded" ||
+      body.action === "admin-sync-videos" ||
       body.action === "admin-save" ||
       body.action === "admin-grant" ||
       body.action === "admin-users" ||
@@ -244,30 +290,52 @@ Deno.serve(async (req) => {
           uid: v.uid, name: v.meta?.name || v.uid, ready: v.readyToStream === true,
         })) });
       }
-      if (body.action === "admin-upload-video" || body.action === "admin-video-status") {
+      if (body.action === "admin-upload-video" || body.action === "admin-video-status" || body.action === "admin-video-uploaded" || body.action === "admin-sync-videos") {
         const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
         if (!["owner", "editor"].includes(membership.role)) return send(req, { error: "EDITOR_REQUIRED" }, 403);
-        if (!env("CLOUDFLARE_ACCOUNT_ID") || !env("CLOUDFLARE_API_TOKEN")) return send(req, { error: "STREAM_UPLOAD_NOT_CONFIGURED" }, 503);
+        if (!streamConfigured()) return send(req, body.action === "admin-sync-videos" ? { configured: false, synced: 0 } : { error: "STREAM_UPLOAD_NOT_CONFIGURED" }, body.action === "admin-sync-videos" ? 200 : 503);
         const base = `https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream`;
         const authHeaders = { Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}`, "Content-Type": "application/json" };
-        if (body.action === "admin-video-status") {
+        if (body.action === "admin-sync-videos") {
+          const pending = await checked(admin.from("dbs_video_uploads").select("uid").in("status", ["processing","pending"]).order("updated_at").limit(20));
+          let synced = 0;
+          for (const item of pending) { try { const video = await getStreamVideo(item.uid); if (await reconcileVideo(video)) synced++; } catch { /* next visit retries */ } }
+          return send(req, { configured: true, synced });
+        }
+        if (body.action === "admin-video-status" || body.action === "admin-video-uploaded") {
           if (typeof body.uid !== "string" || !/^[a-f0-9]{32}$/.test(body.uid)) return send(req, { error: "INVALID_STREAM_UID" }, 400);
-          const response = await fetch(base + "/" + body.uid, { headers: authHeaders }); const result = await response.json();
-          if (!response.ok || !result.success) throw Error("STREAM_STATUS_FAILED");
-          return send(req, { ready: result.result.readyToStream === true, duration: result.result.duration,
-            publicURL: result.result.requireSignedURLs ? undefined : result.result.playback?.hls });
+          if (body.action === "admin-video-uploaded") await checked(admin.from("dbs_video_uploads").update({ status: "processing", updated_at: new Date().toISOString() }).eq("uid",body.uid).eq("created_by",user.id).eq("status","pending"));
+          const video = await getStreamVideo(body.uid);
+          const bound = await reconcileVideo(video);
+          return send(req, { ready: video.readyToStream === true, bound, duration: video.duration,
+            status: video.status?.state, error: video.status?.errorReasonCode || video.status?.errReasonCode || null,
+            publicURL: video.requireSignedURLs ? undefined : video.playback?.hls });
         }
         if (!["episode", "trailer"].includes(body.purpose)) return send(req, { error: "INVALID_UPLOAD_PURPOSE" }, 400);
         if (body.purpose === "episode") await checked(admin.from("dbs_episodes").select("id").eq("id", body.episode).single());
+        let grant: { uid: string; uploadURL: string; protocol: "tus" | "multipart" };
+        if (body.protocol === "tus") {
+          if (!Number.isSafeInteger(body.size) || body.size < 1 || body.size > 30 * 1024 * 1024 * 1024) return send(req, { error: "INVALID_UPLOAD_SIZE" }, 400);
+          const encode = (value: string) => btoa(String.fromCharCode(...new TextEncoder().encode(value)));
+          const metadata = [`maxDurationSeconds ${encode("3600")}`, `expiry ${encode(new Date(Date.now()+86400000).toISOString())}`, `name ${encode(String(body.name || "DraBornSeries video").slice(0,150))}`, `creator ${encode(user.id)}`];
+          if (body.purpose === "episode") metadata.push("requiresignedurls");
+          const response = await fetch(base + "?direct_user=true", { method: "POST", headers: { Authorization: authHeaders.Authorization,
+            "Tus-Resumable": "1.0.0", "Upload-Length": String(body.size), "Upload-Metadata": metadata.join(",") } });
+          const location = response.headers.get("Location"), uid = response.headers.get("stream-media-id");
+          if (!response.ok || !location || !streamUID(uid)) throw Error("STREAM_UPLOAD_FAILED");
+          grant = { uid, uploadURL: location, protocol: "tus" };
+        } else {
         const response = await fetch(base + "/direct_upload", { method: "POST", headers: authHeaders,
           body: JSON.stringify({ maxDurationSeconds: 3600, expiry: new Date(Date.now() + 3600000).toISOString(),
             requireSignedURLs: body.purpose === "episode", creator: user.id, meta: { name: String(body.name || "DraBornSeries video").slice(0,150) } }) });
         const result = await response.json();
         if (!response.ok || !result.success) throw Error("STREAM_UPLOAD_FAILED");
+        grant = { uid: result.result.uid, uploadURL: result.result.uploadURL, protocol: "multipart" };
+        }
+        await checked(admin.from("dbs_video_uploads").insert({ uid: grant.uid, created_by: user.id, purpose: body.purpose, episode_id: body.episode || null }));
         await checked(admin.from("dbs_admin_logs").insert({ admin_id: user.id, action: "video_upload", target: "dbs_video_assets",
-          detail: { uid: result.result.uid, purpose: body.purpose, episode: body.episode || null } }));
-        return send(req, { uid: result.result.uid, uploadURL: result.result.uploadURL,
-          publicURL: body.purpose === "trailer" ? `https://videodelivery.net/${result.result.uid}/manifest/video.m3u8` : undefined });
+          detail: { uid: grant.uid, purpose: body.purpose, episode: body.episode || null } }));
+        return send(req, { ...grant, publicURL: body.purpose === "trailer" ? `https://videodelivery.net/${grant.uid}/manifest/video.m3u8` : undefined });
       }
       if (body.action === "admin-grant") {
         return send(
@@ -433,6 +501,7 @@ Deno.serve(async (req) => {
         });
         const result = await response.json();
         if (!response.ok || !result.success) throw Error("STREAM_STATUS_FAILED");
+        assertPlayableStream(result.result, row.stream_uid);
         row.ready = result.result.readyToStream === true; uploadedVideo = result.result;
       }
       if (body.table === "dbs_profiles" && row.user_id === user.id)
@@ -451,13 +520,12 @@ Deno.serve(async (req) => {
             .from(body.table)
             .update({ status: row.status })
             .eq(primaryKey, row[primaryKey])
-        : admin.from(body.table).upsert(row);
+        : admin.from(body.table).upsert(row, { onConflict: naturalConflict(body.table, !!row.id) });
       const saved = await checked(write.select().single());
       let changedSeries = saved.series_id;
       if (uploadedVideo?.readyToStream && uploadedVideo.duration > 0) {
         const values: Record<string, unknown> = { duration_seconds: Math.max(1, Math.ceil(uploadedVideo.duration)) };
-        if (uploadedVideo.input?.width > 0 && uploadedVideo.input?.height > 0)
-          values.orientation = uploadedVideo.input.height >= uploadedVideo.input.width ? "portrait" : "landscape";
+        // The author chooses the video direction in the episode form.
         const episode = await checked(admin.from("dbs_episodes").update(values).eq("id", saved.episode_id).select("series_id").single());
         changedSeries = episode.series_id;
       }

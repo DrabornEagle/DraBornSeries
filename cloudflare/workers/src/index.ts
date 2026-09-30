@@ -5,7 +5,6 @@ export interface Env {
   SUPABASE_SECRET_KEY: string;
   CLOUDFLARE_ACCOUNT_ID: string;
   CLOUDFLARE_API_TOKEN: string;
-  STREAM_CUSTOMER_CODE: string;
   DBS_ALLOWED_ORIGINS: string;
   RATE_LIMITER: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -108,7 +107,7 @@ export default {
         return reply({ error: "SIGNING_UNAVAILABLE" }, 503);
       return reply({
         provider: "cloudflare",
-        url: `https://customer-${env.STREAM_CUSTOMER_CODE}.cloudflarestream.com/${signed.result.token}/manifest/video.m3u8`,
+        url: `https://videodelivery.net/${signed.result.token}/manifest/video.m3u8`,
         expires_at: new Date(expires * 1000).toISOString(),
         subtitles: [],
       });

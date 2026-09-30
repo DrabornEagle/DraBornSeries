@@ -7,4 +7,5 @@ export type InlineVideoProps = {
   onTime?: (seconds: number) => void;
   onReady?: () => void;
   onError?: () => void;
+  onAutoplayBlocked?: () => void;
 };

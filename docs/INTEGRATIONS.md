@@ -4,6 +4,14 @@ These source adapters do **not** mean the production services are connected. The
 
 ## Cloudflare
 
+v0.5 uses the authenticated `dbs-api` as the upload, reconciliation and signed playback backend. In the DraBornSeries GitHub repository's `production` environment, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account-scoped Stream Edit) and `SUPABASE_ACCESS_TOKEN` enable the automatic service workflow. `scripts/configure-stream.mjs` installs server secrets, configures the signed webhook when available, copies verified catalog sources to Stream, records real returned UIDs and waits for encoding. Another application's webhook is preserved; Studio polling provides reconciliation instead. Credentials never enter source or client bundles.
+
+After the account is connected, select an episode and a local video in Studio. The resumable tus uploader reports progress; encoding is checked automatically, and the completed signed video is bound to the episode without copying a UID by hand. A failed or still-processing replacement keeps the previously playable asset. Manual UID saves also require a signed, ready asset. The episode's selected portrait/landscape direction is preserved.
+
+Current account state: `cloudflare=false`, `uploads=false`, `webhook=false`, with no real Stream UIDs. Account access is unavailable and the Cloudflare panel is blocked at browser security verification. The 18-film test catalog plays from verified public media sources. Automatic setup cannot run without account credentials.
+
+The Worker below remains an optional separate playback gateway. Direct signed playback through `dbs-api` supports the v0.5 Studio flow without requiring `DBS_WORKER_URL` or `STREAM_CUSTOMER_CODE`. R2 source/subtitle ingest is a separate pending integration.
+
 `cloudflare/workers/src/index.ts` validates the Supabase user and `dbs_episode_access`, limits requests per user, checks Stream `requireSignedURLs`, and signs a 30 minute HLS URL. Permanent Cloudflare video IDs stay in the protected `dbs_video_assets` table. R2 is for private source media, posters and subtitle ingest; no raw paid-video R2 public URL belongs in the client.
 
 Required Worker secrets: `SUPABASE_SECRET_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `STREAM_CUSTOMER_CODE`. Set `DBS_WORKER_URL` in Supabase Edge secrets after deploying the Worker. Configure allowed origins on each Stream asset. Native apps have no Origin header, so Origin is an additional browser control, never the authorization mechanism.

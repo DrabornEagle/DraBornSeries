@@ -15,6 +15,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Linking from "expo-linking";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { useStore } from "../../packages/api/store";
 import { db, requireData } from "../../packages/api/client";
 import { translations } from "../../packages/shared/i18n";
@@ -86,6 +87,9 @@ function parseRoute(url: string): Route {
   }
 }
 function Main() {
+  useEffect(() => {
+    if (Platform.OS !== "web") void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+  }, []);
   const store = useStore(),
     t = translations(store.language),
     { width } = useWindowDimensions(),

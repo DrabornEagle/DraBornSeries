@@ -1,0 +1,554 @@
+[
+  {
+    "slug": "hero",
+    "title": "HERO",
+    "year": 2018,
+    "director": "Daniel Martínez Lara",
+    "genres": [
+      "Animasyon",
+      "Macera",
+      "Komedi"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_source": "https://studio.blender.org/terms-and-conditions/",
+    "summary": "Bir kahraman, çizim dünyasında beklenmedik bir maceraya sürüklenir.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/3eb93cab-79a2-4fd5-a636-d42e5c59ddea",
+    "original": "https://video.blender.org/object-storage/web_videos/6c79205c-bd3a-42b5-a8a2-ce7a2a166154-536.mp4",
+    "duration": 237,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/7dd8389b-23a5-490c-8288-89c5452f75ed.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ba73dcc1-717e-40c7-9d11-bd75da88e92c.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 860,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f451878d-c11a-46e8-a69d-d7bca0ae6be9.mp4"
+      },
+      {
+        "label": "536p",
+        "width": 1280,
+        "height": 536,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ba73dcc1-717e-40c7-9d11-bd75da88e92c.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "wing-it",
+    "title": "Wing It!",
+    "year": 2023,
+    "director": "Rik Schutte",
+    "genres": [
+      "Animasyon",
+      "Bilim Kurgu",
+      "Komedi"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_source": "https://studio.blender.org/projects/wing-it/pages/licensing/",
+    "summary": "Titiz bir mühendis ve hevesli bir pilot, kontrolden çıkan bir uzay mekiğinde aynı maceraya sürüklenir.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/bd0084a5-1d26-4816-ab5e-1bad9e2fb990",
+    "original": "https://video.blender.org/object-storage/web_videos/1be4c93c-1fd2-498d-adc7-50126823033e-480.mp4",
+    "duration": 238,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/d794fba1-cd34-4311-9ab8-c89f54a1c8c8.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/d0f2b062-e65c-4e4a-a384-597133ad40fd.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/b48cb41f-b4b2-4c96-849b-52fd9eb1cf56.mp4"
+      },
+      {
+        "label": "480p",
+        "width": 854,
+        "height": 480,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/d0f2b062-e65c-4e4a-a384-597133ad40fd.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "singularity",
+    "title": "Singularity",
+    "year": 2026,
+    "director": "Andy Goralczyk",
+    "genres": [
+      "Animasyon",
+      "Bilim Kurgu",
+      "Macera"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_source": "https://studio.blender.org/projects/singularity/pages/licensing/",
+    "summary": "Kozmik bir olay küçük bir uzay canlısının evini yok eder. Yeni bir yuva arayışı onu ışıldayan canlılarla tanıştırır.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/1ba07bbb-1456-4293-99a6-833fa450eda0",
+    "original": "https://video.blender.org/object-storage/web_videos/f91fd74e-a81f-48ec-b92b-c9504ac46e31-1080.mp4",
+    "duration": 392,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/8b586fb1-4df1-4cc7-8d25-cc9cbce8d7f2.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4a69d44c-86c5-482b-a03d-20efe501ac2b.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 860,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f330b13f-4879-4b50-8469-8ab1a4f25def.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1718,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4a69d44c-86c5-482b-a03d-20efe501ac2b.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "sprite-fright",
+    "title": "Sprite Fright",
+    "year": 2021,
+    "director": "Matthew Luhn & Hjalti Hjálmarsson",
+    "genres": [
+      "Animasyon",
+      "Korku",
+      "Komedi"
+    ],
+    "license": "CC BY 1.0",
+    "license_url": "https://creativecommons.org/licenses/by/1.0/",
+    "license_source": "https://studio.blender.org/projects/sprite-fright/pages/about/",
+    "summary": "Bir grup genç, ormanda karşılaştıkları mantar canlılarının sandıklarından çok daha güçlü olduğunu keşfeder.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/a69d68a5-a0e0-4a80-9d66-49f093c97aaf",
+    "original": "https://video.blender.org/object-storage/web_videos/a69d68a5-a0e0-4a80-9d66-49f093c97aaf-720.mp4",
+    "duration": 630,
+    "orientation": "landscape",
+    "age_rating": "13+",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/0aec5527-f4c8-47c6-896a-7510c76f2870.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/6eda8b64-16b7-425d-b92e-e8ac38d13c81.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 860,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/0dc523c4-7b80-44e6-a76d-4c26935e9d32.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1718,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/6eda8b64-16b7-425d-b92e-e8ac38d13c81.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "elephants-dream",
+    "title": "Elephants Dream",
+    "year": 2006,
+    "director": "Bassam Kurdali",
+    "genres": [
+      "Animasyon",
+      "Bilim Kurgu",
+      "Dram"
+    ],
+    "license": "CC BY 2.5",
+    "license_url": "https://creativecommons.org/licenses/by/2.5/",
+    "license_source": "https://orange.blender.org/blog/creative-commons-license-2/",
+    "summary": "Proog ve Emo, tuhaf bir mekanik dünyanın içinde birbirinden farklı gerçeklikler yaşar.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/cccc3e60-0291-4ecc-aa56-39b2e2c7d0d5",
+    "original": "https://video.blender.org/object-storage/web_videos/cccc3e60-0291-4ecc-aa56-39b2e2c7d0d5-720.mp4",
+    "duration": 655,
+    "orientation": "landscape",
+    "age_rating": "13+",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/8f6596bd-2994-4b0b-8fb1-51ec43d96f83.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2bbc3ba2-add2-420f-a067-d8e8e6ec79ae.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/bd950b94-4268-45ae-a8fb-0a9990334737.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/2bbc3ba2-add2-420f-a067-d8e8e6ec79ae.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "big-buck-bunny",
+    "title": "Big Buck Bunny",
+    "year": 2008,
+    "director": "Sacha Goedegebure",
+    "genres": [
+      "Animasyon",
+      "Komedi",
+      "Macera"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://peach.blender.org/about/",
+    "summary": "İyi kalpli dev bir tavşan, ormandaki yaramaz kemirgenlere unutulmaz bir ders vermeye karar verir.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/bf1f3fb5-b119-4f9f-9930-8e20e892b898",
+    "original": "https://video.blender.org/object-storage/web_videos/bf1f3fb5-b119-4f9f-9930-8e20e892b898-720.mp4",
+    "duration": 597,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/0c6bab9c-38f4-4bf6-a459-03b613ac9a78.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ff4c1059-7d98-42e7-96b2-88d31843877d.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/00b9089c-e259-4b8c-8595-4381cd15a023.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/ff4c1059-7d98-42e7-96b2-88d31843877d.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "sintel",
+    "title": "Sintel",
+    "year": 2010,
+    "director": "Colin Levy",
+    "genres": [
+      "Animasyon",
+      "Fantastik",
+      "Macera"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://durian.blender.org/sharing/",
+    "summary": "Sintel, dost olduğu küçük ejderhayı bulmak için tehlikeli ve duygusal bir yolculuğa çıkar.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/0eb052d0-fd51-43e6-aa33-ecdbf77a5d40",
+    "original": "https://video.blender.org/object-storage/web_videos/0eb052d0-fd51-43e6-aa33-ecdbf77a5d40-720.mp4",
+    "duration": 889,
+    "orientation": "landscape",
+    "age_rating": "13+",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/0684bc31-c80e-481d-9f88-8a1494da63f4.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9e051562-8381-4fbc-82d0-c54986e6ec23.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 844,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/e9f428f7-0de5-4f5f-8e54-ef805d1f9cad.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1688,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9e051562-8381-4fbc-82d0-c54986e6ec23.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "caminandes-gran-dillama",
+    "title": "Caminandes 2: Gran Dillama",
+    "year": 2013,
+    "director": "Pablo Vázquez",
+    "genres": [
+      "Animasyon",
+      "Komedi",
+      "Macera"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://www.caminandes.com/",
+    "summary": "Koro'nun lezzetli otlara ulaşmak için aşması gereken beklenmedik bir engel vardır.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/fb70d459-48d2-4db5-adba-813c84f9200a",
+    "original": "https://video.blender.org/object-storage/web_videos/fb70d459-48d2-4db5-adba-813c84f9200a-720.mp4",
+    "duration": 147,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/177abf8d-5348-45f0-916d-f4165b7a1f6d.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/93c35578-29ee-4fd3-91a6-80bd6b15a949.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/f5b6c40d-dba8-4587-950a-5a9688070011.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/93c35578-29ee-4fd3-91a6-80bd6b15a949.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "cosmos-laundromat",
+    "title": "Cosmos Laundromat: First Cycle",
+    "year": 2015,
+    "director": "Mathieu Auvray",
+    "genres": [
+      "Animasyon",
+      "Fantastik",
+      "Dram"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://gooseberry.blender.org/license/",
+    "summary": "Issız bir adada yaşayan Franck, gizemli bir satıcının teklif ettiği yeni hayatın hiç de sıradan olmadığını öğrenir.",
+    "creator": "(CC) Blender Foundation | gooseberry.blender.org",
+    "source": "https://video.blender.org/videos/watch/f507dfdc-e73e-45a4-9778-d758cbe1ce96",
+    "original": "https://video.blender.org/object-storage/web_videos/f507dfdc-e73e-45a4-9778-d758cbe1ce96-720.mp4",
+    "duration": 731,
+    "orientation": "landscape",
+    "age_rating": "13+",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/956dc1dd-decb-4430-8421-6445e3a044a5.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/463ceb55-8022-435b-ac62-50ab3dfc1d30.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 860,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/028abee4-ace7-4018-9d6f-44ddf7321d4a.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1718,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/463ceb55-8022-435b-ac62-50ab3dfc1d30.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "glass-half",
+    "title": "Glass Half",
+    "year": 2015,
+    "director": "Beorn Leonard",
+    "genres": [
+      "Animasyon",
+      "Komedi"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://studio.blender.org/projects/glass-half/pages/licensing/",
+    "summary": "İki amatör sanat eleştirmeni, bir galerideki eserler hakkında tartışırken ortak bir bakış açısı arar.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/64222c8a-c4c7-4b3b-9850-7fb2078edcf6",
+    "original": "https://video.blender.org/object-storage/web_videos/64222c8a-c4c7-4b3b-9850-7fb2078edcf6-720.mp4",
+    "duration": 194,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/4f0e9f1d-c57f-4ed6-8446-a19b019b65cb.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/c8149067-b439-4f2c-9555-3fa4afa50cad.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/e69fc156-50e7-427d-b188-f5b8ed0cbdc7.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/c8149067-b439-4f2c-9555-3fa4afa50cad.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "caminandes-llamigos",
+    "title": "Caminandes 3: Llamigos",
+    "year": 2016,
+    "director": "Pablo Vázquez",
+    "genres": [
+      "Animasyon",
+      "Komedi",
+      "Macera"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_source": "https://studio.blender.org/projects/caminandes-3/",
+    "summary": "Patagonya'da kış gelmiştir. Koro ve inatçı penguen Oti, son meyve için kıyasıya mücadele eder.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/23f3ef79-15dc-44c5-aa45-cf92e78a4509",
+    "original": "https://video.blender.org/object-storage/web_videos/23f3ef79-15dc-44c5-aa45-cf92e78a4509-720.mp4",
+    "duration": 151,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/62a86f80-2dae-4025-b9aa-18f780b8b94d.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/375e614a-ec39-42a5-a18c-b22d021f56d1.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/40ac2975-cc4b-4992-80d2-87add277b696.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/375e614a-ec39-42a5-a18c-b22d021f56d1.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "agent-327",
+    "title": "Agent 327: Operation Barbershop",
+    "year": 2017,
+    "director": "Hjalti Hjálmarsson & Colin Levy",
+    "genres": [
+      "Animasyon",
+      "Macera",
+      "Komedi"
+    ],
+    "license": "CC BY-ND 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "license_source": "https://studio.blender.org/projects/agent-327/pages/about/",
+    "summary": "Ajan 327, bir berber dükkânındaki gizli görevinde eski düşmanı Boris Kloris ile karşı karşıya gelir.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/264ff760-803e-430e-8d81-15648e904183",
+    "original": "https://video.blender.org/object-storage/web_videos/264ff760-803e-430e-8d81-15648e904183-720.mp4",
+    "duration": 232,
+    "orientation": "landscape",
+    "age_rating": "13+",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/6737dc12-f4d0-4756-9f30-88165f9ae0f4.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/a103a2e1-67c8-4bff-a3e1-911c050c8acf.mp4",
+    "renditions": [
+      {
+        "label": "720p",
+        "width": 1718,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/a103a2e1-67c8-4bff-a3e1-911c050c8acf.mp4"
+      }
+    ],
+    "modifications": "Film ve jenerik değiştirilmeden, tam kadrajla sunulur. Bu film için kısa döngü önizlemesi kullanılmaz.",
+    "preview_allowed": false,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "daily-dweebs",
+    "title": "The Daily Dweebs",
+    "year": 2017,
+    "director": "Hjalti Hjálmarsson",
+    "genres": [
+      "Animasyon",
+      "Komedi"
+    ],
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_source": "https://studio.blender.org/terms-and-conditions/",
+    "summary": "Dixey'nin 1950'lerin banliyösündeki günlük hayatı, küçük bir yaramazlıkla karışır.",
+    "creator": "(CC) Blender Foundation | studio.blender.org",
+    "source": "https://video.blender.org/videos/watch/7b2eff2a-35f2-4403-9d88-d0dd6e4b5ba1",
+    "original": "https://video.blender.org/object-storage/web_videos/7b2eff2a-35f2-4403-9d88-d0dd6e4b5ba1-720.mp4",
+    "duration": 61,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/296fb26f-85a3-4b06-a1cf-3ebcb5cfbd96.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9afd9f9a-5a08-4742-b676-ab1b40861f93.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/d1271453-2cb2-47f0-911f-e6932152d1e1.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/9afd9f9a-5a08-4742-b676-ab1b40861f93.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  },
+  {
+    "slug": "caminandes-koro-toro",
+    "title": "Caminandes 1: Koro Toro",
+    "year": 2013,
+    "director": "Pablo Vázquez",
+    "genres": [
+      "Animasyon",
+      "Komedi",
+      "Macera"
+    ],
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "license_source": "https://www.caminandes.com/",
+    "summary": "Koro adlı lama, bir yolu geçmek için çevresindeki hayvanlardan ilham alır.",
+    "creator": "(CC) Pablo Vázquez, Beorn Leonard & Francesco Siddi | caminandes.com",
+    "source": "https://www.caminandes.com/",
+    "original": "https://archive.org/download/Caminandes1LlamaDrama/01_llama_drama_1080p.mp4",
+    "duration": 90,
+    "orientation": "landscape",
+    "age_rating": "Genel",
+    "poster_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/b5c7ca9c-6456-4c6f-9113-9ed42ff9f876.jpg",
+    "video_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/072f26c4-3b4d-4fb7-8cab-293a11bd56d9.mp4",
+    "renditions": [
+      {
+        "label": "360p",
+        "width": 640,
+        "height": 360,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/fd22ced2-c0eb-4b40-835a-e04a1c35fd20.mp4"
+      },
+      {
+        "label": "720p",
+        "width": 1280,
+        "height": 720,
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_38eJOo5S2qdRoP5Q1BXMOZD5Qig/072f26c4-3b4d-4fb7-8cab-293a11bd56d9.mp4"
+      }
+    ],
+    "modifications": "Tam film ve jenerik korunur; yalnızca oynatma için H.264/AAC biçimi ve düşük çözünürlüklü seçenek hazırlanmıştır. Hikâye veya kadraj değiştirilmemiştir.",
+    "preview_allowed": true,
+    "verified_at": "2026-09-30"
+  }
+]

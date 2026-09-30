@@ -62,7 +62,7 @@ function MotionArtwork({
   episode?: Episode;
   active: boolean;
 }) {
-  const url = usePreview(episode?.id, active);
+  const url = usePreview(episode?.id, active && series.source_credit?.preview_allowed !== false);
   return (
     <>
       <Artwork series={series} />
@@ -557,7 +557,7 @@ export function Home({
             </Button>
             {!compact && (
               <Text style={{ color: "#a286a4", fontSize: 11 }}>
-                9:16 dikey format · Android ve webde aynı hesap
+                {store.episodes.find((episode) => episode.series_id === hero.id)?.orientation === "landscape" ? "Tam film · Yatay format" : "9:16 dikey format"} · Android ve webde aynı hesap
               </Text>
             )}
           </View>
@@ -603,7 +603,7 @@ export function Home({
       <View onLayout={(event) => { resultY.current = event.nativeEvent.layout.y; }}>
       <Rail
         title={category === "Sana özel" ? "Bir sonraki favorin" : category}
-        subtitle="Dikey kısa sahneler · Telefonun için"
+        subtitle="Kısa hikâyeler ve tam filmler · Telefonun için"
         series={filtered}
         episodes={store.episodes}
         previewId={

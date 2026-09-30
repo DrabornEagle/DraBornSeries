@@ -10,6 +10,7 @@ import type { Store } from "../../packages/api/store";
 import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
 import { pickProfilePhoto, stageProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
 import { translations } from "../../packages/shared/i18n";
+import GoogleButton from "../../packages/ui/GoogleButton";
 WebBrowser.maybeCompleteAuthSession();
 export default function Auth({
   store,
@@ -248,19 +249,18 @@ export default function Auth({
             <Text style={[styles.body, { fontSize: 12 }]}>veya hesabınla devam et</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
           </View>
-          <Button secondary onPress={() => run(google)} icon="logo-google" style={{ alignSelf: "stretch", borderRadius: 16 }}>
-            Google ile devam et
-          </Button>
+          <GoogleButton onPress={() => run(google)} />
         </View>}
-        <View style={styles.wrap}>
+        <View style={{ gap: 12 }}>
           <Button
-            small
             secondary
+            icon={mode === "register" ? "log-in-outline" : "person-add-outline"}
+            style={{ alignSelf: "stretch", minHeight: 56, borderRadius: 17, backgroundColor: "#28203f", borderColor: "#9070d978" }}
             onPress={() => setMode(mode === "register" ? "login" : "register")}
           >
             {mode === "register" ? t.login : t.register}
           </Button>
-          <Button small secondary onPress={() => setMode("forgot")}>
+          <Button secondary icon="key-outline" style={{ alignSelf: "stretch", minHeight: 56, borderRadius: 17, backgroundColor: "#211d33", borderColor: "#5b4d77" }} onPress={() => setMode("forgot")}>
             {t.forgot}
           </Button>
           {store.session && (

@@ -18,7 +18,7 @@ export type Page =
   | "admin"
   | "help";
 export interface Series {
-  source_credit?: { creator: string; license: string; license_url: string; source_url: string; modifications: string };
+  source_credit?: { creator: string; license: string; license_url: string; source_url: string; modifications: string; preview_allowed?: boolean };
   id: string;
   slug: string;
   title: string;

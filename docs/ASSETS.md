@@ -6,9 +6,11 @@
 
 `assets/icons/reward.png` — original generated purple gift chest, hot pink ribbon, and gold BornCoins for the reward UI. No other app's artwork is used.
 
-Unreleased concept backgrounds remain separate from playable films. The v0.4 catalog removes the old Blender and Pexels video records.
+Unreleased concept backgrounds remain separate from playable films. Historical stock/video fixtures are archived.
 
-The current playable catalog comprises four licensed open films adapted into 14 portrait test chapters: Tears of Steel (5), Spring (3), Charge (3), Coffee Run (3). These are real live-action / professional 3D films, not DraBornSeries originals or native portrait TV series. The older procedural vector stories are archived and excluded from published feeds.
+The playable catalog comprises 18 licensed open films / 28 episodes. Four films retain their 14 portrait test chapters: Tears of Steel (5), Spring (3), Charge (3), Coffee Run (3). Fourteen other films are complete landscape editions, including Singularity, Wing It!, Sprite Fright, HERO, The Daily Dweebs, Agent 327, the three Caminandes shorts, Glass Half, Cosmos Laundromat, Sintel, Big Buck Bunny and Elephants Dream. These are real films credited to their original makers. The older procedural vector stories remain archived.
+
+The full-film sources, license versions, actual CDN URLs and dimensions are in [blender-film-catalog.json](blender-film-catalog.json). All 27 new MP4s have verified H.264/yuv420p video and AAC audio; 14 real artwork files are uploaded. Full framing and credits are retained. Agent 327 (CC BY-ND) is copied unchanged and does not use a shortened looping preview. The PeerTube license enum can differ from the project's explicit license; attribution follows each authoritative project licensing page, recorded in the manifest.
 
 Sources, creators, exact licenses, chapter boundaries, rendition URLs, dimensions and checksums are recorded in [vertical-film-catalog.json](vertical-film-catalog.json). Tears of Steel uses CC BY 3.0; the other three use CC BY 4.0. Films are cropped to a portrait aspect without stretching. Credit sequences appear in full width over a blurred film background in the final chapter. Posters are extracted frames with the focal point set to the main character. Source logos are not reused as DraBornSeries branding.
 

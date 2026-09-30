@@ -26,6 +26,8 @@ function Scene({
   onSeries,
   onLike,
   favorite,
+  muted,
+  onMute,
 }: {
   item: Entry;
   active: boolean;
@@ -34,18 +36,17 @@ function Scene({
   onSeries: () => void;
   onLike: () => void;
   favorite: boolean;
+  muted: boolean;
+  onMute: () => void;
 }) {
   const url = usePreview(item.episode.id, active),
-    [muted, setMuted] = useState(true),
     [paused, setPaused] = useState(false),
     [ready, setReady] = useState(false),
-    [failed, setFailed] = useState(false);
+    [failed, setFailed] = useState(false), [retry, setRetry] = useState(0);
   const saved = useRef(0);
   useEffect(() => {
-    if (!active || ready) return;
-    const timer = setTimeout(() => setFailed(true), 9000);
-    return () => clearTimeout(timer);
-  }, [active, ready]);
+    if (active) { setReady(false); setFailed(false); setPaused(false); }
+  }, [active, url]);
   return (
     <View style={{ height, alignItems: "center", backgroundColor: "#08060f" }}>
       <View
@@ -60,6 +61,7 @@ function Scene({
         <Artwork series={item.series} />
         {active && url && !failed && (
           <InlineVideo
+            key={retry}
             url={url}
             active={!paused}
             muted={muted}
@@ -69,6 +71,7 @@ function Scene({
               setFailed(false);
             }}
             onError={() => setFailed(true)}
+            onAutoplayBlocked={() => setPaused(true)}
             onTime={(seconds) => {
               if (Date.now() - saved.current > 5000) {
                 saved.current = Date.now();
@@ -79,7 +82,7 @@ function Scene({
         )}
         <Pressable
           accessibilityLabel={paused ? "Videoyu oynat" : "Videoyu duraklat"}
-          onPress={() => setPaused(!paused)}
+          onPress={() => { if (failed) { setFailed(false); setReady(false); setRetry((value) => value + 1); } else setPaused(!paused); }}
           style={{
             position: "absolute",
             inset: 0,
@@ -109,7 +112,7 @@ function Scene({
                 borderRadius: 9,
               }}
             >
-              Önizleme yüklenemedi · Tümünü izle ile tekrar dene
+              Yeniden oynatmak için dokun
             </Text>
           ) : null}
         </Pressable>
@@ -140,7 +143,7 @@ function Scene({
           </View>
           <Pressable
             accessibilityLabel={muted ? "Sesi aç" : "Sessize al"}
-            onPress={() => setMuted(!muted)}
+            onPress={onMute}
             style={{
               backgroundColor: "#00000060",
               padding: 11,
@@ -261,7 +264,7 @@ export default function Discover({
   run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
 }) {
   const [height, setHeight] = useState(650),
-    [index, setIndex] = useState(0);
+    [index, setIndex] = useState(0), [muted, setMuted] = useState(false);
   const [seed] = useState(() => Math.floor(Math.random() * 2147483647));
   const items = useMemo(() => {
     let state = seed;
@@ -312,7 +315,7 @@ export default function Discover({
           Math.round(event.nativeEvent.contentOffset.y / height))))}
         scrollEventThrottle={80} initialNumToRender={2} windowSize={3} maxToRenderPerBatch={2}
         renderItem={({ item, index: sceneIndex }) => <Scene item={item}
-          active={index === sceneIndex} height={height}
+          active={index === sceneIndex} height={height} muted={muted} onMute={() => setMuted((value) => !value)}
           onSeries={() => onSeries(item.series)}
           onWatch={() => onEpisode(store.episodes.find((e) => e.series_id === item.series.id && e.number === 1) || item.episode)}
           favorite={store.favorites.includes(item.series.id)}

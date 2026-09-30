@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import { api, db } from "./client";
+import { uploadTus } from "../shared/tus-upload";
 export async function pickStudioImage() {
   const selected = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: false, quality: 1 });
   if (selected.canceled) return null;
@@ -20,27 +21,33 @@ export async function pickStudioImage() {
   if (error) throw error;
   return db.storage.from("dbs_series_artwork").getPublicUrl(filename).data.publicUrl;
 }
-export async function pickStudioVideo(purpose: "episode" | "trailer", episodeId?: string) {
+export async function pickStudioVideo(purpose: "episode" | "trailer", episodeId?: string, onProgress?: (percent: number) => void) {
   // Request credentials only after a file is selected. The account API key stays on the server.
   const selected = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"], allowsEditing: false });
   if (selected.canceled) return null;
   const asset = selected.assets[0];
-  if (asset.fileSize && asset.fileSize >= 200 * 1024 * 1024) throw Error("Bu yükleyici 200 MB altındaki videolar içindir. Daha büyük dosyaları Cloudflare panelinden yükle ve Stream UID ile bağla.");
-  const grant = await api<{ uid: string; uploadURL: string; publicURL?: string }>("admin-upload-video", {
+  const webFile = Platform.OS === "web" ? (asset.file || await (await fetch(asset.uri)).blob()) : null;
+  const nativeFile = Platform.OS !== "web" ? new (await import("expo-file-system")).File(asset.uri) : null;
+  const size = webFile?.size || nativeFile?.size;
+  if (!size) throw Error("Video dosyası okunamadı. Cihazındaki başka bir dosyayı seç.");
+  const grant = await api<{ uid: string; uploadURL: string; publicURL?: string; protocol: "tus" }>("admin-upload-video", {
     purpose, episode: episodeId, name: (asset.fileName || "DraBornSeries video").slice(0, 150),
+    protocol: "tus", size,
   });
-  const form = new FormData();
-  if (Platform.OS === "web") {
-    const file = await (await fetch(asset.uri)).blob();
-    if (file.size >= 200 * 1024 * 1024) throw Error("Video 200 MB altı olmalı. Büyük dosyalar için Cloudflare panelini kullan.");
-    form.append("file", file, asset.fileName || "video.mp4");
-  } else {
-    form.append("file", { uri: asset.uri, name: asset.fileName || "video.mp4", type: asset.mimeType || "video/mp4" } as unknown as Blob);
-  }
-  const response = await fetch(grant.uploadURL, { method: "POST", body: form });
-  if (!response.ok) throw Error("Video yüklenemedi. Bağlantını kontrol ederek dosyayı yeniden seç.");
+  const handle = nativeFile?.open();
+  try {
+    await uploadTus(grant.uploadURL, size, async (start, end) => {
+      if (webFile) return webFile.slice(start, end).arrayBuffer();
+      if (!handle) throw Error("STREAM_UPLOAD_READ_FAILED");
+      handle.offset = start;
+      return new Uint8Array(await handle.readBytes(end - start)).buffer;
+    }, onProgress);
+  } finally { handle?.close(); }
+  // The signed webhook and status polling also reconcile a completed upload.
+  // A temporary API disconnect after all bytes arrived must not lose the UID.
+  await api("admin-video-uploaded", { uid: grant.uid }).catch(() => {});
   return grant;
 }
 export async function studioVideoStatus(uid: string) {
-  return api<{ ready: boolean; duration: number; publicURL?: string }>("admin-video-status", { uid });
+  return api<{ ready: boolean; bound: boolean; duration: number; status?: string; error?: string; publicURL?: string }>("admin-video-status", { uid });
 }

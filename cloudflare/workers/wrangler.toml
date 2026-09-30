@@ -10,4 +10,4 @@ name = "RATE_LIMITER"
 namespace_id = "1001"
 simple = { limit = 30, period = 60 }
 # Set SUPABASE_SECRET_KEY, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
-# STREAM_CUSTOMER_CODE with wrangler secret put, never in this file.
+# with wrangler secret put, never in this file.

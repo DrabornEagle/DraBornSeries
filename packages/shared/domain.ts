@@ -66,6 +66,8 @@ export function clientCanWatch(
 }
 export const readableError = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("dbs_seasons_series_id_number_key")) return "Bu dizide aynı numaralı sezon zaten var. Mevcut sezonu açarak düzenleyebilirsin.";
+  if (message.includes("dbs_episodes_series_id_number_key")) return "Bu dizide aynı numaralı bölüm zaten var. Bölüm numarasını kontrol et.";
   if (/failed to fetch|network request failed|networkerror|load failed|timeout/i.test(message))
     return "İnternet bağlantını kontrol et. Kaydedilmiş içeriklerin burada; bağlantı geldiğinde tekrar deneyebilirsin.";
   const known: Record<string, string> = {

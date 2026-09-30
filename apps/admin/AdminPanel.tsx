@@ -96,6 +96,7 @@ export default function AdminPanel({ store, run }: {
     run(async () => {
       const me = await api<{ role: string }>("admin-me");
       setRole(me.role);
+      if (["owner", "editor"].includes(me.role)) await api("admin-sync-videos");
       await catalog();
     });
   }, [store.isAdmin, catalog, run]);

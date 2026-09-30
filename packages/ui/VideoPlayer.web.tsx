@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
+import RotateHint from "./RotateHint";
 // eslint-disable-next-line import/no-named-as-default
 import Hls, { Events } from "hls.js";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
+  const { width, height } = useWindowDimensions();
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
     [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
@@ -59,11 +61,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     maxHeight: expanded ? undefined : 760, aspectRatio: portrait ? 9 / 16 : 16 / 9, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
     <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
       #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
-      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: cover !important; object-position: center top; }
+      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; object-position: center; }
       #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
       ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
     <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload" crossOrigin={source.subtitles.length ? "anonymous" : undefined}
-      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", background: "#05020a" }}
+      style={{ width: "100%", height: "100%", objectFit: portrait && !expanded ? "cover" : "contain", objectPosition: "center", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);
         if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
@@ -94,6 +96,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onPiP={typeof document !== "undefined" && document.pictureInPictureEnabled ? () => { video.current?.requestPictureInPicture?.().catch(() => {}); } : undefined}
       subtitles={source.subtitles.length ? [{ key: "off", label: "Altyazı kapalı" }, ...source.subtitles.map((item) => ({ key: item.language, label: item.label }))] : undefined}
       onSubtitle={(key) => { if (video.current) Array.from(video.current.textTracks).forEach((track) => { track.mode = track.language === key ? "showing" : "disabled"; }); }} />
+    <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return viewportFullscreen ? createPortal(playerView, document.body) : playerView;
 }
