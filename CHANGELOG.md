@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 · 2026-09-30 · Android versionCode 1
+
+- Fullscreen captions sit closer to the bottom, moving clear of visible controls and Android navigation safe areas. Normal portrait-player captions keep their existing position; Discover captions move 30 px lower. Android and web share the positions and caption clock.
+- Colorful genre/info badges, gradient story and license cards, larger dedicated trailer/favorite/share actions and accessible icon tabs modernize series details while retaining every source/license attribution.
+- Trailer playback uses published series metadata and the selected video orientation. Landscape trailers use the same repeated fullscreen rotate hint as episodes. Only an exact episode-media match reuses its Turkish caption clock; separate trailer edits never receive unrelated cues.
+- Android avoids starting a newly loaded video while backgrounded. Fullscreen controls respect screen safe areas. Detail routes reset state per series; comments clear when the account changes and newly submitted pending comments appear immediately.
+- Shared in-app privacy, terms/community rules and account deletion screens plus standalone, public HTML pages for Play Console. Confirmed account deletion also removes the application's registration metadata and local pending progress/photo data while preserving other apps' shared Auth identity.
+- Explicit rules acceptance before registration/commenting, account-synced comment-author blocking and an unblock action in Settings. Profile photo selection discloses its public storage link.
+- Native config pins compile/target API 36 and blocks unused camera, microphone, broad media/storage, advertising ID, overlay and vibration permissions. EAS production App Bundle configuration and an accurate Data safety inventory are prepared. No APK/AAB or Play submission was created; signed build, device tests and Console declarations remain release steps.
+- Local validation: TypeScript, lint, 25 unit tests, web and Android JavaScript exports, plus native manifest/SDK introspection. CI verifies isolated database security and release metadata. See `docs/GOOGLE_PLAY.md`.
+
 ## 0.5.0 · 2026-09-30 · Android versionCode 1
 
 - Android previews seek once per source and retain artwork until a decoded frame renders. Stable subscriptions prevent buffering events and parent rerenders from repeatedly resetting playback. Preview and player lifecycle follows foreground state.

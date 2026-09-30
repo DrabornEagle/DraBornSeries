@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { assertPlayableStream, naturalConflict, streamUID, verifyStreamWebhook } from "./stream.ts";
 import { publicSubtitleTracks } from "./subtitles.ts";
+import { resolveTrailer } from "./trailer.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const admin = createClient(
   env("SUPABASE_URL"),
@@ -78,7 +79,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.5.0",
+        version: "0.6.0",
         versionCode: 1,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
@@ -87,6 +88,24 @@ Deno.serve(async (req) => {
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
       });
+    if (body.action === "trailer") {
+      if (typeof body.series !== "string") return send(req, { error: "INVALID_SERIES" }, 400);
+      const series = await checked(admin.from("dbs_series").select("id,status,is_demo,trailer_url,source_credit").eq("id", body.series).single());
+      if (series.status !== "published" || !/^https:\/\//i.test(series.trailer_url || ""))
+        return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
+      const episodes = await checked(admin.from("dbs_episodes").select("id,orientation,number").eq("series_id", series.id)
+        .eq("status", "published").lte("publish_at", new Date().toISOString()).order("number"));
+      const assets = series.is_demo && episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,demo_url,renditions")
+        .in("episode_id", episodes.map((episode: any) => episode.id)).eq("provider", "demo").eq("ready", true).eq("demo_url", series.trailer_url)) : [];
+      const resolved = resolveTrailer(series.trailer_url, episodes, assets, series.source_credit?.trailer_orientation);
+      if (!resolved) return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
+      // Reuse captions only when the trailer is exactly that episode's media.
+      // A separate edit has a different clock and must never inherit those cues.
+      const subtitles = resolved.matchedEpisodeId ? publicSubtitleTracks(await checked(admin.from("dbs_subtitles")
+        .select("language,label,asset_key").eq("episode_id", resolved.matchedEpisodeId).order("language"))) : [];
+      return send(req, { url: series.trailer_url, provider: series.is_demo ? "demo" : "cloudflare", subtitles,
+        qualities: resolved.qualities, orientation: resolved.orientation });
+    }
     if (body.action === "playback") {
       if (typeof body.episode !== "string")
         return send(req, { error: "INVALID_EPISODE" }, 400);
@@ -181,6 +200,11 @@ Deno.serve(async (req) => {
       // Only this application's avatar; the shared Auth account and other apps remain intact.
       const { error: avatarError } = await admin.storage.from("dbs_series_avatars").remove([user.id + "/avatar.jpg"]);
       if (avatarError) throw avatarError;
+      // Auth is shared. Remove only this application's registration fields.
+      const { error: metadataError } = await admin.auth.admin.updateUserById(user.id, {
+        user_metadata: { dbs_registration: null },
+      });
+      if (metadataError) throw metadataError;
       await checked(client.rpc("dbs_delete_account"));
       return send(req, { deleted: true, scope: "DraBornSeries" });
     }

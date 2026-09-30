@@ -3,6 +3,7 @@ import type { InlineVideoProps } from "./InlineVideo.types";
 import { getDiscoverStart, getPreviewWindow } from "../shared/preview-window";
 import SubtitleOverlay from "./SubtitleOverlay";
 import { preferredSubtitle } from "../shared/subtitles";
+import { discoverSubtitleBottom } from "../shared/player-layout";
 // eslint-disable-next-line import/no-named-as-default
 import Hls, { Events } from "hls.js";
 /* eslint-disable import/no-named-as-default-member -- documented Hls static API. */
@@ -107,7 +108,7 @@ export default function InlineVideo({
         pointerEvents: "none",
       }}
     />
-    {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? 300 : 110} />}
+      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? discoverSubtitleBottom : 110} />}
     </>
   );
 }

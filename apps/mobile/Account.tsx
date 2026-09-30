@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Image, Linking, Platform, Switch, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { api, db, requireData, rpc } from "../../packages/api/client";
+import { db, requireData, rpc } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
 import type { Page } from "../../packages/types";
 import { rewardDays } from "../../packages/shared/domain";
@@ -18,6 +18,7 @@ import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
 import { pickProfilePhoto, uploadProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
 import { config } from "../../packages/shared/config";
 import { translations } from "../../packages/shared/i18n";
+import { legalContact } from "../../packages/shared/legal";
 type Props = {
   page: Page;
   store: Store;
@@ -34,7 +35,6 @@ export default function Account({ page, store, go, run }: Props) {
     [avatar, setAvatar] = useState(store.profile?.avatar_url || ""),
     [sessions, setSessions] = useState<any[]>([]),
     [achievements, setAchievements] = useState<any[]>([]),
-    [deleteText, setDeleteText] = useState(""),
     [notifications, setNotifications] = useState(true),
     [reportKind, setReportKind] = useState("Video açılmıyor"),
     [reportBody, setReportBody] = useState("");
@@ -130,7 +130,7 @@ export default function Account({ page, store, go, run }: Props) {
           <Text style={styles.h3}>DraBornSeries · v{config.version} · Kod {config.versionCode}</Text>
           <Text style={styles.body}>
             Bu sürüm Expo Go ve web üzerinde erken erişim testidir. Bu
-            sürümde Tears of Steel, Spring, Charge ve Coffee Run filmlerinin açık lisanslı dikey test uyarlamalarını, toplam 14 bölümde izleyebilirsin.
+            sürümde {store.series.filter((series) => series.status === "published").length} lisanslı filmi ve {store.episodes.length} bölümü keşfedebilirsin.
             Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. BornCoins satın alma, VIP satışı, ödüllü
             reklamlar ve push bildirimleri üretim bağlantıları açıldığında
             etkinleşir.
@@ -140,11 +140,11 @@ export default function Account({ page, store, go, run }: Props) {
             icon="mail-outline"
             onPress={() =>
               Linking.openURL(
-                "mailto:support@draborneagle.com?subject=DraBornSeries",
+                `mailto:${legalContact.email}?subject=DraBornSeries`,
               )
             }
           >
-            support@draborneagle.com
+            {legalContact.email}
           </Button>
         </View>
         <View style={styles.card}>
@@ -200,6 +200,11 @@ export default function Account({ page, store, go, run }: Props) {
             uygulamanın verilerini temizler; ortak giriş hesabını ve diğer
             DraBornEagle uygulamalarını silmez.
           </Text>
+          <View style={styles.wrap}>
+            <Button secondary small icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
+            <Button secondary small icon="document-text-outline" onPress={() => go("terms")}>Kullanım ve topluluk kuralları</Button>
+            <Button secondary small icon="person-remove-outline" onPress={() => go("delete-account")}>Hesap silme</Button>
+          </View>
         </View>
       </View>
     );
@@ -211,6 +216,8 @@ export default function Account({ page, store, go, run }: Props) {
         icon="person-circle-outline"
       >
         <Button onPress={() => go("auth")}>{t.login}</Button>
+        <Button secondary small onPress={() => go("privacy")}>Gizlilik Politikası</Button>
+        <Button secondary small onPress={() => go("delete-account")}>Hesap silme</Button>
       </Empty>
     );
   if (page === "wallet")
@@ -552,6 +559,13 @@ export default function Account({ page, store, go, run }: Props) {
             />
           </View>
           <Text style={styles.h3}>Bildirim tercihleri</Text>
+          {Array.isArray(store.profile?.preferences?.blocked_user_ids) && store.profile.preferences.blocked_user_ids.length > 0 &&
+            <Button secondary small icon="person-add-outline" onPress={() => run(async () => {
+              await requireData(db.from("dbs_profiles").update({ preferences: {
+                ...store.profile?.preferences, blocked_user_ids: [],
+              } }).eq("user_id", store.session!.user.id));
+              await store.refreshAccount();
+            }, "Yorum engellemeleri kaldırıldı.")}>Engellenen kullanıcıları yeniden göster</Button>}
           <View style={styles.row}>
             <Switch
               value={notifications}
@@ -633,28 +647,21 @@ export default function Account({ page, store, go, run }: Props) {
         <View style={[styles.card, { borderColor: "#703042" }]}>
           <Text style={styles.h3}>DraBornSeries hesabını sil</Text>
           <Text style={styles.body}>
-            Profilin anonimleştirilir; favorilerin, izleme geçmişin ve
-            DraBornSeries cüzdanın temizlenir. Diğer DraBornEagle
-            uygulamalarındaki veriler korunur. Bu işlem geri alınamaz.
+            DraBornSeries profilin, fotoğrafın, izleme geçmişin, yorumların ve
+            cüzdanın temizlenir. Silme kapsamını inceleyip bir sonraki ekranda onaylayabilirsin.
           </Text>
-          <Field
-            placeholder="Onaylamak için SİL yaz"
-            value={deleteText}
-            onChangeText={setDeleteText}
-          />
           <Button
             secondary
-            disabled={deleteText !== "SİL"}
-            onPress={() =>
-              run(async () => {
-                await api("delete-account", { confirm: "DELETE" });
-                await db.auth.signOut({ scope: "local" });
-                go("home");
-              }, "DraBornSeries hesabın silindi.")
-            }
+            icon="person-remove-outline"
+            onPress={() => go("delete-account")}
           >
-            Hesabı kalıcı sil
+            Hesap silme sayfasını aç
           </Button>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.h3}>Gizlilik ve kurallar</Text>
+          <Button secondary icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
+          <Button secondary icon="document-text-outline" onPress={() => go("terms")}>Kullanım ve topluluk kuralları</Button>
         </View>
       </View>
     );

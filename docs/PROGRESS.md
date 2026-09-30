@@ -1,4 +1,10 @@
-# DraBornSeries · v0.5 current checkpoint
+# DraBornSeries · v0.6 current checkpoint
+
+Version 0.6.0 / Android versionCode 1. Shared Android/web detail redesign, lower fullscreen/Discover captions and trailer orientation/automatic matching Turkish captions are implemented. Native player loading respects foreground state, controls respect safe areas, and series/comment state is isolated across routes/accounts. Public privacy/terms/deletion HTML shares the in-app text. Account deletion removes app registration metadata and local progress/photo staging. Comment rules acceptance and account-synced blocking are available.
+
+Local validation passed: TypeScript, lint, 25 unit tests, web export, Android JavaScript export and native config introspection (API 36, INTERNET only, blocked broad-media/camera/microphone/AD_ID/overlay/vibration permissions). `eas.json` prepares the production AAB profile. No APK/AAB was built and no Play submission was made. `docs/GOOGLE_PLAY.md` records public URLs, the actual data inventory and remaining signed-build/device/Console work. Release/public policy metadata is isolated in `supabase/releases/v06.sql`. The source commit's GitHub application/database workflow, web sync and company Pages workflow record publication results; exported `DBS-SOURCE.json` identifies the exact web source commit.
+
+## Previous v0.5 verification
 
 Live correction checkpoint: source `382ee05ff1dc6a653f47a1c1f71416948ecfb81e`, exported web `e558da81756dbdaa5283fa8312f886a59ef8982b`. [Application/database CI](https://github.com/DrabornEagle/DraBornSeries/actions/runs/36707585207), [web sync](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36707588572) and [Pages deployment](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36707775126) passed. Live browser confirms the current bundle, 18 Discover scenes (15318px content / 851px viewport), Elephants Dream playing audibly from the midpoint of its actual 654.36s duration, Turkish cues in Discover and the player, Sintel's default 420×746.66 portrait frame, and the rotate hint on two consecutive fullscreen entries. The final follow-up also fixes a browser pointer-coordinate error found during timeline seeking. Physical Android rotation remains pending; Android JavaScript export passes.
 

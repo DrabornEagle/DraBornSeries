@@ -9,6 +9,8 @@ import { colors } from "./theme";
 import RotateHint from "./RotateHint";
 import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import { isTurkish } from "../shared/subtitles";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { subtitleBottom } from "../shared/player-layout";
 // Serialize orientation changes so closing quickly cannot leave ALL applied.
 let orientationQueue = Promise.resolve();
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
@@ -17,6 +19,9 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
     [fullscreen, setFullscreen] = useState(false), [time, setTime] = useState(initialTime), [duration, setDuration] = useState(0);
   const videoView = useRef<VideoView>(null);
+  const insets = useSafeAreaInsets();
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const foreground = useRef(AppState.currentState === "active");
   const captions = useSubtitleSelection(source.subtitles, source.url), manualSubtitles = useRef(false);
   const { width, height } = useWindowDimensions();
   useEffect(() => {
@@ -44,7 +49,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
         ? null : player.availableSubtitleTracks.find((track) => isTurkish(track.language)) || null;
       if (!resumed.current) {
         resumed.current = true; player.currentTime = resumeTime.current;
-        if (shouldPlay.current) player.play(); else player.pause();
+        if (shouldPlay.current && foreground.current) player.play(); else player.pause();
       }
     };
     const statusSub = player.addListener("statusChange", (event) => {
@@ -57,11 +62,10 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     });
     const endSub = player.addListener("playToEnd", () => { progressCallback.current(current.current); endCallback.current(); });
     ready();
-    let foreground = AppState.currentState === "active";
     const stateSub = AppState.addEventListener("change", (state) => {
-      if (state !== "active" && foreground) { shouldPlay.current = player.playing; player.pause(); }
+      if (state !== "active" && foreground.current) { shouldPlay.current = player.playing; player.pause(); }
       else if (state === "active" && shouldPlay.current) player.play();
-      foreground = state === "active";
+      foreground.current = state === "active";
     });
     return () => { statusSub.remove(); timeSub.remove(); endSub.remove(); playingSub.remove(); stateSub.remove(); progressCallback.current(current.current); };
   }, [player, source.subtitles]);
@@ -84,11 +88,12 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
       contentFit={expanded ? "contain" : "cover"} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
-    <SubtitleOverlay track={captions.track} time={time} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
+      onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
       fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality}
       onSeek={(value) => { player.currentTime = value; current.current = value; setTime(value); }}
-      onPlay={() => { if (player.playing) { player.pause(); onProgress(current.current); } else player.play(); }}
+      onPlay={() => { shouldPlay.current = !player.playing; if (player.playing) { player.pause(); onProgress(current.current); } else player.play(); }}
       onMute={() => { player.muted = !muted; setMuted(!muted); }} onFullscreen={() => setFullscreen(!fullscreen)}
       onRetry={() => { void replace(source.url, true); }}
       onPiP={isPictureInPictureSupported() ? () => { videoView.current?.startPictureInPicture().catch(() => setError("Bu cihazda küçük pencere başlatılamadı.")); } : undefined}

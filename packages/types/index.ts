@@ -16,7 +16,10 @@ export type Page =
   | "detail"
   | "player"
   | "admin"
-  | "help";
+  | "help"
+  | "privacy"
+  | "terms"
+  | "delete-account";
 export interface Series {
   source_credit?: { creator: string; license: string; license_url: string; source_url: string; modifications: string; preview_allowed?: boolean };
   id: string;

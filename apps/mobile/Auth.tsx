@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Image, Platform, Text, View } from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { db, deviceId, rpc, requireData } from "../../packages/api/client";
 import { config } from "../../packages/shared/config";
-import { Button, Field, colors, styles } from "../../packages/ui/theme";
+import { Button, Field, Icon, colors, styles } from "../../packages/ui/theme";
+import { legalContact, type LegalPage } from "../../packages/shared/legal";
 import type { Store } from "../../packages/api/store";
 import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
 import { pickProfilePhoto, stageProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
@@ -15,9 +16,11 @@ WebBrowser.maybeCompleteAuthSession();
 export default function Auth({
   store,
   run,
+  onLegal,
 }: {
   store: Store;
   run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
+  onLegal: (page: LegalPage) => void;
 }) {
   const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(
       Platform.OS === "web" &&
@@ -30,7 +33,8 @@ export default function Auth({
     [password, setPassword] = useState(""),
     [fullName, setFullName] = useState(""),
     [username, setUsername] = useState(""),
-    [photo, setPhoto] = useState<ProfilePhoto | null>(null);
+    [photo, setPhoto] = useState<ProfilePhoto | null>(null),
+    [termsAccepted, setTermsAccepted] = useState(false);
   const t = translations(store.language);
   async function submit() {
     if (mode === "reset") {
@@ -50,11 +54,12 @@ export default function Auth({
       return;
     }
     if (mode === "register") {
+      if (!termsAccepted) throw Error("Kayıt olmadan önce kullanım ve topluluk kurallarını kabul et.");
       await stageProfilePhoto(email, photo);
       const { data, error } = await db.auth.signUp({
         email,
         password,
-        options: { data: { dbs_registration: { username: username.trim(), full_name: fullName.trim() } }, emailRedirectTo: config.webUrl },
+        options: { data: { dbs_registration: { username: username.trim(), full_name: fullName.trim() }, dbs_terms_version: legalContact.version }, emailRedirectTo: config.webUrl },
       });
       if (error) throw error;
       if (data.session && username.trim()) {
@@ -76,6 +81,7 @@ export default function Auth({
     if (error) throw error;
   }
   async function google() {
+    if (mode === "register" && !termsAccepted) throw Error("Kayıt olmadan önce kullanım ve topluluk kurallarını kabul et.");
     const settings = await fetch(config.supabaseUrl + "/auth/v1/settings", {
       headers: { apikey: config.publishableKey },
     }).then((r) => r.json());
@@ -221,6 +227,12 @@ export default function Auth({
             }
           />
         )}
+        {mode === "register" && <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: termsAccepted }}
+          accessibilityLabel="Kullanım ve topluluk kurallarını kabul ediyorum" onPress={() => setTermsAccepted(!termsAccepted)}
+          style={[styles.row, { paddingVertical: 10 }]}>
+          <Icon name={termsAccepted ? "checkbox" : "square-outline"} color={colors.mint} />
+          <Text style={[styles.body, { flex: 1, fontSize: 12 }]}>Kullanım ve topluluk kurallarını kabul ediyorum.</Text>
+        </Pressable>}
         <Button
           onPress={() =>
             run(
@@ -274,6 +286,11 @@ export default function Auth({
           sağlayıcının etkin olduğu ve dönüş adresinin izinli olduğu ortamda
           kullanılabilir.
         </Text>
+        <View style={styles.wrap}>
+          <Button secondary small onPress={() => onLegal("privacy")}>Gizlilik Politikası</Button>
+          <Button secondary small onPress={() => onLegal("terms")}>Kullanım ve topluluk kuralları</Button>
+          <Button secondary small onPress={() => onLegal("delete-account")}>Hesap silme</Button>
+        </View>
       </View>
     </View>
   );

@@ -11,10 +11,14 @@ type Props = {
   onQuality: (key: string) => void; onFullscreen: () => void; onRetry: () => void;
   audio?: QualityChoice[]; onAudio?: (key: string) => void;
   onPiP?: () => void; subtitles?: QualityChoice[]; onSubtitle?: (key: string) => void;
+  onControlsVisibilityChange?: (visible: boolean) => void; safeTop?: number; safeBottom?: number;
 };
 export default function PlayerChrome(props: Props) {
   const [visible, setVisible] = useState(true), [settings, setSettings] = useState(false), [barWidth, setBarWidth] = useState(1);
   const [touch, setTouch] = useState(0);
+  const controlsVisible = visible || !props.playing || props.loading || !!props.error || settings;
+  const onControlsVisibilityChange = props.onControlsVisibilityChange;
+  useEffect(() => { onControlsVisibilityChange?.(controlsVisible); }, [controlsVisible, onControlsVisibilityChange]);
   const wake = () => { setVisible(true); setTouch((value) => value + 1); };
   useEffect(() => {
     if (!props.playing || settings || props.loading || props.error) return;
@@ -32,7 +36,7 @@ export default function PlayerChrome(props: Props) {
     {(visible || !props.playing || props.loading || !!props.error) && <>
       <LinearGradient pointerEvents="none" colors={["#05020da6", "transparent", "transparent", "#05020df2"]}
         locations={[0, 0.25, 0.6, 1]} style={{ position: "absolute", inset: 0 }} />
-      <View pointerEvents="box-none" style={{ position: "absolute", top: props.fullscreen ? 30 : 10, left: 14, right: 12, flexDirection: "row", gap: 8, alignItems: "center" }}>
+      <View pointerEvents="box-none" style={{ position: "absolute", top: props.fullscreen ? Math.max(18, props.safeTop || 0) : 10, left: 14, right: 12, flexDirection: "row", gap: 8, alignItems: "center" }}>
         <View style={{ flex: 1, gap: 4 }}><Text style={{ color: "#ed85c0", fontSize: 9, letterSpacing: 2, fontWeight: "900" }}>DRABORNSERIES</Text>
           <Text numberOfLines={2} style={{ color: "white", fontSize: 13, fontWeight: "700" }}>{props.title || "Şimdi izleniyor"}</Text></View>
         <Pressable accessibilityRole="button" accessibilityLabel="Video kalitesi ve altyazı" onPress={() => { wake(); setSettings(!settings); }}
@@ -55,7 +59,7 @@ export default function PlayerChrome(props: Props) {
         <Icon name="cloud-offline-outline" color={colors.pink} size={34} /><Text style={{ color: "white", textAlign: "center", fontSize: 13 }}>{props.error}</Text>
         <Pressable accessibilityRole="button" onPress={props.onRetry} style={{ padding: 14, borderRadius: 16, backgroundColor: colors.pink }}><Text style={{ color: "white", fontWeight: "800" }}>Tekrar dene</Text></Pressable>
       </View>}
-      <View style={{ position: "absolute", bottom: props.fullscreen ? 26 : 8, left: 15, right: 15, gap: 3 }}>
+      <View style={{ position: "absolute", bottom: props.fullscreen ? 18 + (props.safeBottom || 0) : 8, left: 15, right: 15, gap: 3 }}>
         <Pressable accessibilityRole="adjustable" accessibilityLabel="İzleme ilerlemesi" accessibilityValue={{ min: 0, max: Math.round(props.duration || 1), now: Math.round(props.time), text: formatTime(props.time) }}
           accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
           onAccessibilityAction={(event) => seek(props.time + (event.nativeEvent.actionName === "increment" ? 10 : -10))}
@@ -95,10 +99,10 @@ export default function PlayerChrome(props: Props) {
           <Text style={{ color: "white", fontSize: 12 }}>{item.label}</Text>{props.quality === item.label && <Icon name="checkmark" color={colors.pink} size={16} />}
         </Pressable>)}
         {!!props.audio?.length && <Text style={{ color: "#c5b5cd", fontSize: 12, marginTop: 12 }}>Ses dili</Text>}
-        {props.audio?.map((item) => <Pressable key={item.key} onPress={() => { props.onAudio?.(item.key); setSettings(false); }} style={{ padding: 12 }}>
+        {props.audio?.map((item) => <Pressable key={item.key} accessibilityRole="button" onPress={() => { props.onAudio?.(item.key); setSettings(false); }} style={{ padding: 12 }}>
           <Text style={{ color: "white", fontSize: 12 }}>{item.label}</Text></Pressable>)}
         {!!props.subtitles?.length && <Text style={{ color: "#c5b5cd", fontSize: 12, marginTop: 12 }}>Altyazı</Text>}
-        {props.subtitles?.map((item) => <Pressable key={item.key} onPress={() => { props.onSubtitle?.(item.key); setSettings(false); }} style={{ padding: 12 }}>
+        {props.subtitles?.map((item) => <Pressable key={item.key} accessibilityRole="button" onPress={() => { props.onSubtitle?.(item.key); setSettings(false); }} style={{ padding: 12 }}>
           <Text style={{ color: "white", fontSize: 12 }}>{item.label}</Text></Pressable>)}
       </ScrollView>
     </View>}

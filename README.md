@@ -1,13 +1,22 @@
-# DraBornSeries · v0.5.0 · versionCode 1
+# DraBornSeries · v0.6.0 · versionCode 1
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm resmi ticari lansman değildir. Ticari içerik hakları, Cloudflare hesabı, Google OAuth, Play Console/Billing, RTDN/iade sistemi, AdMob SSV ve Android push bağlantıları henüz tamamlanmadı. Ayrıntılı durum: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
 
-## v0.5 güncel düzenlemeler
+## v0.6 güncel düzenlemeler
+
+- Tam ekran altyazıları daha aşağıda; Android güvenli alanı ve görünen kontroller hesaba katılır. Normal oynatıcı konumu korunur. Keşfet altyazıları 30 px aşağı taşındı.
+- Dizi detayında renkli bilgi rozetleri, yeni Bölümler/Hakkında/Yorumlar sekmeleri, hikâye ve lisans kartları, fragman/favori/paylaşım düğmeleri.
+- Fragman seçili video yönünü kullanır; yatay fragmanda her tam ekran girişinde yana çevir animasyonu çıkar. Aynı bölüm kaynağını kullanan fragman otomatik Türkçe altyazıyı alır.
+- Web ve Android ortak ekranları ve davranışları kullanır. Android arka plan oynatma başlangıcı, tam ekran güvenli alanları ve detay/yorum durumları düzeltildi.
+- [Gizlilik Politikası](https://www.draborneagle.com/DraBornSeries/privacy.html), [Hesap silme](https://www.draborneagle.com/DraBornSeries/account-deletion.html), kullanım/topluluk kuralları hem uygulamada hem giriş gerektirmeyen web sayfalarında var. Yorumlara hesaplar arasında eşitlenen engelleme eklendi.
+- Android target/compile SDK 36, kullanılmayan izinlerin kaldırılması ve üretim App Bundle profili hazır. [Google Play hazırlığı ve Data safety envanteri](docs/GOOGLE_PLAY.md). Fiziksel cihaz testi, imzalı AAB ve Play Console gönderimi bu görevde yapılmadı.
+
+## v0.5 önceki düzenlemeleri
 
 - Android önizlemesi her tamponlama olayında tekrar seek yapmaz; afiş ilk çözülmüş video karesine kadar kalır. Keşfet sesi açık başlar; kullanıcı ses tercihi kaydırırken korunur.
-- Yatay videoda tam ekran, tek seferlik animasyonlu “Cihazını yana çevir” ipucu ve cihazın yönüne göre kırpılmadan sığan oynatma. Tam ekrandan çıkınca normal dikey kilit geri yüklenir.
+- Yatay videoda tam ekran, her tam ekran girişinde animasyonlu “Cihazını yana çevir” ipucu ve cihazın yönüne göre kırpılmadan sığan oynatma. Tam ekrandan çıkınca normal dikey kilit geri yüklenir.
 - Google renklerinde animasyonlu giriş düğmesi; daha büyük ve modern hesap oluşturma / şifre sıfırlama düğmeleri.
 - 14 eksik Blender açık filmi tam ve yatay hâliyle eklendi. Katalog: 18 film, 28 oynatılabilir bölüm. [Tam film kaynakları ve lisanslar](docs/blender-film-catalog.json).
 - Sezon/bölüm kaydında doğal benzersiz anahtarlar kullanılır. Cloudflare tus yüklemesi, ilerleme, yeniden deneme, imzalı bildirim ve işlenince otomatik UID bağlantısı eklendi. GitHub hizmet dağıtımı hesap bilgileri tanımlıysa kurulumu ve katalog aktarımını otomatik yürütür.

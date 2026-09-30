@@ -7,10 +7,12 @@ import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import Hls, { Events } from "hls.js";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
+import { subtitleBottom } from "../shared/player-layout";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
   const captions = useSubtitleSelection(source.subtitles, source.url);
+  const [controlsVisible, setControlsVisible] = useState(true);
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
     [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
@@ -75,8 +77,9 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onEnded={onEnd} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
       onError={() => { setBuffering(false); setError("Video bağlantısı açılamadı. Tekrar dene."); }}>
     </video>
-    <SubtitleOverlay track={captions.track} time={time} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
+      onControlsVisibilityChange={setControlsVisible}
       quality={quality} choices={choices} fullscreen={expanded} error={error}
       onPlay={() => { if (playing) video.current?.pause(); else video.current?.play().catch(() => {}); }}
       onSeek={(value) => { if (video.current) { video.current.currentTime = value; setTime(value); } }}

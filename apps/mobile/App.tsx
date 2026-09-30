@@ -36,6 +36,7 @@ import Auth from "./Auth";
 import SeriesDetail from "./SeriesDetail";
 import Player from "./Player";
 import Account from "./Account";
+import Legal from "./Legal";
 import Commerce from "./Commerce";
 import Discover from "./Discover";
 import Splash from "../../packages/ui/Splash";
@@ -74,6 +75,9 @@ function parseRoute(url: string): Route {
       "auth",
       "admin",
       "help",
+      "privacy",
+      "terms",
+      "delete-account",
     ];
     return {
       page: allowed.includes(page || "")
@@ -228,6 +232,8 @@ function Main() {
     go("browse");
   }
   function renderPage() {
+    if (route.page === "privacy" || route.page === "terms" || route.page === "delete-account")
+      return <Legal key={route.page} page={route.page} store={store} go={go} run={run} />;
     if (store.loading && !store.series.length) return <Loading />;
     if (route.page === "home")
       return (
@@ -245,11 +251,13 @@ function Main() {
     if (route.page === "detail")
       return activeSeries ? (
         <SeriesDetail
+          key={activeSeries.id}
           series={activeSeries}
           store={store}
           onEpisode={onEpisode}
           run={run}
           onLogin={() => go("auth")}
+          onRules={() => go("terms")}
         />
       ) : (
         <Empty title="Dizi bulunamadı" />
@@ -268,7 +276,7 @@ function Main() {
       ) : (
         <Empty title="Bölüm bulunamadı" />
       );
-    if (route.page === "auth") return <Auth store={store} run={run} />;
+    if (route.page === "auth") return <Auth store={store} run={run} onLegal={(page) => go(page)} />;
     if (route.page === "admin") return <AdminPanel store={store} run={run} />;
     if (route.page === "browse" || route.page === "search")
       return (
@@ -537,6 +545,12 @@ function Main() {
             <View style={{ flex: 1 }} />
             <View style={{ gap: 15 }}>
               <Nav
+                icon="shield-checkmark-outline"
+                label="Gizlilik"
+                active={route.page === "privacy"}
+                onPress={() => go("privacy")}
+              />
+              <Nav
                 icon="help-circle-outline"
                 label={t.help}
                 active={route.page === "help"}
@@ -685,11 +699,15 @@ function Main() {
                     DraBornSeries — Bir sonraki hikâyen.
                   </Text>
                   <View style={styles.wrap}>
-                    <Pressable onPress={() => go("help")}>
+                    <Pressable accessibilityRole="button" onPress={() => go("help")}>
                       <Text style={{ fontSize: 11, color: colors.muted }}>
-                        Yardım & Gizlilik
+                        Yardım
                       </Text>
                     </Pressable>
+                    {([ ["privacy", "Gizlilik Politikası"], ["terms", "Koşullar"], ["delete-account", "Hesap silme"] ] as const).map(([page, label]) =>
+                      <Pressable key={page} accessibilityRole="button" onPress={() => go(page)}>
+                        <Text style={{ fontSize: 11, color: colors.muted }}>{label}</Text>
+                      </Pressable>)}
                     <Text style={{ fontSize: 11, color: "#665b70" }}>•</Text>
                     <Text style={{ fontSize: 11, color: "#665b70" }}>
                       Erken erişim · v{config.version}

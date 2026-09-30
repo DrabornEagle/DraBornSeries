@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir, copyFile, cp } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
+import { writeLegalPages } from "./legal-pages.mjs";
 await mkdir("dist/media", { recursive: true });
 await copyFile("assets/posters/gece-hatti.png", "dist/media/gece-hatti.png");
 await copyFile("assets/icons/icon.png", "dist/media/icon.png");
@@ -41,6 +42,7 @@ await writeFile(
   ),
 );
 await writeFile("dist/.nojekyll", "");
+await writeLegalPages();
 let commit = "uncommitted";
 try {
   commit = execFileSync("git", ["rev-parse", "HEAD"], {

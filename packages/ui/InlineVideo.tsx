@@ -5,6 +5,7 @@ import type { InlineVideoProps } from "./InlineVideo.types";
 import { getDiscoverStart, getPreviewWindow } from "../shared/preview-window";
 import SubtitleOverlay from "./SubtitleOverlay";
 import { preferredSubtitle } from "../shared/subtitles";
+import { discoverSubtitleBottom } from "../shared/player-layout";
 export default function InlineVideo({
   url,
   active,
@@ -92,7 +93,7 @@ export default function InlineVideo({
         style={{ width: "100%", height: "100%" }}
       />
       {!frameReady && poster && <Image source={{ uri: poster }} resizeMode="cover" style={{ position: "absolute", inset: 0 }} />}
-      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? 300 : 110} />}
+      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? discoverSubtitleBottom : 110} />}
     </View>
   );
 }

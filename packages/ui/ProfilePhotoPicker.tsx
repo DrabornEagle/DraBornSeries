@@ -15,6 +15,6 @@ export default function ProfilePhotoPicker({ uri, onPick, onRemove, optional = f
         {!!uri && <Button secondary small icon="close" onPress={onRemove}>Fotoğrafı kaldır</Button>}
       </View>
     </View>
-    <Text style={{ color: colors.muted, fontSize: 11, lineHeight: 17 }}>Fotoğraf kare olarak hazırlanır. Kaydedildiğinde Android ve web profilinde görünür.</Text>
+    <Text style={{ color: colors.muted, fontSize: 11, lineHeight: 17 }}>Yalnızca seçtiğin görsel yüklenir; kare olarak hazırlanır. Kaydedildiğinde Android ve web profilinde görünür ve herkese açık bağlantıda saklanır.</Text>
   </View>;
 }

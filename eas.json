@@ -1,0 +1,10 @@
+{
+  "cli": { "appVersionSource": "local" },
+  "build": {
+    "production": {
+      "distribution": "store",
+      "autoIncrement": false,
+      "android": { "buildType": "app-bundle" }
+    }
+  }
+}
