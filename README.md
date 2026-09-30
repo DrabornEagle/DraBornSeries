@@ -10,7 +10,7 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 - Stream UID yerine R2 dosya yolu veya mevcut Worker’ın `/media/` bağlantısı. Klasördeki videoları toplu seçme, doğal dosya sıralaması, otomatik bölüm numarası/süresi ve kaydetmeden önizleme. Dizi, sezon, bölümler ve video bağlantıları tek veritabanı işlemiyle kaydedilir.
 - Dizi video yönünü bir kez seçmek mevcut ve sonraki bütün bölümlere uygulanır. Mevcut katalogda kendiliğinden yön veya medya değişikliği yapılmaz.
 - Google hesabı ilk açıldığında kullanıcı adı tam e-posta adresi, profil fotoğrafı Google fotoğrafı olur. Eski otomatik `viewer_` adları sonraki girişte düzelir; kullanıcının elle değiştirdiği bilgiler korunur.
-- Oturum kapalı profil sayfası renkli kartlar, ayrı giriş/kayıt düğmeleri, dil ve destek bağlantılarıyla yenilendi. Dikey tam ekran altyazıları yukarı alındı; yatay ve Keşfet yerleşimi korunur.
+- Oturum kapalı profil sayfası renkli kartlar, giriş/kayıt ve keşfet düğmeleri, dil ve destek bağlantılarıyla yenilendi. Dikey tam ekran altyazıları yukarı alındı; yatay ve Keşfet yerleşimi korunur.
 - R2 Worker kaynak kodu imzalı ücretsiz/ücretli oynatma, yetkili klasör tarama ve Range/seek yanıtlarını içerir. Hesap erişimi sağlandığında hizmet workflow’u mevcut bucket binding ve secret’ları koruyarak dağıtır. Mevcut public Worker ile ücretsiz videolar dosya yolları yapıştırılarak bağlanabilir; klasör tarama ve ücretli video için yeni Worker’ın dağıtılması gerekir.
 - [R2 kullanım/kurulum ve Google uygulama adı](docs/R2_SETUP.md). Google’ın gönderdiği e-postadaki ad, OAuth projesinin Branding ayarıdır; uygulama kodundan değiştirilemez.
 
