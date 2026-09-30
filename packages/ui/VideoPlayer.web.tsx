@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { View } from "react-native";
 // eslint-disable-next-line import/no-named-as-default
 import Hls, { Events } from "hls.js";
@@ -12,19 +13,25 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     [playing, setPlaying] = useState(false), [muted, setMuted] = useState(false), [time, setTime] = useState(initialTime),
     [duration, setDuration] = useState(0);
   const lastSaved = useRef(0), progressCallback = useRef(onProgress), currentUrl = useRef(source.url);
+  const resumeAt = useRef(initialTime), resumePlaying = useRef(true), selectedQuality = useRef("auto"), loadedBase = useRef(source.url);
   progressCallback.current = onProgress;
   useEffect(() => {
     const el = video.current; if (!el) return;
-    const ready = () => { el.currentTime = initialTime; setDuration(el.duration); el.play().catch(() => { setBuffering(false); }); };
+    if (loadedBase.current !== source.url) { loadedBase.current = source.url; currentUrl.current = source.url; resumeAt.current = initialTime; selectedQuality.current = "auto"; }
+    const mediaUrl = currentUrl.current;
+    const ready = () => { el.currentTime = resumeAt.current; setDuration(el.duration);
+      if (resumePlaying.current) el.play().catch(() => { setBuffering(false); }); else setBuffering(false); };
     el.addEventListener("loadedmetadata", ready, { once: true });
-    if (source.url.includes(".m3u8") && Hls.isSupported()) {
+    if (mediaUrl.includes(".m3u8") && Hls.isSupported()) {
       const instance = new Hls({ maxBufferLength: 25 }); hls.current = instance;
-      instance.loadSource(source.url); instance.attachMedia(el);
-      instance.on(Events.MANIFEST_PARSED, () => setLevels(instance.levels.map((level) => ({ width: level.width, height: level.height }))));
+      instance.loadSource(mediaUrl); instance.attachMedia(el);
+      instance.on(Events.MANIFEST_PARSED, () => { setLevels(instance.levels.map((level) => ({ width: level.width, height: level.height })));
+        if (selectedQuality.current.startsWith("h:")) instance.currentLevel = Number(selectedQuality.current.slice(2)); });
       instance.on(Events.ERROR, (_, data) => { if (data.fatal) setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene."); });
-    } else { el.src = source.url; }
-    return () => { progressCallback.current(el.currentTime); el.pause(); el.removeEventListener("loadedmetadata", ready); hls.current?.destroy(); hls.current = null; el.removeAttribute("src"); el.load(); };
-  }, [source.url, initialTime]);
+    } else { el.src = mediaUrl; }
+    return () => { if (el.readyState >= 1) { resumeAt.current = el.currentTime; resumePlaying.current = !el.paused; }
+      progressCallback.current(resumeAt.current); el.pause(); el.removeEventListener("loadedmetadata", ready); hls.current?.destroy(); hls.current = null; el.removeAttribute("src"); el.load(); };
+  }, [source.url, initialTime, viewportFullscreen]);
   useEffect(() => {
     const changed = () => setFullscreen(document.fullscreenElement === (container.current as unknown as HTMLElement));
     document.addEventListener("fullscreenchange", changed); return () => document.removeEventListener("fullscreenchange", changed);
@@ -48,7 +55,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
     : levels.map((level, index) => ({ key: "h:" + index, label: Math.min(level.width, level.height) + "p" })) )];
-  return <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: portrait ? 420 : 1100,
+  const playerView = <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: portrait ? 420 : 1100,
     maxHeight: expanded ? undefined : 760, aspectRatio: portrait ? 9 / 16 : 16 / 9, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
     <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
       #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
@@ -79,7 +86,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
           else setViewportFullscreen(true);
         }
       }}
-      onQuality={(key) => { setQuality(choices.find((choice) => choice.key === key)?.label || "Otomatik");
+      onQuality={(key) => { selectedQuality.current = key; setQuality(choices.find((choice) => choice.key === key)?.label || "Otomatik");
         if (key.startsWith("h:") && hls.current) hls.current.currentLevel = Number(key.slice(2));
         else if (key.startsWith("r:")) replace(source.qualities![Number(key.slice(2))].url);
         else { if (hls.current) hls.current.currentLevel = -1; else if (currentUrl.current !== source.url) replace(source.url); } }}
@@ -88,4 +95,5 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       subtitles={source.subtitles.length ? [{ key: "off", label: "Altyazı kapalı" }, ...source.subtitles.map((item) => ({ key: item.language, label: item.label }))] : undefined}
       onSubtitle={(key) => { if (video.current) Array.from(video.current.textTracks).forEach((track) => { track.mode = track.language === key ? "showing" : "disabled"; }); }} />
   </View>;
+  return viewportFullscreen ? createPortal(playerView, document.body) : playerView;
 }

@@ -303,6 +303,7 @@ function FeaturedPosters({ entries, tick, compact, store, active, onStep, onSele
     };
     const move = (event: PointerEvent) => {
       if (!origin || event.pointerId !== origin.id) return;
+      if (event.buttons === 0) { origin = null; dragging = false; return; }
       const dx = event.clientX - origin.x, dy = event.clientY - origin.y;
       if (!dragging && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
         dragging = true; node.setPointerCapture?.(event.pointerId);
