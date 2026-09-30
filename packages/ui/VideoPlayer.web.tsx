@@ -62,7 +62,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: cover !important; object-position: center top; }
       #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
       ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
-    <video ref={video} playsInline controls={false} controlsList="nodownload" crossOrigin={source.subtitles.length ? "anonymous" : undefined}
+    <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload" crossOrigin={source.subtitles.length ? "anonymous" : undefined}
       style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);

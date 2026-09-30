@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { InlineVideoProps } from "./InlineVideo.types";
+import { getPreviewWindow } from "../shared/preview-window";
 export default function InlineVideo({
   url,
   active,
@@ -10,8 +11,9 @@ export default function InlineVideo({
   onReady,
   onError,
 }: InlineVideoProps) {
-  const ref = useRef<HTMLVideoElement>(null),
-    [visible, setVisible] = useState(true);
+  const ref = useRef<HTMLVideoElement>(null), range = useRef({ start: 0, end: 7 }),
+    [visible, setVisible] = useState(true), [frameReady, setFrameReady] = useState(false);
+  useEffect(() => { setFrameReady(false); }, [url]);
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
@@ -48,13 +50,22 @@ export default function InlineVideo({
       loop
       preload="metadata"
       aria-label="Dikey video"
+      onLoadedMetadata={() => {
+        if (preview && ref.current) {
+          range.current = getPreviewWindow(ref.current.duration);
+          ref.current.currentTime = range.current.start;
+        }
+      }}
+      onLoadedData={() => { if (!preview) setFrameReady(true); }}
+      onSeeked={() => { if (ref.current && ref.current.readyState >= 2) setFrameReady(true); }}
+      onPlaying={() => { if (ref.current && (!preview || ref.current.currentTime >= range.current.start)) setFrameReady(true); }}
       onCanPlay={onReady}
-      onError={onError}
+      onError={() => { setFrameReady(false); onError?.(); }}
       onTimeUpdate={() => {
         const el = ref.current;
         if (el) {
           onTime?.(el.currentTime);
-          if (preview && el.currentTime > 7) el.currentTime = 0;
+          if (preview && el.currentTime >= range.current.end) el.currentTime = range.current.start;
         }
       }}
       style={{
@@ -63,6 +74,8 @@ export default function InlineVideo({
         width: "100%",
         height: "100%",
         objectFit: "cover",
+        opacity: frameReady ? 1 : 0,
+        transition: "opacity 180ms ease",
         pointerEvents: "none",
       }}
     />
