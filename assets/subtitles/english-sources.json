@@ -1,0 +1,988 @@
+{
+  "elephants-dream-en": {
+    "language": "en",
+    "cues": [
+      {
+        "start": "00:00:15,000",
+        "end": "00:00:18,130",
+        "text": "At the left we can see…"
+      },
+      {
+        "start": "00:00:18,130",
+        "end": "00:00:20,500",
+        "text": "At the right we can see the—"
+      },
+      {
+        "start": "00:00:20,500",
+        "end": "00:00:21,980",
+        "text": "…the head-snarlers."
+      },
+      {
+        "start": "00:00:21,980",
+        "end": "00:00:24,550",
+        "text": "Everything is safe… Perfectly safe."
+      },
+      {
+        "start": "00:00:24,550",
+        "end": "00:00:25,770",
+        "text": "Emo?"
+      },
+      {
+        "start": "00:00:26,120",
+        "end": "00:00:27,220",
+        "text": "Emo?"
+      },
+      {
+        "start": "00:00:28,620",
+        "end": "00:00:30,104",
+        "text": "Watch out!"
+      },
+      {
+        "start": "00:00:46,560",
+        "end": "00:00:48,260",
+        "text": "Are you hurt?"
+      },
+      {
+        "start": "00:00:51,990",
+        "end": "00:00:54,200",
+        "text": "I don’t think so. You?"
+      },
+      {
+        "start": "00:00:55,520",
+        "end": "00:00:57,090",
+        "text": "I’m OK."
+      },
+      {
+        "start": "00:00:57,090",
+        "end": "00:01:01,110",
+        "text": "Get up, Emo! It’s not safe here."
+      },
+      {
+        "start": "00:01:02,030",
+        "end": "00:01:03,229",
+        "text": "Let’s go."
+      },
+      {
+        "start": "00:01:03,220",
+        "end": "00:01:05,190",
+        "text": "What’s next?"
+      },
+      {
+        "start": "00:01:05,190",
+        "end": "00:01:06,960",
+        "text": "You’ll see!"
+      },
+      {
+        "start": "00:01:07,680",
+        "end": "00:01:08,840",
+        "text": "You’ll see!"
+      },
+      {
+        "start": "00:01:16,030",
+        "end": "00:01:18,480",
+        "text": "Emo! This way."
+      },
+      {
+        "start": "00:01:34,230",
+        "end": "00:01:35,480",
+        "text": "Follow me!"
+      },
+      {
+        "start": "00:02:11,100",
+        "end": "00:02:12,521",
+        "text": "Hurry, Emo!"
+      },
+      {
+        "start": "00:02:48,438",
+        "end": "00:02:50,063",
+        "text": "You’re not paying attention!"
+      },
+      {
+        "start": "00:02:50,063",
+        "end": "00:02:54,313",
+        "text": "I–I just want to answer the phone."
+      },
+      {
+        "start": "00:02:54,310",
+        "end": "00:02:57,040",
+        "text": "Emo, look… I mean, listen."
+      },
+      {
+        "start": "00:02:59,140",
+        "end": "00:03:02,000",
+        "text": "You have to learn to listen."
+      },
+      {
+        "start": "00:03:03,140",
+        "end": "00:03:05,040",
+        "text": "This is not some game."
+      },
+      {
+        "start": "00:03:05,040",
+        "end": "00:03:09,180",
+        "text": "You… I mean, <i>we</i>. We could easily die out here."
+      },
+      {
+        "start": "00:03:10,010",
+        "end": "00:03:14,396",
+        "text": "Listen… Listen to the sounds of the machine."
+      },
+      {
+        "start": "00:03:18,050",
+        "end": "00:03:20,000",
+        "text": "Listen to your breathing."
+      },
+      {
+        "start": "00:04:26,646",
+        "end": "00:04:29,313",
+        "text": "Well, don’t you ever get tired of this?"
+      },
+      {
+        "start": "00:04:29,313",
+        "end": "00:04:31,090",
+        "text": "Tired?!"
+      },
+      {
+        "start": "00:04:31,090",
+        "end": "00:04:33,313",
+        "text": "Emo, the machine is like…"
+      },
+      {
+        "start": "00:04:33,310",
+        "end": "00:04:35,260",
+        "text": "Like clockwork!"
+      },
+      {
+        "start": "00:04:35,260",
+        "end": "00:04:37,063",
+        "text": "One move out of place…"
+      },
+      {
+        "start": "00:04:37,063",
+        "end": "00:04:39,120",
+        "text": "…and you’re ground to a pulp."
+      },
+      {
+        "start": "00:04:40,950",
+        "end": "00:04:42,104",
+        "text": "But isn’t it—"
+      },
+      {
+        "start": "00:04:42,104",
+        "end": "00:04:46,030",
+        "text": "Pulp, Emo! Is that what you want? <i>Pulp</i>?"
+      },
+      {
+        "start": "00:04:47,104",
+        "end": "00:04:50,420",
+        "text": "Emo, your goal in life…"
+      },
+      {
+        "start": "00:04:50,440",
+        "end": "00:04:51,950",
+        "text": "…pulp?!"
+      },
+      {
+        "start": "00:05:41,310",
+        "end": "00:05:43,420",
+        "text": "Emo, close your eyes."
+      },
+      {
+        "start": "00:05:44,150",
+        "end": "00:05:45,396",
+        "text": "–Why?<br>–Now!"
+      },
+      {
+        "start": "00:05:51,150",
+        "end": "00:05:51,970",
+        "text": "OK."
+      },
+      {
+        "start": "00:05:53,110",
+        "end": "00:05:54,680",
+        "text": "Good."
+      },
+      {
+        "start": "00:05:59,420",
+        "end": "00:06:02,100",
+        "text": "What do you see at your left side, Emo?"
+      },
+      {
+        "start": "00:06:04,020",
+        "end": "00:06:06,000",
+        "text": "–Nothing.<br>–Really?"
+      },
+      {
+        "start": "00:06:06,000",
+        "end": "00:06:07,580",
+        "text": "No, nothing at all."
+      },
+      {
+        "start": "00:06:07,580",
+        "end": "00:06:11,980",
+        "text": "Really? A–And at your right? What do you see at your right side, Emo?"
+      },
+      {
+        "start": "00:06:13,310",
+        "end": "00:06:16,840",
+        "text": "The same, Proog. Exactly the same…"
+      },
+      {
+        "start": "00:06:16,840",
+        "end": "00:06:19,896",
+        "text": "–…nothing!<br>–Great."
+      },
+      {
+        "start": "00:06:39,970",
+        "end": "00:06:42,720",
+        "text": "Listen, Proog! Do you hear that?"
+      },
+      {
+        "start": "00:06:43,440",
+        "end": "00:06:44,560",
+        "text": "Can we go here?"
+      },
+      {
+        "start": "00:06:45,063",
+        "end": "00:06:46,560",
+        "text": "–There?<br>–Yeah!"
+      },
+      {
+        "start": "00:06:46,580",
+        "end": "00:06:48,188",
+        "text": "It isn’t safe, Emo."
+      },
+      {
+        "start": "00:06:49,140",
+        "end": "00:06:52,010",
+        "text": "–B–But…<br>–Trust me, it’s not."
+      },
+      {
+        "start": "00:06:53,020",
+        "end": "00:06:54,170",
+        "text": "Well, maybe I could…"
+      },
+      {
+        "start": "00:06:54,170",
+        "end": "00:06:55,146",
+        "text": "No."
+      },
+      {
+        "start": "00:06:57,100",
+        "end": "00:06:58,820",
+        "text": "–But…<br>–No!"
+      },
+      {
+        "start": "00:06:58,820",
+        "end": "00:07:00,240",
+        "text": "No!"
+      },
+      {
+        "start": "00:07:00,771",
+        "end": "00:07:03,050",
+        "text": "Any further questions, Emo?"
+      },
+      {
+        "start": "00:07:03,970",
+        "end": "00:07:05,090",
+        "text": "N–No."
+      },
+      {
+        "start": "00:07:09,050",
+        "end": "00:07:10,080",
+        "text": "Emo?"
+      },
+      {
+        "start": "00:07:11,140",
+        "end": "00:07:13,080",
+        "text": "Emo, why?!"
+      },
+      {
+        "start": "00:07:13,080",
+        "end": "00:07:15,360",
+        "text": "Emo, why…?"
+      },
+      {
+        "start": "00:07:15,360",
+        "end": "00:07:18,840",
+        "text": "Why can’t you see the beauty of this place?"
+      },
+      {
+        "start": "00:07:18,840",
+        "end": "00:07:20,646",
+        "text": "The way it works."
+      },
+      {
+        "start": "00:07:20,646",
+        "end": "00:07:23,920",
+        "text": "How… How <i>perfect</i> it is."
+      },
+      {
+        "start": "00:07:23,920",
+        "end": "00:07:27,040",
+        "text": "No, Proog, I don’t see."
+      },
+      {
+        "start": "00:07:27,040",
+        "end": "00:07:29,970",
+        "text": "I don’t see because there’s nothing there."
+      },
+      {
+        "start": "00:07:31,050",
+        "end": "00:07:35,240",
+        "text": "And why should I trust my life to something that isn’t there?"
+      },
+      {
+        "start": "00:07:35,240",
+        "end": "00:07:36,600",
+        "text": "Well, can you tell me that?"
+      },
+      {
+        "start": "00:07:36,600",
+        "end": "00:07:37,380",
+        "text": "Emo…"
+      },
+      {
+        "start": "00:07:37,380",
+        "end": "00:07:38,920",
+        "text": "Answer me!"
+      },
+      {
+        "start": "00:07:42,970",
+        "end": "00:07:44,000",
+        "text": "Proog…"
+      },
+      {
+        "start": "00:07:45,050",
+        "end": "00:07:46,854",
+        "text": "…you’re a sick man!"
+      },
+      {
+        "start": "00:07:46,854",
+        "end": "00:07:48,910",
+        "text": "Stay away from me!"
+      },
+      {
+        "start": "00:07:52,188",
+        "end": "00:07:54,854",
+        "text": "No! Emo! It’s a trap!"
+      },
+      {
+        "start": "00:07:55,420",
+        "end": "00:07:56,979",
+        "text": "Hah, “it’s a trap!”"
+      },
+      {
+        "start": "00:07:56,979",
+        "end": "00:08:01,229",
+        "text": "At the left side you can see the Hanging Gardens of Babylon!"
+      },
+      {
+        "start": "00:08:01,960",
+        "end": "00:08:03,950",
+        "text": "How’s that for a trap?"
+      },
+      {
+        "start": "00:08:05,720",
+        "end": "00:08:06,920",
+        "text": "No, Emo."
+      },
+      {
+        "start": "00:08:09,000",
+        "end": "00:08:12,640",
+        "text": "At the right side you can see—well guess what…"
+      },
+      {
+        "start": "00:08:12,640",
+        "end": "00:08:14,660",
+        "text": "…the Colossus of Rhodes!"
+      },
+      {
+        "start": "00:08:15,320",
+        "end": "00:08:16,390",
+        "text": "No!"
+      },
+      {
+        "start": "00:08:16,396",
+        "end": "00:08:20,160",
+        "text": "The Colossus of Rhodes! And it is here just for you, Proog."
+      },
+      {
+        "start": "00:08:20,160",
+        "end": "00:08:21,688",
+        "text": "Just for you!"
+      },
+      {
+        "start": "00:08:51,000",
+        "end": "00:08:53,021",
+        "text": "It is there…"
+      },
+      {
+        "start": "00:08:53,021",
+        "end": "00:08:56,040",
+        "text": "I’m telling you, Emo…"
+      },
+      {
+        "start": "00:08:57,000",
+        "end": "00:08:59,860",
+        "text": "…it is… there…"
+      }
+    ]
+  },
+  "tears-of-steel-en": {
+    "language": "en",
+    "srt": "1\r\n00:00:23,000 --> 00:00:24,500\r\nYou're a jerk, Thom.\r\n\r\n2\r\n00:00:25,000 --> 00:00:27,000\r\nLook Celia, we have to follow our passions;\r\n\r\n3\r\n00:00:27,000 --> 00:00:30,500\r\n...you have your robotics, and I\r\njust want to be awesome in space.\r\n\r\n4\r\n00:00:30,800 --> 00:00:34,000\r\nWhy don't you just admit that\r\nyou're freaked out by my robot hand?\r\n\r\n5\r\n00:00:34,500 --> 00:00:36,000\r\nI'm not freaked out by- it's...\r\n\r\n6\r\n00:00:37,000 --> 00:00:38,000\r\n...alright! Fine!\r\n\r\n7\r\n00:00:38,000 --> 00:00:41,000\r\nI'm freaked out! I have nightmares\r\nthat I'm being chased...\r\n\r\n8\r\n00:00:41,000 --> 00:00:42,000\r\n...by these giant robotic claws of death...\r\n\r\n9\r\n00:00:42,200 --> 00:00:45,000\r\n\"Fourty years later\"\r\nWhatever, Thom. We're done.\r\n\r\n\r\n10\r\n00:00:50,000 --> 00:00:53,500\r\nRobot's memory synced and locked!\r\n\r\n11\r\n00:01:01,000 --> 00:01:03,000\r\nThis is pretty freaky.\r\n\r\n12\r\n00:01:57,000 --> 00:01:59,000\r\nShouldn't you be down there?\r\n\r\n13\r\n00:02:11,000 --> 00:02:13,000\r\nI heard you guys talking last night.\r\n\r\n14\r\n00:02:16,000 --> 00:02:18,000\r\nIt's not my fault, you know.\r\n\r\n15\r\n00:03:11,000 --> 00:03:12,000\r\nAre you ready?\r\n\r\n16\r\n00:03:13,000 --> 00:03:15,000\r\nOf course you're ready, you're a rockstar.\r\n\r\n17\r\n00:03:17,000 --> 00:03:18,000\r\nHow's it looking, Barley?\r\n\r\n18\r\n00:03:19,000 --> 00:03:21,000\r\nWe should have about ten minutes...\r\n\r\n19\r\n00:03:21,500 --> 00:03:23,000\r\nWell that's perfect.\r\n\r\n20\r\n00:03:23,500 --> 00:03:26,500\r\nWe're on in one! All systems go!\r\nYeah you, go! \r\n\r\n21\r\n00:03:28,000 --> 00:03:32,000\r\nGo! Move your asses! Go go go! \r\n\r\n22\r\n00:03:33,000 --> 00:03:37,000\r\nI love it! Come on, go!\r\n\r\n23\r\n00:03:43,000 --> 00:03:44,000\r\nThat's nice. \r\n\r\n24\r\n00:03:44,500 --> 00:03:45,700\r\nNothing to worry about.\r\n\r\n25\r\n00:03:46,000 --> 00:03:47,000\r\nThom.\r\n\r\n26\r\n00:03:51,000 --> 00:03:53,000\r\nThere she is.\r\n\r\n27\r\n00:03:53,500 --> 00:03:54,500\r\nNow.\r\n\r\n28\r\n00:03:55,000 --> 00:03:56,000\r\nYou love her.\r\n\r\n29\r\n00:03:57,000 --> 00:03:58,500\r\nShe is your passion! \r\n\r\n30\r\n00:04:00,000 --> 00:04:01,000\r\nBe tender to her. \r\n\r\n31\r\n00:04:01,500 --> 00:04:04,500\r\nBe honest! Eh- be tender.\r\n\r\n32\r\n00:04:05,000 --> 00:04:08,000\r\nRemind her what love is.\r\n\r\n33\r\n00:04:52,000 --> 00:04:55,000\r\n...and, action!\r\n\r\n34\r\n00:04:56,500 --> 00:04:58,000\r\nMemory overwrite in progress!\r\n\r\n35\r\n00:04:59,000 --> 00:05:01,000\r\nYou're a jerk, Thom!\r\n\r\n36\r\n00:05:02,500 --> 00:05:05,000\r\nOhp- Sorry! Sorry.\r\n\r\n37\r\n00:05:16,000 --> 00:05:17,000\r\nLook Celia.\r\n\r\n38\r\n00:05:18,000 --> 00:05:20,000\r\nWe have to follow our passions. \r\n\r\n39\r\n00:05:21,000 --> 00:05:23,000\r\nYou have your robotics...\r\n\r\n40\r\n00:05:25,000 --> 00:05:28,000\r\n...and I just want to be awesome in space.\r\n\r\n41\r\n00:05:39,000 --> 00:05:41,000\r\nOkay, they're coming. Two minutes left!\r\n\r\n42\r\n00:05:43,000 --> 00:05:44,000\r\nSpeed it up, Thom! \r\n\r\n43\r\n00:05:45,000 --> 00:05:46,000\r\nVivacissimo!\r\n\r\n44\r\n00:05:47,000 --> 00:05:50,000\r\nWhy don't you just admit that you're \r\nfreaked out by my robot hand?\r\n\r\n45\r\n00:05:56,000 --> 00:05:59,000\r\nListen Celia, I was young...\r\n\r\n46\r\n00:05:59,500 --> 00:06:01,000\r\n...and a dick. \r\n\r\n47\r\n00:06:01,000 --> 00:06:03,000\r\nBut that's no reason to\r\ndestroy the world.\r\n\r\n48\r\n00:06:05,000 --> 00:06:06,000\r\nWhy does he do this?\r\n\r\n49\r\n00:06:06,500 --> 00:06:08,500\r\nWe already tried that one!\r\n\r\n50\r\n00:06:11,500 --> 00:06:12,500\r\nAbort!\r\n\r\n51\r\n00:06:13,000 --> 00:06:14,000\r\nCut!\r\n\r\n52\r\n00:06:14,000 --> 00:06:15,000\r\nWhoaaa!\r\n\r\n53\r\n00:06:19,000 --> 00:06:20,000\r\nWhoaaa!\r\n\r\n54\r\n00:06:21,000 --> 00:06:23,000\r\nNooooo!\r\n\r\n55\r\n00:06:23,000 --> 00:06:25,000\r\nYou broke my heart.\r\n\r\n56\r\n00:06:26,000 --> 00:06:27,000\r\nI know.\r\n\r\n57\r\n00:06:27,000 --> 00:06:29,000\r\nYou forgot me on earth.\r\n\r\n58\r\n00:06:29,000 --> 00:06:30,000\r\nI know.\r\n\r\n59\r\n00:06:30,500 --> 00:06:33,000\r\nI should just crush you.\r\n\r\n60\r\n00:06:36,000 --> 00:06:37,000\r\nI'm-\r\n\r\n61\r\n00:06:47,000 --> 00:06:48,000\r\nI'm sorry.\r\n\r\n62\r\n00:06:50,000 --> 00:06:51,000\r\nGood ad-lib.\r\n\r\n63\r\n00:06:59,000 --> 00:07:00,500\r\nNot my fault!\r\n\r\n64\r\n00:07:02,000 --> 00:07:03,000\r\nThis time.\r\n\r\n65\r\n00:07:08,000 --> 00:07:09,500\r\nQuiet on set!\r\n\r\n66\r\n00:07:10,000 --> 00:07:11,000\r\nWe're out of time!\r\n\r\n67\r\n00:08:13,000 --> 00:08:14,000\r\nCome on!\r\n\r\n68\r\n00:08:22,000 --> 00:08:24,000\r\nRAAAAAAAAH!\r\n\r\n69\r\n00:08:24,000 --> 00:08:25,000\r\nMemory overwrite, 90%.\r\n\r\n70\r\n00:08:26,000 --> 00:08:28,000\r\nCaptain! We have to abort!\r\n\r\n71\r\n00:08:38,000 --> 00:08:40,000\r\nThe world's changed, Celia...\r\n\r\n72\r\n00:08:54,000 --> 00:08:56,000\r\n...maybe we can too.\r\n\r\n73\r\n00:08:58,000 --> 00:08:59,000\r\nMemory overwrite complete!\r\n\r\n74\r\n00:09:19,000 --> 00:09:20,000\r\nYou know.\r\n\r\n75\r\n00:09:22,000 --> 00:09:24,000\r\nThere's a lesson to be learned from this.\r\n\r\n76\r\n00:09:26,000 --> 00:09:27,000\r\nCould'a gone worse.\r\n\r\n\r\n",
+    "source": "https://github.com/ghinda/acornmediaplayer/blob/gh-pages/subs/TOS-english.srt",
+    "sha": "04a76fa480751be6c7ac0dc10832a230da1bae4c"
+  },
+  "cosmos-laundromat-en": {
+    "language": "en",
+    "cues": [
+      {
+        "start": "00:00:28,042",
+        "end": "00:00:29,792",
+        "text": "Woah!"
+      },
+      {
+        "start": "00:00:30,755",
+        "end": "00:00:34,168",
+        "text": "-[chocking]\n-[rope creaking, swinging]"
+      },
+      {
+        "start": "00:00:37,271",
+        "end": "00:00:40,270",
+        "text": "[struggling, choking]"
+      },
+      {
+        "start": "00:00:42,512",
+        "end": "00:00:45,800",
+        "text": "Ay, no, no, no, [crying] no,"
+      },
+      {
+        "start": "00:00:46,568",
+        "end": "00:00:50,664",
+        "text": "[elongating] No!"
+      },
+      {
+        "start": "00:00:50,750",
+        "end": "00:00:51,750",
+        "text": "[\"no\" fading]"
+      },
+      {
+        "start": "00:01:03,328",
+        "end": "00:01:04,664",
+        "text": "[struggling, gasping]"
+      },
+      {
+        "start": "00:01:05,296",
+        "end": "00:01:07,120",
+        "text": "[panting]"
+      },
+      {
+        "start": "00:01:11,848",
+        "end": "00:01:12,938",
+        "text": "[moans]"
+      },
+      {
+        "start": "00:01:15,648",
+        "end": "00:01:17,167",
+        "text": "[wheezes]"
+      },
+      {
+        "start": "00:01:18,144",
+        "end": "00:01:20,042",
+        "text": "[wheezes]"
+      },
+      {
+        "start": "00:01:24,940",
+        "end": "00:01:26,313",
+        "text": "[struggling softly]"
+      },
+      {
+        "start": "00:01:26,480",
+        "end": "00:01:27,542",
+        "text": "[grunting loudly]"
+      },
+      {
+        "start": "00:01:27,630",
+        "end": "00:01:29,250",
+        "text": "[breathes out, gasps]"
+      },
+      {
+        "start": "00:01:29,333",
+        "end": "00:01:31,125",
+        "text": "[grunting]"
+      },
+      {
+        "start": "00:01:31,740",
+        "end": "00:01:34,083",
+        "text": "[grunting, wheezing]"
+      },
+      {
+        "start": "00:01:35,885",
+        "end": "00:01:38,917",
+        "text": "[wheezing in pain]"
+      },
+      {
+        "start": "00:01:53,889",
+        "end": "00:01:56,956",
+        "text": "[panting]"
+      },
+      {
+        "start": "00:02:00,542",
+        "end": "00:02:04,000",
+        "text": "[panting]"
+      },
+      {
+        "start": "00:02:04,080",
+        "end": "00:02:05,889",
+        "text": "[groans, wheezes]"
+      },
+      {
+        "start": "00:02:20,000",
+        "end": "00:02:21,300",
+        "text": "[man] Excuse me?"
+      },
+      {
+        "start": "00:02:21,800",
+        "end": "00:02:23,000",
+        "text": "Excuse me, sir?"
+      },
+      {
+        "start": "00:02:24,000",
+        "end": "00:02:25,500",
+        "text": "Excuse me?"
+      },
+      {
+        "start": "00:02:27,000",
+        "end": "00:02:29,000",
+        "text": "[sheep] Oh, come on."
+      },
+      {
+        "start": "00:02:30,000",
+        "end": "00:02:32,042",
+        "text": "[man] Do you have a moment, sir?"
+      },
+      {
+        "start": "00:02:32,125",
+        "end": "00:02:34,958",
+        "text": "[sheep] I'm kind of in the middle\nof something here."
+      },
+      {
+        "start": "00:02:35,042",
+        "end": "00:02:37,000",
+        "text": "Yes? Thank you."
+      },
+      {
+        "start": "00:02:37,050",
+        "end": "00:02:39,326",
+        "text": "I've come a long way for you, Franck."
+      },
+      {
+        "start": "00:02:49,000",
+        "end": "00:02:51,000",
+        "text": "My name is Victor."
+      },
+      {
+        "start": "00:02:52,000",
+        "end": "00:02:54,000",
+        "text": "Hi."
+      },
+      {
+        "start": "00:02:54,000",
+        "end": "00:02:56,125",
+        "text": "And you are…"
+      },
+      {
+        "start": "00:02:57,813",
+        "end": "00:02:59,500",
+        "text": "You are Franck."
+      },
+      {
+        "start": "00:03:00,500",
+        "end": "00:03:04,000",
+        "text": "You are so much more than just a sheep,\naren't you?"
+      },
+      {
+        "start": "00:03:05,000",
+        "end": "00:03:08,000",
+        "text": "Oh yeah? How would you know?"
+      },
+      {
+        "start": "00:03:10,346",
+        "end": "00:03:12,750",
+        "text": "Look at you. You're an adventurer, Franck."
+      },
+      {
+        "start": "00:03:13,958",
+        "end": "00:03:16,750",
+        "text": "Just like me, you're... a lone wolf."
+      },
+      {
+        "start": "00:03:18,625",
+        "end": "00:03:21,750",
+        "text": "Tell me, does one choose to be alone?"
+      },
+      {
+        "start": "00:03:22,917",
+        "end": "00:03:25,080",
+        "text": "No, one doesn't."
+      },
+      {
+        "start": "00:03:25,170",
+        "end": "00:03:27,750",
+        "text": "One doesn't even choose to be a wolf."
+      },
+      {
+        "start": "00:03:29,880",
+        "end": "00:03:31,000",
+        "text": "Or does one?"
+      },
+      {
+        "start": "00:03:35,415",
+        "end": "00:03:38,750",
+        "text": "Well, mister, err… Hector…"
+      },
+      {
+        "start": "00:03:38,833",
+        "end": "00:03:39,875",
+        "text": "Victor, Victor."
+      },
+      {
+        "start": "00:03:40,000",
+        "end": "00:03:41,833",
+        "text": "I don't know what you're on about,"
+      },
+      {
+        "start": "00:03:41,917",
+        "end": "00:03:45,333",
+        "text": "but I'm just a sheep\nminding its own business."
+      },
+      {
+        "start": "00:03:46,000",
+        "end": "00:03:48,600",
+        "text": "And I suggest you do the same."
+      },
+      {
+        "start": "00:03:49,410",
+        "end": "00:03:51,542",
+        "text": "No. No, no, no, Franck. Wait, wait, wait."
+      },
+      {
+        "start": "00:03:52,000",
+        "end": "00:03:53,125",
+        "text": "No. This is not..."
+      },
+      {
+        "start": "00:03:53,825",
+        "end": "00:03:54,500",
+        "text": "the way."
+      },
+      {
+        "start": "00:03:54,583",
+        "end": "00:03:57,270",
+        "text": "Just give me one minute\nof your precious time."
+      },
+      {
+        "start": "00:03:58,500",
+        "end": "00:04:01,417",
+        "text": "\"Precious time\"? [laughs mockingly]"
+      },
+      {
+        "start": "00:04:02,120",
+        "end": "00:04:04,170",
+        "text": "-Yeah, just give me one minute.\n-[sighs]"
+      },
+      {
+        "start": "00:04:04,250",
+        "end": "00:04:06,708",
+        "text": "You would have one more minute,\nwouldn't you?"
+      },
+      {
+        "start": "00:04:08,346",
+        "end": "00:04:11,583",
+        "text": "Okay, half. Half a minute."
+      },
+      {
+        "start": "00:04:14,208",
+        "end": "00:04:17,917",
+        "text": "-[gulls calling]\n-[ocean waves crashing faintly]"
+      },
+      {
+        "start": "00:04:22,333",
+        "end": "00:04:24,008",
+        "text": "[sighs]"
+      },
+      {
+        "start": "00:04:25,471",
+        "end": "00:04:29,375",
+        "text": "I knew it. I knew it."
+      },
+      {
+        "start": "00:04:30,250",
+        "end": "00:04:32,583",
+        "text": "You will not regret this."
+      },
+      {
+        "start": "00:04:32,938",
+        "end": "00:04:34,583",
+        "text": "The adventures you will have,"
+      },
+      {
+        "start": "00:04:35,750",
+        "end": "00:04:38,958",
+        "text": "all the lives you've ever wanted,"
+      },
+      {
+        "start": "00:04:39,500",
+        "end": "00:04:41,625",
+        "text": "all you've been missing."
+      },
+      {
+        "start": "00:04:41,700",
+        "end": "00:04:46,000",
+        "text": "Here. This is the best product\nwe have in store."
+      },
+      {
+        "start": "00:04:47,073",
+        "end": "00:04:49,917",
+        "text": "Variable spin speed,\nexcellent tumble performance,"
+      },
+      {
+        "start": "00:04:50,000",
+        "end": "00:04:53,458",
+        "text": "in one... handy... device. Squeaky clean!"
+      },
+      {
+        "start": "00:04:57,000",
+        "end": "00:05:00,250",
+        "text": "Well, this... this better be good."
+      },
+      {
+        "start": "00:05:01,311",
+        "end": "00:05:03,917",
+        "text": "Took me ages to tie that rope."
+      },
+      {
+        "start": "00:05:05,000",
+        "end": "00:05:07,250",
+        "text": "With my fucking hooves."
+      },
+      {
+        "start": "00:05:07,330",
+        "end": "00:05:09,083",
+        "text": "No more need for hooves."
+      },
+      {
+        "start": "00:05:09,170",
+        "end": "00:05:10,583",
+        "text": "No more sheepy business."
+      },
+      {
+        "start": "00:05:10,667",
+        "end": "00:05:11,708",
+        "text": "[timer going off]"
+      },
+      {
+        "start": "00:05:12,000",
+        "end": "00:05:16,667",
+        "text": "-Ho! Time flies.\n-Wait, wait, wait, wait, wait, wait."
+      },
+      {
+        "start": "00:05:16,700",
+        "end": "00:05:21,042",
+        "text": "How does this thing work?\nI mean, how do I make it work?"
+      },
+      {
+        "start": "00:05:21,125",
+        "end": "00:05:21,875",
+        "text": "No you don't."
+      },
+      {
+        "start": "00:05:22,537",
+        "end": "00:05:23,960",
+        "text": "I just turned it on for you."
+      },
+      {
+        "start": "00:05:26,000",
+        "end": "00:05:27,250",
+        "text": "When can I go?"
+      },
+      {
+        "start": "00:05:29,000",
+        "end": "00:05:31,333",
+        "text": "-Where can I go?\n-We will pick you up."
+      },
+      {
+        "start": "00:05:31,417",
+        "end": "00:05:33,583",
+        "text": "Don't worry, just stay here."
+      },
+      {
+        "start": "00:05:33,670",
+        "end": "00:05:34,854",
+        "text": "In this exact place."
+      },
+      {
+        "start": "00:05:34,917",
+        "end": "00:05:37,134",
+        "text": "Don't move. Just wait."
+      },
+      {
+        "start": "00:05:38,470",
+        "end": "00:05:39,208",
+        "text": "That's it?"
+      },
+      {
+        "start": "00:05:41,130",
+        "end": "00:05:41,771",
+        "text": "Hey!"
+      },
+      {
+        "start": "00:05:42,667",
+        "end": "00:05:44,208",
+        "text": "Hey!"
+      },
+      {
+        "start": "00:05:44,292",
+        "end": "00:05:50,310",
+        "text": "Wait, mister, eh, Casper,\neh, Hector, whatever!"
+      },
+      {
+        "start": "00:05:59,290",
+        "end": "00:06:00,917",
+        "text": "[no audio playing on headphones]"
+      },
+      {
+        "start": "00:06:09,750",
+        "end": "00:06:12,042",
+        "text": "[distorted, high-pitched audio playing]"
+      },
+      {
+        "start": "00:06:12,125",
+        "end": "00:06:15,000",
+        "text": "-[gulls calling]\n-[ocean waves crashing faintly]"
+      },
+      {
+        "start": "00:06:28,000",
+        "end": "00:06:29,458",
+        "text": "[skips track]"
+      },
+      {
+        "start": "00:06:29,542",
+        "end": "00:06:30,792",
+        "text": "[fast-forwarding]"
+      },
+      {
+        "start": "00:06:33,792",
+        "end": "00:06:35,208",
+        "text": "[hopeful music playing]"
+      },
+      {
+        "start": "00:06:42,600",
+        "end": "00:06:44,004",
+        "text": "[thunder rumbling faintly]"
+      },
+      {
+        "start": "00:06:47,003",
+        "end": "00:06:47,917",
+        "text": "[thunder rumbling]"
+      },
+      {
+        "start": "00:06:53,667",
+        "end": "00:06:55,167",
+        "text": "[stopwatch ticking]"
+      },
+      {
+        "start": "00:06:55,250",
+        "end": "00:06:56,750",
+        "text": "[device ticking synchronously]"
+      },
+      {
+        "start": "00:07:17,210",
+        "end": "00:07:18,238",
+        "text": "[faint rumbling]"
+      },
+      {
+        "start": "00:07:45,670",
+        "end": "00:07:46,950",
+        "text": "[music continues playing]"
+      },
+      {
+        "start": "00:08:06,070",
+        "end": "00:08:09,729",
+        "text": "[music climaxing]\n[vocalizing]"
+      },
+      {
+        "start": "00:08:21,063",
+        "end": "00:08:23,170",
+        "text": "[vocalizing continues]"
+      },
+      {
+        "start": "00:08:33,813",
+        "end": "00:08:34,985",
+        "text": "[music softening]"
+      },
+      {
+        "start": "00:08:39,729",
+        "end": "00:08:41,000",
+        "text": "[music stops]"
+      },
+      {
+        "start": "00:08:45,680",
+        "end": "00:08:46,545",
+        "text": "[gasps]"
+      },
+      {
+        "start": "00:08:47,080",
+        "end": "00:08:49,155",
+        "text": "[panting]"
+      },
+      {
+        "start": "00:08:56,020",
+        "end": "00:08:58,188",
+        "text": "Huh… huh?"
+      },
+      {
+        "start": "00:08:58,292",
+        "end": "00:08:59,830",
+        "text": "Huh?!"
+      },
+      {
+        "start": "00:08:59,920",
+        "end": "00:09:02,240",
+        "text": "[rubbing and squeaking]"
+      },
+      {
+        "start": "00:09:08,188",
+        "end": "00:09:11,750",
+        "text": "[ambient peaceful nature sounds]"
+      },
+      {
+        "start": "00:09:15,400",
+        "end": "00:09:18,925",
+        "text": "[motor running]"
+      },
+      {
+        "start": "00:09:19,780",
+        "end": "00:09:21,930",
+        "text": "[washing machine motor sound faints]"
+      },
+      {
+        "start": "00:09:52,165",
+        "end": "00:09:54,020",
+        "text": "[washer's door shuts]"
+      },
+      {
+        "start": "00:09:58,540",
+        "end": "00:09:59,706",
+        "text": "[timer goes off]"
+      },
+      {
+        "start": "00:10:03,833",
+        "end": "00:10:06,420",
+        "text": "[hopeful music playing softly]"
+      }
+    ]
+  }
+}

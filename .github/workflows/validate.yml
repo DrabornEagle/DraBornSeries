@@ -48,3 +48,5 @@ jobs:
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/studio-media-security.sql
       - name: Verify Stream upload binding and callback ordering
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/stream-upload-security.sql
+      - name: Verify subtitle RLS, repeat saves and portrait defaults
+        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/subtitle-security.sql

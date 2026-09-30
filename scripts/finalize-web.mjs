@@ -1,8 +1,9 @@
-import { readFile, writeFile, mkdir, copyFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir, copyFile, cp } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 await mkdir("dist/media", { recursive: true });
 await copyFile("assets/posters/gece-hatti.png", "dist/media/gece-hatti.png");
 await copyFile("assets/icons/icon.png", "dist/media/icon.png");
+await cp("assets/subtitles/published", "dist/media/subtitles", { recursive: true });
 let html = await readFile("dist/index.html", "utf8");
 html = html
   .replace(

@@ -18,6 +18,14 @@ Required Worker secrets: `SUPABASE_SECRET_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDF
 
 Full DRM and screenshot prevention are not provided. Signed tokens remain bearer credentials until expiry. Test HLS refresh for any episode approaching 30 minutes before publishing it. R2 upload UI and private subtitle URL issuance are pending.
 
+## Turkish captions
+
+The five current films with intelligible speech have licensed Turkish sidecars: Sintel, Elephants Dream, Cosmos Laundromat, Sprite Fright and Tears of Steel. `npm run prepare:subtitles` validates source timings and complete translations, emits nine WebVTT files and shifts/clamps Tears of Steel cues to the actual five episode cuts. Web export publishes them under `/DraBornSeries/media/subtitles/`. Source attribution and licenses are in `assets/subtitles/README.md` and each published WebVTT notice.
+
+The isolated `drabornseries.dbs_subtitles` table stores one HTTPS track per episode/language. `dbs-api` resolves these only after episode-access checks. Native and web playback automatically select Turkish, keep captions synchronized through seeking/quality changes/fullscreen, and allow switching them off. Discover uses the same sidecars without recording preview progress as full-episode progress. Private R2 object keys are never exposed as caption URLs.
+
+Speech recognition for future uploaded videos requires an actual transcription service; this release does not claim one is connected. Sound effects, grunts and Glass Half's fictional speech are not given invented translations.
+
 ## Google Play
 
 Server verifier: `dbs-play-verify`. Secret `DBS_GOOGLE_SERVICE_ACCOUNT` must contain a Play-authorized service account JSON. Native Billing must set `obfuscatedAccountId = SHA256(Supabase user UUID)`. The verifier checks the authoritative product, purchase state, owning account, quantity and expiry. Atomic ledger operations prevent duplicate credit. Consumables are consumed after credit; subscriptions are acknowledged after grant. Pending purchases never grant entitlement.

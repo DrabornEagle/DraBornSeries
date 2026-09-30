@@ -12,10 +12,10 @@ Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırı
 | Profil fotoğrafı | Cihazdan seçim ve Supabase Storage yüklemesi; hesapla senkronlanır. |
 | Katalog, türler, detaylar, erişim etiketleri | 18 lisanslı gerçek açık film / 28 bölüm; 14 yeni film yatay ve tam hâliyle yayında. 6 özgün gelecek konsepti ayrı tutulur. |
 | Featured, devam, öneri, arama, favoriler | Uygulandı. Ana sayfada rastgele dönüşümlü sessiz kısa video önizlemesi, ekran dışına çıkınca duraklatma ve kullanıcı tercihi var. Öneriler favori türlerine dayalı temel sıralama. |
-| Dikey Keşfet | Aktif sahne ses açık başlar; ses tercihi kaydırırken korunur. Doğal sayfalı liste, dokunarak yeniden oynatma, favori/paylaşım ve bölüm listesi var. |
+| Dikey Keşfet | Yayımlanmış 18 içerik yön filtresi olmadan listelenir; videolar gerçek sürelerinin ortasından başlar, bitince yine ortadan döner. Ana izleme ilerlemesini değiştirmez. Ses tercihi kaydırırken korunur; favori/paylaşım ve bölüm listesi var. |
 | Ana sayfadaki 16 ayrı editoryal koleksiyon | Temel raylar var; tüm koleksiyonların ayrı veri/istatistik akışları tamamlanmadı. |
-| Video, seek, ses, fullscreen, resume | Önizleme seek döngüsü giderildi. Tam ekran yatay/dikey dönüşte tüm kare sığar; tek seferlik animasyonlu ipucu var. Kaliteler gerçek dosyalar/tracklerdir. Fiziksel Android kontrolü bekliyor. |
-| Altyazı ve çoklu ses | Player kaynak tracklerini okuyabilir. Özel R2 altyazı/ses yükleme, SRT dönüştürme ve URL imzalama bekliyor. |
+| Video, seek, ses, fullscreen, resume | Normal oynatma tüm videolarda dikey 9:16. Yatay seçilmiş videoda her tam ekran girişinde yana çevir animasyonu yeniden görünür; yalnızca bu videolar yatay dönüşe izin verir. Tam ekranda tüm kare sığar. Kaliteler gerçek dosyalar/tracklerdir. Fiziksel Android kontrolü bekliyor. |
+| Altyazı ve çoklu ses | Beş konuşmalı açık film için 9 Türkçe WebVTT track / 377 zamanlı satır hazır; oynatıcı ve Keşfet otomatik Türkçe açar. SRT/WebVTT Android/web ortak parser ve zamanlamayla gösterilir. Player altyazıyı kapatabilir ve gömülü ses tracklerini seçebilir. Yeni yüklemeler için konuşma tanıma hizmeti, özel R2 yükleme ve URL imzalama henüz bağlı değil. |
 | BornCoins cüzdan/defter/coin ile unlock | Gerçek Supabase işlemleri; server-only, idempotent, atomik. Altı mağaza paketi taslak/inactive. Kartlarda açıkça örnek olarak işaretli TL fiyatları görünür; ödeme kapalıdır. Kullanıcı onayıyla otomatik coin ile açma tercihi var. |
 | Günlük ödül, streak, promosyon | Aktif; Türkiye saatine göre. |
 | Görev/başarım sistemi | Karşılama, ilk favori ve profil görevleri server-side koşul ve tek seferlik ledger ile çalışıyor. İzleme görevleri, XP/davet/badge claim motoru bekliyor. |

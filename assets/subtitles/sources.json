@@ -1,0 +1,1248 @@
+{
+  "sintel": {
+    "language": "tr",
+    "cues": [
+      {
+        "start": "00:01:47,250",
+        "end": "00:01:50,500",
+        "text": "Bu silahın karanlık bir geçmişi var."
+      },
+      {
+        "start": "00:01:51,800",
+        "end": "00:01:55,800",
+        "text": "Çok masum kanı dökmüş."
+      },
+      {
+        "start": "00:01:58,000",
+        "end": "00:02:01,450",
+        "text": "Böylesine hazırlıksız, tek başına seyahat etmen\nçılgınlık."
+      },
+      {
+        "start": "00:02:01,750",
+        "end": "00:02:04,800",
+        "text": "Hâlâ damarlarında kanın aktığından şanslısın."
+      },
+      {
+        "start": "00:02:05,250",
+        "end": "00:02:06,300",
+        "text": "Teşekkürler."
+      },
+      {
+        "start": "00:02:07,500",
+        "end": "00:02:09,000",
+        "text": "Peki..."
+      },
+      {
+        "start": "00:02:09,400",
+        "end": "00:02:13,800",
+        "text": "Seni muhafızların topraklarına getiren\nnedir?"
+      },
+      {
+        "start": "00:02:15,000",
+        "end": "00:02:17,500",
+        "text": "Birini arıyorum."
+      },
+      {
+        "start": "00:02:18,000",
+        "end": "00:02:22,200",
+        "text": "Çok değerli birisi mi?\nÇok yakın birisi?"
+      },
+      {
+        "start": "00:02:23,400",
+        "end": "00:02:25,000",
+        "text": "Bir ejderha."
+      },
+      {
+        "start": "00:02:28,850",
+        "end": "00:02:31,750",
+        "text": "Yalnız bir avcı için tehlikeli bir macera."
+      },
+      {
+        "start": "00:02:32,950",
+        "end": "00:02:35,870",
+        "text": "Kendimi bildim bileli hep yanlızdım."
+      },
+      {
+        "start": "00:03:27,250",
+        "end": "00:03:30,500",
+        "text": "Neredeyse bitti. Şşşş..."
+      },
+      {
+        "start": "00:03:30,750",
+        "end": "00:03:33,500",
+        "text": "Hey, sakin ol."
+      },
+      {
+        "start": "00:03:48,250",
+        "end": "00:03:52,250",
+        "text": "İyi geceler Scales."
+      },
+      {
+        "start": "00:04:10,350",
+        "end": "00:04:13,850",
+        "text": "Yakala onu Scales! Haydi!"
+      },
+      {
+        "start": "00:04:25,250",
+        "end": "00:04:28,250",
+        "text": "Scales?"
+      },
+      {
+        "start": "00:05:04,000",
+        "end": "00:05:07,500",
+        "text": "Evet! Haydi!"
+      },
+      {
+        "start": "00:05:38,750",
+        "end": "00:05:42,000",
+        "text": "Scales!"
+      },
+      {
+        "start": "00:07:25,850",
+        "end": "00:07:27,500",
+        "text": "Başaramadım."
+      },
+      {
+        "start": "00:07:32,800",
+        "end": "00:07:36,500",
+        "text": "Başaramadığın tek şey görebilmek..."
+      },
+      {
+        "start": "00:07:37,800",
+        "end": "00:07:40,500",
+        "text": "Burası ejderha topraklarıdır, Sintel."
+      },
+      {
+        "start": "00:07:40,850",
+        "end": "00:07:44,000",
+        "text": "Sandığından daha yakınsın."
+      },
+      {
+        "start": "00:09:17,600",
+        "end": "00:09:19,500",
+        "text": "Scales!"
+      },
+      {
+        "start": "00:10:21,600",
+        "end": "00:10:24,000",
+        "text": "Scales?"
+      },
+      {
+        "start": "00:10:26,200",
+        "end": "00:10:29,800",
+        "text": "Scales..."
+      }
+    ]
+  },
+  "elephants-dream": {
+    "language": "tr",
+    "cues": [
+      {
+        "start": "00:00:15,042",
+        "end": "00:00:18,042",
+        "text": "Solda görebiliriz..."
+      },
+      {
+        "start": "00:00:18,750",
+        "end": "00:00:20,333",
+        "text": "Sağda görebiliriz..."
+      },
+      {
+        "start": "00:00:20,417",
+        "end": "00:00:21,917",
+        "text": "...kafayı kıran kişiler"
+      },
+      {
+        "start": "00:00:22,000",
+        "end": "00:00:24,625",
+        "text": "Her şey güvenli.\nTamamen güvenli."
+      },
+      {
+        "start": "00:00:26,333",
+        "end": "00:00:27,333",
+        "text": "Emo?"
+      },
+      {
+        "start": "00:00:28,875",
+        "end": "00:00:30,250",
+        "text": "Dikkat et!"
+      },
+      {
+        "start": "00:00:47,125",
+        "end": "00:00:48,250",
+        "text": "Yaralı mısın?"
+      },
+      {
+        "start": "00:00:51,917",
+        "end": "00:00:53,917",
+        "text": "Öyle düşünmüyorum.\nSen?"
+      },
+      {
+        "start": "00:00:55,625",
+        "end": "00:00:57,125",
+        "text": "Ben iyiyim."
+      },
+      {
+        "start": "00:00:57,583",
+        "end": "00:01:01,667",
+        "text": "Kalk!\nEmo, burası güvenli değil."
+      },
+      {
+        "start": "00:01:02,208",
+        "end": "00:01:03,667",
+        "text": "Hadi gidelim."
+      },
+      {
+        "start": "00:01:03,750",
+        "end": "00:01:05,750",
+        "text": "Sırada ne var?"
+      },
+      {
+        "start": "00:01:05,875",
+        "end": "00:01:07,875",
+        "text": "Göreceksin. Göreceksin."
+      },
+      {
+        "start": "00:01:16,167",
+        "end": "00:01:18,375",
+        "text": "Emo, bu taraftan."
+      },
+      {
+        "start": "00:01:34,958",
+        "end": "00:01:35,792",
+        "text": "Beni takip et!"
+      },
+      {
+        "start": "00:02:11,583",
+        "end": "00:02:12,792",
+        "text": "Acele et, Emo!"
+      },
+      {
+        "start": "00:02:48,375",
+        "end": "00:02:50,083",
+        "text": "Dikkat etmiyorsun!"
+      },
+      {
+        "start": "00:02:50,750",
+        "end": "00:02:54,500",
+        "text": "Ben sadece telefonu...\n...açmak istiyorum."
+      },
+      {
+        "start": "00:02:55,000",
+        "end": "00:02:58,208",
+        "text": "Emo! Bakın,\ndinleyin demek istiyorum."
+      },
+      {
+        "start": "00:02:59,140",
+        "end": "00:03:02,008",
+        "text": "Dinlemeyi öğrenmelisin."
+      },
+      {
+        "start": "00:03:03,140",
+        "end": "00:03:04,965",
+        "text": "Bu bir oyun değil."
+      },
+      {
+        "start": "00:03:05,056",
+        "end": "00:03:09,345",
+        "text": "Sen, yani biz,\nburada kolayca ölebiliriz."
+      },
+      {
+        "start": "00:03:10,014",
+        "end": "00:03:13,959",
+        "text": "Dinle,\nmakinenin seslerini dinle."
+      },
+      {
+        "start": "00:03:18,054",
+        "end": "00:03:20,009",
+        "text": "Nefesinizi dinleyin."
+      },
+      {
+        "start": "00:04:27,001",
+        "end": "00:04:28,956",
+        "text": "Peki, bundan hiç sıkılmıyor musun?"
+      },
+      {
+        "start": "00:04:29,084",
+        "end": "00:04:30,909",
+        "text": "Yorgun?!?"
+      },
+      {
+        "start": "00:04:31,126",
+        "end": "00:04:34,491",
+        "text": "Emo, makine saat gibi çalışıyor."
+      },
+      {
+        "start": "00:04:35,083",
+        "end": "00:04:37,074",
+        "text": "Bir hareket yerinden çıktı..."
+      },
+      {
+        "start": "00:04:37,166",
+        "end": "00:04:39,121",
+        "text": "...ve sen bir hamur parçasına dönüşmüşsün."
+      },
+      {
+        "start": "00:04:40,958",
+        "end": "00:04:42,004",
+        "text": "Ama öyle değil -?"
+      },
+      {
+        "start": "00:04:42,041",
+        "end": "00:04:46,034",
+        "text": "Hamur, Emo!\nİstediğin bu mu? Hamur?"
+      },
+      {
+        "start": "00:04:47,040",
+        "end": "00:04:48,995",
+        "text": "Emo, hayattaki amacın..."
+      },
+      {
+        "start": "00:04:50,081",
+        "end": "00:04:51,953",
+        "text": "...hamur?"
+      },
+      {
+        "start": "00:05:41,156",
+        "end": "00:05:43,028",
+        "text": "Emo, gözlerini kapat."
+      },
+      {
+        "start": "00:05:44,156",
+        "end": "00:05:46,027",
+        "text": "Neden?\n- Şimdi!"
+      },
+      {
+        "start": "00:05:51,155",
+        "end": "00:05:52,102",
+        "text": "Tamam."
+      },
+      {
+        "start": "00:05:53,113",
+        "end": "00:05:54,688",
+        "text": "Güzel."
+      },
+      {
+        "start": "00:05:59,070",
+        "end": "00:06:02,103",
+        "text": "Sol tarafında ne görüyorsun, Emo?"
+      },
+      {
+        "start": "00:06:04,028",
+        "end": "00:06:05,899",
+        "text": "Hiçbir şey.\n- Gerçekten?"
+      },
+      {
+        "start": "00:06:06,027",
+        "end": "00:06:07,105",
+        "text": "Hayır, hiçbir şey yok."
+      },
+      {
+        "start": "00:06:07,944",
+        "end": "00:06:11,984",
+        "text": "Ve sağında,\nSağ tarafında ne görüyorsun, Emo?"
+      },
+      {
+        "start": "00:06:13,151",
+        "end": "00:06:16,102",
+        "text": "Aynısı, Proog.\nTam olarak aynısı..."
+      },
+      {
+        "start": "00:06:16,942",
+        "end": "00:06:19,098",
+        "text": "...hiçbir şey!\n- Harika."
+      },
+      {
+        "start": "00:06:40,105",
+        "end": "00:06:42,724",
+        "text": "Dinle, Proog!\nDuyuyor musun?"
+      },
+      {
+        "start": "00:06:43,105",
+        "end": "00:06:44,894",
+        "text": "Buraya gidebilir miyiz?"
+      },
+      {
+        "start": "00:06:44,979",
+        "end": "00:06:47,894",
+        "text": "Orada?\nGüvenli değil, Emo."
+      },
+      {
+        "start": "00:06:49,145",
+        "end": "00:06:52,013",
+        "text": "Ama...\n- İnanın bana, öyle değil."
+      },
+      {
+        "start": "00:06:53,020",
+        "end": "00:06:54,145",
+        "text": "Belki de yapabilirim..."
+      },
+      {
+        "start": "00:06:54,181",
+        "end": "00:06:55,969",
+        "text": "Hayır!"
+      },
+      {
+        "start": "00:06:57,102",
+        "end": "00:06:59,934",
+        "text": "HAYIR!"
+      },
+      {
+        "start": "00:07:00,144",
+        "end": "00:07:03,058",
+        "text": "Any further questions, Emo?"
+      },
+      {
+        "start": "00:07:03,976",
+        "end": "00:07:05,090",
+        "text": "Hayır."
+      },
+      {
+        "start": "00:07:09,059",
+        "end": "00:07:10,089",
+        "text": "Emo?"
+      },
+      {
+        "start": "00:07:11,142",
+        "end": "00:07:13,058",
+        "text": "Emo, neden..."
+      },
+      {
+        "start": "00:07:13,095",
+        "end": "00:07:14,022",
+        "text": "Emo..."
+      },
+      {
+        "start": "00:07:14,058",
+        "end": "00:07:18,003",
+        "text": "...neden bu yerin\ngüzelliğini göremiyorsun?"
+      },
+      {
+        "start": "00:07:18,141",
+        "end": "00:07:20,048",
+        "text": "Çalışma şekli."
+      },
+      {
+        "start": "00:07:20,140",
+        "end": "00:07:23,895",
+        "text": "How perfect it is."
+      },
+      {
+        "start": "00:07:23,932",
+        "end": "00:07:26,964",
+        "text": "Hayır, Proog, ben göremiyorum."
+      },
+      {
+        "start": "00:07:27,056",
+        "end": "00:07:29,970",
+        "text": "Hiçbir şey olmadığı için göremiyorum."
+      },
+      {
+        "start": "00:07:31,055",
+        "end": "00:07:34,965",
+        "text": "Ve neden hayatımı orada olmayan\nbir şeye emanet edeyim ki?"
+      },
+      {
+        "start": "00:07:35,055",
+        "end": "00:07:36,926",
+        "text": "Peki bunu bana söyleyebilir misin?"
+      },
+      {
+        "start": "00:07:37,054",
+        "end": "00:07:38,926",
+        "text": "Bana cevap ver!"
+      },
+      {
+        "start": "00:07:42,970",
+        "end": "00:07:44,000",
+        "text": "Proog..."
+      },
+      {
+        "start": "00:07:45,053",
+        "end": "00:07:46,985",
+        "text": "...sen hasta bir adamsın!"
+      },
+      {
+        "start": "00:07:47,022",
+        "end": "00:07:48,918",
+        "text": "Benden uzak dur!"
+      },
+      {
+        "start": "00:07:52,052",
+        "end": "00:07:54,884",
+        "text": "Hayır! Emo! Bu bir tuzak!"
+      },
+      {
+        "start": "00:07:55,135",
+        "end": "00:07:56,931",
+        "text": "Hah, bu bir tuzak."
+      },
+      {
+        "start": "00:07:56,968",
+        "end": "00:08:01,043",
+        "text": "Sol tarafta\nBabil'in asma bahçelerini görebilirsiniz!"
+      },
+      {
+        "start": "00:08:01,967",
+        "end": "00:08:03,957",
+        "text": "Bu bir tuzak için nasıl?"
+      },
+      {
+        "start": "00:08:05,050",
+        "end": "00:08:06,922",
+        "text": "Hayır, Emo."
+      },
+      {
+        "start": "00:08:09,008",
+        "end": "00:08:12,088",
+        "text": "Sağ tarafta görebilirsiniz...\n...tahmin edin bakalım..."
+      },
+      {
+        "start": "00:08:12,924",
+        "end": "00:08:14,665",
+        "text": "...Rodos Heykeli!"
+      },
+      {
+        "start": "00:08:15,132",
+        "end": "00:08:16,053",
+        "text": "Hayır!"
+      },
+      {
+        "start": "00:08:16,090",
+        "end": "00:08:21,919",
+        "text": "Rodos Heykeli\nve bu sadece senin için burada, Proog."
+      },
+      {
+        "start": "00:08:51,001",
+        "end": "00:08:52,923",
+        "text": "Öyle orada..."
+      },
+      {
+        "start": "00:08:52,959",
+        "end": "00:08:56,040",
+        "text": "Sana söylüyorum,\nEmo..."
+      },
+      {
+        "start": "00:08:57,000",
+        "end": "00:08:59,867",
+        "text": "...öyledir."
+      }
+    ]
+  },
+  "cosmos-laundromat": {
+    "language": "tr",
+    "cues": [
+      {
+        "start": "00:02:20,000",
+        "end": "00:02:21,300",
+        "text": "Affedersiniz?"
+      },
+      {
+        "start": "00:02:21,800",
+        "end": "00:02:23,000",
+        "text": "Affedersiniz, beyefendi?"
+      },
+      {
+        "start": "00:02:24,000",
+        "end": "00:02:25,500",
+        "text": "Affedersiniz?"
+      },
+      {
+        "start": "00:02:27,000",
+        "end": "00:02:29,000",
+        "text": "Ah, hadi ama."
+      },
+      {
+        "start": "00:02:30,000",
+        "end": "00:02:32,000",
+        "text": "Bir dakikanız var mı, efendim?"
+      },
+      {
+        "start": "00:02:32,000",
+        "end": "00:02:37,050",
+        "text": "Burada bir iş üzerindeyim. Evet? Teşekkür ederim."
+      },
+      {
+        "start": "00:02:37,050",
+        "end": "00:02:38,950",
+        "text": "Senin için uzun bir yol aldım, Franck."
+      },
+      {
+        "start": "00:02:49,000",
+        "end": "00:02:51,000",
+        "text": "My name is Victor."
+      },
+      {
+        "start": "00:02:52,000",
+        "end": "00:02:54,000",
+        "text": "Merhaba."
+      },
+      {
+        "start": "00:02:54,000",
+        "end": "00:02:56,000",
+        "text": "Ve sen..."
+      },
+      {
+        "start": "00:02:58,000",
+        "end": "00:02:59,500",
+        "text": "Sen Franck'sin."
+      },
+      {
+        "start": "00:03:00,500",
+        "end": "00:03:04,000",
+        "text": "Sadece bir koyundan çok daha fazlasısın değil mi?"
+      },
+      {
+        "start": "00:03:05,000",
+        "end": "00:03:08,000",
+        "text": "Öyle mi? Nasıl bilebilirsin?"
+      },
+      {
+        "start": "00:03:10,000",
+        "end": "00:03:12,900",
+        "text": "Kendine bir bak. Sen bir maceracısın, Franck."
+      },
+      {
+        "start": "00:03:12,900",
+        "end": "00:03:17,000",
+        "text": "Tıpkı benim gibi, sen... yalnız bir kurtsun."
+      },
+      {
+        "start": "00:03:18,000",
+        "end": "00:03:22,000",
+        "text": "Söyle bana, birisi yalnız olmayı mı yeğliyor?"
+      },
+      {
+        "start": "00:03:23,000",
+        "end": "00:03:25,000",
+        "text": "Hayır, yeğlemiyor."
+      },
+      {
+        "start": "00:03:25,000",
+        "end": "00:03:27,600",
+        "text": "Bir kurt olmayı bile istemiyor."
+      },
+      {
+        "start": "00:03:30,000",
+        "end": "00:03:32,000",
+        "text": "Yoksa istiyor mu?"
+      },
+      {
+        "start": "00:03:35,000",
+        "end": "00:03:38,800",
+        "text": "Şey, bay... rrr... Hector."
+      },
+      {
+        "start": "00:03:38,800",
+        "end": "00:03:40,000",
+        "text": "Victor. Victor."
+      },
+      {
+        "start": "00:03:40,000",
+        "end": "00:03:46,000",
+        "text": "Neyle uğraşıyorsun bilmiyorum ama ben sadece kendi işine bakan bir koyunum."
+      },
+      {
+        "start": "00:03:46,000",
+        "end": "00:03:48,600",
+        "text": "Ve sana da aynısını yapmanı öneririm."
+      },
+      {
+        "start": "00:03:48,600",
+        "end": "00:03:52,000",
+        "text": "Hayır. Hayır hayır, Franck. Bekle dur bekle"
+      },
+      {
+        "start": "00:03:52,000",
+        "end": "00:03:55,000",
+        "text": "Hayır. Bu şekilde... değil."
+      },
+      {
+        "start": "00:03:55,000",
+        "end": "00:03:58,500",
+        "text": "Bana yalnızca kıymetli zamanından bir dakika ver."
+      },
+      {
+        "start": "00:03:58,500",
+        "end": "00:04:01,500",
+        "text": "Kıymetli zaman? Hehehe."
+      },
+      {
+        "start": "00:04:01,500",
+        "end": "00:04:03,500",
+        "text": "Evet, sadece bir dakika ver."
+      },
+      {
+        "start": "00:04:03,500",
+        "end": "00:04:06,500",
+        "text": "Elbet bir dakikan daha vardır, yok mu?"
+      },
+      {
+        "start": "00:04:08,000",
+        "end": "00:04:11,000",
+        "text": "Tamam yarım. Yarım dakika."
+      },
+      {
+        "start": "00:04:25,100",
+        "end": "00:04:29,300",
+        "text": "Biliyordum. Biliyordum."
+      },
+      {
+        "start": "00:04:29,300",
+        "end": "00:04:32,000",
+        "text": "Buna pişman olmayacaksın."
+      },
+      {
+        "start": "00:04:32,000",
+        "end": "00:04:35,000",
+        "text": "Maceraların olacak."
+      },
+      {
+        "start": "00:04:35,000",
+        "end": "00:04:38,500",
+        "text": "Arzuladığın tüm yaşamlar."
+      },
+      {
+        "start": "00:04:38,500",
+        "end": "00:04:41,700",
+        "text": "Eksik olan her şey."
+      },
+      {
+        "start": "00:04:41,700",
+        "end": "00:04:46,000",
+        "text": "İşte. Bu... dükkandaki... en iyi ürünümüz."
+      },
+      {
+        "start": "00:04:46,000",
+        "end": "00:04:50,000",
+        "text": "Değişken dönüş hızı, mükemmel dönüş performansı..."
+      },
+      {
+        "start": "00:04:50,000",
+        "end": "00:04:54,000",
+        "text": "...bir arada... pratik... bir cihaz. Bal dök yala."
+      },
+      {
+        "start": "00:04:57,000",
+        "end": "00:05:01,000",
+        "text": "Yani öyle... olsa iyi olur."
+      },
+      {
+        "start": "00:05:01,000",
+        "end": "00:05:04,000",
+        "text": "O ipi bağlamak ömrümü yemişti."
+      },
+      {
+        "start": "00:05:05,000",
+        "end": "00:05:07,000",
+        "text": "Lanet toynaklarımla."
+      },
+      {
+        "start": "00:05:07,000",
+        "end": "00:05:09,000",
+        "text": "Artık toynaklara gerek yok."
+      },
+      {
+        "start": "00:05:09,000",
+        "end": "00:05:11,000",
+        "text": "Koyunsal işler yok."
+      },
+      {
+        "start": "00:05:12,000",
+        "end": "00:05:14,500",
+        "text": "Ha! Zaman uçup gidiyor."
+      },
+      {
+        "start": "00:05:14,500",
+        "end": "00:05:16,700",
+        "text": "Bekle bekle bekle bekle bekle bekle"
+      },
+      {
+        "start": "00:05:16,700",
+        "end": "00:05:18,500",
+        "text": "Bu şey nasıl çalışıyor?"
+      },
+      {
+        "start": "00:05:18,500",
+        "end": "00:05:21,000",
+        "text": "Yani, nasıl çalışır hale getiririm."
+      },
+      {
+        "start": "00:05:21,000",
+        "end": "00:05:22,500",
+        "text": "Çalıştıramazsın."
+      },
+      {
+        "start": "00:05:22,500",
+        "end": "00:05:24,000",
+        "text": "Az önce onu senin için açtım."
+      },
+      {
+        "start": "00:05:26,000",
+        "end": "00:05:27,000",
+        "text": "Ne zaman gidebilirim?"
+      },
+      {
+        "start": "00:05:29,000",
+        "end": "00:05:30,000",
+        "text": "Nereye gidebilirim?"
+      },
+      {
+        "start": "00:05:30,000",
+        "end": "00:05:33,000",
+        "text": "Seni alacağız. Endişelenme, yalnızca burada kal."
+      },
+      {
+        "start": "00:05:33,000",
+        "end": "00:05:35,000",
+        "text": "Tam burada."
+      },
+      {
+        "start": "00:05:35,000",
+        "end": "00:05:37,000",
+        "text": "Hareket etme. Sadece bekle."
+      },
+      {
+        "start": "00:05:38,000",
+        "end": "00:05:40,000",
+        "text": "Bu kadar mı?"
+      },
+      {
+        "start": "00:05:41,000",
+        "end": "00:05:42,000",
+        "text": "Hey!"
+      },
+      {
+        "start": "00:05:42,500",
+        "end": "00:05:44,000",
+        "text": "Hey!"
+      },
+      {
+        "start": "00:05:44,000",
+        "end": "00:05:45,500",
+        "text": "Bekle, bay!"
+      },
+      {
+        "start": "00:05:45,500",
+        "end": "00:05:48,900",
+        "text": "Eh, Casper!"
+      },
+      {
+        "start": "00:05:48,900",
+        "end": "00:05:51,000",
+        "text": "Hector her neyse!"
+      }
+    ]
+  },
+  "sprite-fright": {
+    "language": "en",
+    "cues": [
+      {
+        "start": "00:00:17,375",
+        "end": "00:00:19,458",
+        "text": "Hello, Mr. Snail!"
+      },
+      {
+        "start": "00:00:19,458",
+        "end": "00:00:22,333",
+        "text": "Aw, you cute little <i>Cornu aspersum</i>."
+      },
+      {
+        "start": "00:00:22,333",
+        "end": "00:00:25,125",
+        "text": "Latin name—bonus points!"
+      },
+      {
+        "start": "00:00:28,375",
+        "end": "00:00:30,833",
+        "text": "Can’t believe we got stuck with the tree hugger."
+      },
+      {
+        "start": "00:00:30,833",
+        "end": "00:00:34,667",
+        "text": "If I have to hear the Latin name for one more animal, I swear I’m gonna kill her."
+      },
+      {
+        "start": "00:00:34,667",
+        "end": "00:00:39,542",
+        "text": "Relax, Sugar Buns. While she does all the work we’ll have all the fun."
+      },
+      {
+        "start": "00:00:39,542",
+        "end": "00:00:42,583",
+        "text": "Yeah! And get wasted out of our minds!"
+      },
+      {
+        "start": "00:00:42,583",
+        "end": "00:00:44,250",
+        "text": "Way ahead of you, man."
+      },
+      {
+        "start": "00:00:44,250",
+        "end": "00:00:48,625",
+        "text": "C’mon, team! We mustn’t dilly-dally when there’s so much nature to see!"
+      },
+      {
+        "start": "00:00:48,625",
+        "end": "00:00:53,667",
+        "text": "I was thinking we should call our class project “Fungis in a Forest!”"
+      },
+      {
+        "start": "00:00:53,667",
+        "end": "00:00:56,167",
+        "text": "Get it? Because we’re a group of fun guys."
+      },
+      {
+        "start": "00:00:56,167",
+        "end": "00:00:57,667",
+        "text": "And also fungis, which—"
+      },
+      {
+        "start": "00:00:57,667",
+        "end": "00:01:02,458",
+        "text": "Shush! That’s a yellow wagtail. And she’s in distress!"
+      },
+      {
+        "start": "00:01:02,750",
+        "end": "00:01:06,333",
+        "text": "There, there, my little <i>Motacilla flava</i>."
+      },
+      {
+        "start": "00:01:07,792",
+        "end": "00:01:10,042",
+        "text": "Oh! Look at her go!"
+      },
+      {
+        "start": "00:01:10,375",
+        "end": "00:01:11,500",
+        "text": "Wow!"
+      },
+      {
+        "start": "00:01:11,500",
+        "end": "00:01:14,417",
+        "text": "Out of the way, dorkwad! We’re camping here."
+      },
+      {
+        "start": "00:01:14,417",
+        "end": "00:01:17,500",
+        "text": "Finally! Time to get that barbecue burning."
+      },
+      {
+        "start": "00:01:18,417",
+        "end": "00:01:20,167",
+        "text": "Oh. Oh, dear."
+      },
+      {
+        "start": "00:01:27,333",
+        "end": "00:01:28,875",
+        "text": "Gross!"
+      },
+      {
+        "start": "00:01:30,833",
+        "end": "00:01:35,458",
+        "text": "Oh. Easy, guys. We’re supposed to be studying nature, not wrecking it."
+      },
+      {
+        "start": "00:01:35,458",
+        "end": "00:01:37,958",
+        "text": "Piss break!"
+      },
+      {
+        "start": "00:01:40,708",
+        "end": "00:01:44,667",
+        "text": "Oi, fungus freak! Make yourself useful and fix the tent."
+      },
+      {
+        "start": "00:01:44,667",
+        "end": "00:01:48,917",
+        "text": "Oh, a bit of friendly campsite ribbing. Fun."
+      },
+      {
+        "start": "00:01:49,875",
+        "end": "00:01:52,583",
+        "text": "She wouldn’t survive five minutes alone in these woods."
+      },
+      {
+        "start": "00:01:52,583",
+        "end": "00:01:56,792",
+        "text": "Yeah. She’s a real weenie that one, innit?"
+      },
+      {
+        "start": "00:01:56,792",
+        "end": "00:01:59,000",
+        "text": "Oi, Phil! How those sausages coming?"
+      },
+      {
+        "start": "00:01:59,000",
+        "end": "00:02:02,458",
+        "text": "Almost ready! Just need a bit more salt..."
+      },
+      {
+        "start": "00:02:36,333",
+        "end": "00:02:39,208",
+        "text": "It’s incredible. It’s a new species."
+      },
+      {
+        "start": "00:02:39,208",
+        "end": "00:02:41,875",
+        "text": "What the bloody hell are those things?"
+      },
+      {
+        "start": "00:02:41,875",
+        "end": "00:02:44,542",
+        "text": "It’s like a gnome shagged a mushroom."
+      },
+      {
+        "start": "00:02:57,375",
+        "end": "00:02:59,583",
+        "text": "They’re absolutely adorable."
+      },
+      {
+        "start": "00:02:59,583",
+        "end": "00:03:02,000",
+        "text": "Yeah, absolutely bloody adorable."
+      },
+      {
+        "start": "00:03:02,000",
+        "end": "00:03:05,625",
+        "text": "And I bet we’ll make a fortune if we catch one of those things."
+      },
+      {
+        "start": "00:03:05,625",
+        "end": "00:03:06,958",
+        "text": "We’d be famous!"
+      },
+      {
+        "start": "00:03:06,958",
+        "end": "00:03:08,292",
+        "text": "Get on MTV."
+      },
+      {
+        "start": "00:03:08,292",
+        "end": "00:03:09,875",
+        "text": "I wonder what they taste like."
+      },
+      {
+        "start": "00:03:09,875",
+        "end": "00:03:12,500",
+        "text": "We really shouldn’t disrupt their habitat."
+      },
+      {
+        "start": "00:03:12,500",
+        "end": "00:03:15,917",
+        "text": "Right. Sure, sure."
+      },
+      {
+        "start": "00:03:15,917",
+        "end": "00:03:17,500",
+        "text": "Greetings."
+      },
+      {
+        "start": "00:03:17,500",
+        "end": "00:03:19,000",
+        "text": "Welcome, friends."
+      },
+      {
+        "start": "00:03:19,000",
+        "end": "00:03:21,208",
+        "text": "I’ll be right down."
+      },
+      {
+        "start": "00:03:26,250",
+        "end": "00:03:28,750",
+        "text": "Could I interest you in some peppermint tea?"
+      },
+      {
+        "start": "00:03:28,750",
+        "end": "00:03:30,667",
+        "text": "What are you guys?"
+      },
+      {
+        "start": "00:03:30,667",
+        "end": "00:03:34,417",
+        "text": "We are sprites. We sprite balance to the forest."
+      },
+      {
+        "start": "00:03:34,417",
+        "end": "00:03:39,667",
+        "text": "We take care of the animals, plants, birds, moss…"
+      },
+      {
+        "start": "00:03:41,000",
+        "end": "00:03:43,917",
+        "text": "Guys? Guys, I…"
+      },
+      {
+        "start": "00:03:46,583",
+        "end": "00:03:51,542",
+        "text": "Hey, uh, little mushroom geezer, you cool with us camping here for the night?"
+      },
+      {
+        "start": "00:03:51,542",
+        "end": "00:03:56,333",
+        "text": "Absolutely. A friend of the forest is a friend of the sprites."
+      },
+      {
+        "start": "00:03:57,708",
+        "end": "00:04:01,375",
+        "text": "Maybe it was just ketchup… or something… like…"
+      },
+      {
+        "start": "00:04:01,375",
+        "end": "00:04:09,125",
+        "text": "Red paint? Yeah, maybe they were just painting their little hats or... something..."
+      },
+      {
+        "start": "00:04:15,500",
+        "end": "00:04:17,041",
+        "text": "Guys?"
+      },
+      {
+        "start": "00:04:20,083",
+        "end": "00:04:21,625",
+        "text": "Guys?"
+      },
+      {
+        "start": "00:04:22,417",
+        "end": "00:04:23,957",
+        "text": "Guys, this isn’t funny."
+      },
+      {
+        "start": "00:04:25,083",
+        "end": "00:04:26,625",
+        "text": "Guys?"
+      },
+      {
+        "start": "00:04:47,208",
+        "end": "00:04:50,167",
+        "text": "We were just gonna catch one! But they’re psycho!"
+      },
+      {
+        "start": "00:04:50,167",
+        "end": "00:04:52,957",
+        "text": "You gotta get me outta these! Hurry! They’re gonna kill us!"
+      },
+      {
+        "start": "00:04:55,667",
+        "end": "00:04:56,582",
+        "text": "Hurry!"
+      },
+      {
+        "start": "00:04:56,583",
+        "end": "00:04:59,458",
+        "text": "Right foot, left foot, leaf and stone."
+      },
+      {
+        "start": "00:04:59,458",
+        "end": "00:05:03,583",
+        "text": "You picked the wrong camping spot, bitches."
+      },
+      {
+        "start": "00:05:03,583",
+        "end": "00:05:05,292",
+        "text": "Sprite them!"
+      },
+      {
+        "start": "00:05:05,833",
+        "end": "00:05:07,542",
+        "text": "Run!"
+      },
+      {
+        "start": "00:05:30,250",
+        "end": "00:05:32,083",
+        "text": "Aaaah! My eyes!"
+      },
+      {
+        "start": "00:05:57,625",
+        "end": "00:05:59,625",
+        "text": "Sugar Buns! Help me!"
+      },
+      {
+        "start": "00:06:07,125",
+        "end": "00:06:08,875",
+        "text": "Sweet cakes!"
+      },
+      {
+        "start": "00:06:11,292",
+        "end": "00:06:13,207",
+        "text": "Love muffin..."
+      },
+      {
+        "start": "00:06:14,167",
+        "end": "00:06:15,667",
+        "text": "Huh?"
+      },
+      {
+        "start": "00:06:40,042",
+        "end": "00:06:43,457",
+        "text": "No, no, no! I can’t swim!"
+      },
+      {
+        "start": "00:06:55,083",
+        "end": "00:06:56,875",
+        "text": "Yes!"
+      },
+      {
+        "start": "00:06:58,292",
+        "end": "00:06:59,707",
+        "text": "No!"
+      },
+      {
+        "start": "00:07:06,359",
+        "end": "00:07:08,140",
+        "text": "Son of a spriteberry!"
+      },
+      {
+        "start": "00:07:08,141",
+        "end": "00:07:09,608",
+        "text": "It burns! It burns!"
+      },
+      {
+        "start": "00:07:12,833",
+        "end": "00:07:16,208",
+        "text": "I don’t want to hurt you! Just keep your distance!"
+      },
+      {
+        "start": "00:07:17,208",
+        "end": "00:07:21,125",
+        "text": "All right, then. Eat salt, you little green bastards!"
+      },
+      {
+        "start": "00:07:56,833",
+        "end": "00:07:58,542",
+        "text": "Nuh-uh-uh."
+      },
+      {
+        "start": "00:07:58,542",
+        "end": "00:08:03,332",
+        "text": "Those punks treated the world as their own personal rubbish bin."
+      },
+      {
+        "start": "00:08:03,333",
+        "end": "00:08:05,625",
+        "text": "And you set them free!"
+      },
+      {
+        "start": "00:08:05,625",
+        "end": "00:08:07,833",
+        "text": "Now you’ll join them!"
+      },
+      {
+        "start": "00:08:45,875",
+        "end": "00:08:49,167",
+        "text": "I’ll give you that one, brother bird!"
+      },
+      {
+        "start": "00:08:50,000",
+        "end": "00:08:55,417",
+        "text": "Alright, sprites, let’s burn the bodies and have some peppermint tea."
+      }
+    ]
+  },
+  "tears-of-steel": {
+    "language": "tr",
+    "srt": "1\r\n00:00:23,000 --> 00:00:24,500\r\nTam bir aptalsın Thom.\r\n\r\n2\r\n00:00:25,000 --> 00:00:27,000\r\nBak Celia, tutukularımızın peşinden\r\ngitmeliyiz;\r\n\r\n3\r\n00:00:27,000 --> 00:00:30,500\r\n...senin şu robot işlerin var,\r\nben de uzay konusunda yükselmek istiyorum.\r\n\r\n4\r\n00:00:30,800 --> 00:00:34,000\r\nNeden robot elimin seni\r\nkorkuttuğunu itiraf etmiyorsun?\r\n\r\n5\r\n00:00:34,500 --> 00:00:36,000\r\nBen, ondan korkmuyorum- sadece...\r\n\r\n6\r\n00:00:37,000 --> 00:00:38,000\r\n...tamam pekala! Öyle olsun!\r\n\r\n7\r\n00:00:38,000 --> 00:00:41,000\r\nÇok tırsıyorum! Kabuslarımda \r\ndevasa katil robot pençelerin...\r\n\r\n8\r\n00:00:41,000 --> 00:00:42,000\r\n...beni kovaladığını görüyorum...\r\n\r\n9\r\n00:00:42,200 --> 00:00:45,000\r\n\"Kırk yıl sonra\"\r\nHer neyse Thom. Buraya kadar.\r\n\r\n\r\n10\r\n00:00:50,000 --> 00:00:53,500\r\nRobot belleği eşlendi ve kilitlendi!\r\n\r\n11\r\n00:01:01,000 --> 00:01:03,000\r\nBayağı korkutucu.\r\n\r\n12\r\n00:01:57,000 --> 00:01:59,000\r\nAşağıda olman gerekmiyor mu?\r\n\r\n13\r\n00:02:11,000 --> 00:02:13,000\r\nDün gece konuştuklarınızı duydum\r\n\r\n14\r\n00:02:16,000 --> 00:02:18,000\r\nBu benim hatam değil, biliyorsun.\r\n\r\n15\r\n00:03:11,000 --> 00:03:12,000\r\nHazır mısın?\r\n\r\n16\r\n00:03:13,000 --> 00:03:15,000\r\nTabi ki hazırsın, sen bir rock yıldızısın.\r\n\r\n17\r\n00:03:17,000 --> 00:03:18,000\r\nNasıl görünüyor Barley?\r\n\r\n18\r\n00:03:19,000 --> 00:03:21,000\r\nBir on dakikamız falan var...\r\n\r\n19\r\n00:03:21,500 --> 00:03:23,000\r\nHarika.\r\n\r\n20\r\n00:03:23,500 --> 00:03:26,500\r\nBir dakikaya yayındayız! Bütün sistemleri\r\nçalıştırın! Haydi, devam edin! \r\n\r\n21\r\n00:03:28,000 --> 00:03:32,000\r\nHareket edin! Kıçınızı kaldırın!\r\nHaydi, haydi, haydi! \r\n\r\n22\r\n00:03:33,000 --> 00:03:37,000\r\nBayılıyorum buna!\r\nHaydi devam edin!\r\n\r\n23\r\n00:03:43,000 --> 00:03:44,000\r\nÇok güzel. \r\n\r\n24\r\n00:03:44,500 --> 00:03:45,700\r\nEndişelenecek bir şey yok.\r\n\r\n25\r\n00:03:46,000 --> 00:03:47,000\r\nThom.\r\n\r\n26\r\n00:03:51,000 --> 00:03:53,000\r\nİşte kadının orada.\r\n\r\n27\r\n00:03:53,500 --> 00:03:54,500\r\nŞimdi.\r\n\r\n28\r\n00:03:55,000 --> 00:03:56,000\r\nOnu seviyorsun.\r\n\r\n29\r\n00:03:57,000 --> 00:03:58,500\r\nO senin tutkun! \r\n\r\n30\r\n00:04:00,000 --> 00:04:01,000\r\nOna karşı nazik ol. \r\n\r\n31\r\n00:04:01,500 --> 00:04:04,500\r\nDürüst ol! Eee- nazik ol.\r\n\r\n32\r\n00:04:05,000 --> 00:04:08,000\r\nOna sevginin ne demek\r\nolduğunu hatırlat.\r\n\r\n33\r\n00:04:52,000 --> 00:04:55,000\r\n...ve, başla!\r\n\r\n34\r\n00:04:56,500 --> 00:04:58,000\r\nBellek düzenleme süreci başladı!\r\n\r\n35\r\n00:04:59,000 --> 00:05:01,000\r\nTam bir aptalsın Thom!\r\n\r\n36\r\n00:05:02,500 --> 00:05:05,000\r\nOff- Özür dilerim! Özür dilerim.\r\n\r\n37\r\n00:05:16,000 --> 00:05:17,000\r\nBak Celia.\r\n\r\n38\r\n00:05:18,000 --> 00:05:20,000\r\nTutukularımızın peşinden gitmeliyiz. \r\n\r\n39\r\n00:05:21,000 --> 00:05:23,000\r\nSenin şu robot işlerin var...\r\n\r\n40\r\n00:05:25,000 --> 00:05:28,000\r\n...ben de uzay konusunda yükselmek istiyorum.\r\n\r\n41\r\n00:05:39,000 --> 00:05:41,000\r\nGeliyorlar. İki dakikamız kaldı!\r\n\r\n42\r\n00:05:43,000 --> 00:05:44,000\r\nHızlandır Thom! \r\n\r\n43\r\n00:05:45,000 --> 00:05:46,000\r\nDaha canlı!\r\n\r\n44\r\n00:05:47,000 --> 00:05:50,000\r\nNeden robot elimin seni\r\nkorkuttuğunu itiraf etmiyorsun?\r\n\r\n45\r\n00:05:56,000 --> 00:05:59,000\r\nDinle Celia, gençtim...\r\n\r\n46\r\n00:05:59,500 --> 00:06:01,000\r\n...ve hıyarın tekiydim. \r\n\r\n47\r\n00:06:01,000 --> 00:06:03,000\r\nAma bu dünyayı yok etmek\r\niçin bir sebep değil.\r\n\r\n48\r\n00:06:05,000 --> 00:06:06,000\r\nNeden bunu yapıyor?\r\n\r\n49\r\n00:06:06,500 --> 00:06:08,500\r\nBunu zaten denemiştik!\r\n\r\n50\r\n00:06:11,500 --> 00:06:12,500\r\nİptal!\r\n\r\n51\r\n00:06:13,000 --> 00:06:14,000\r\nKes!\r\n\r\n52\r\n00:06:14,000 --> 00:06:15,000\r\n\r\n\r\n53\r\n00:06:19,000 --> 00:06:20,000\r\n\r\n\r\n54\r\n00:06:21,000 --> 00:06:23,000\r\nHayır!\r\n\r\n55\r\n00:06:23,000 --> 00:06:25,000\r\nKalbimi kırdın.\r\n\r\n56\r\n00:06:26,000 --> 00:06:27,000\r\nBiliyorum.\r\n\r\n57\r\n00:06:27,000 --> 00:06:29,000\r\nBeni dünyada bıraktın.\r\n\r\n58\r\n00:06:29,000 --> 00:06:30,000\r\nBiliyorum.\r\n\r\n59\r\n00:06:30,500 --> 00:06:33,000\r\nSeni paramparça etmeliyim.\r\n\r\n60\r\n00:06:36,000 --> 00:06:37,000\r\nBen-\r\n\r\n61\r\n00:06:47,000 --> 00:06:48,000\r\nÜzgünüm.\r\n\r\n62\r\n00:06:50,000 --> 00:06:51,000\r\nİyi doğaçlama.\r\n\r\n63\r\n00:06:59,000 --> 00:07:00,500\r\nBenim hatam değil!\r\n\r\n64\r\n00:07:02,000 --> 00:07:03,000\r\nYani, bu sefer.\r\n\r\n65\r\n00:07:08,000 --> 00:07:09,500\r\nSette sessizlik!\r\n\r\n66\r\n00:07:10,000 --> 00:07:11,000\r\nZamanımız doldu!\r\n\r\n67\r\n00:08:13,000 --> 00:08:14,000\r\nGelin bakalım!\r\n\r\n68\r\n00:08:22,000 --> 00:08:24,000\r\nAAAAAAAAH!\r\n\r\n69\r\n00:08:24,000 --> 00:08:25,000\r\nBellek düzenleme, %90.\r\n\r\n70\r\n00:08:26,000 --> 00:08:28,000\r\nYüzbaşı! Kesmek zorundayız!\r\n\r\n71\r\n00:08:38,000 --> 00:08:40,000\r\nDünya değişti Celia...\r\n\r\n72\r\n00:08:54,000 --> 00:08:56,000\r\n...belki biz de değişebiliriz.\r\n\r\n73\r\n00:08:58,000 --> 00:08:59,000\r\nBellek düzenleme tamamlandı!\r\n\r\n74\r\n00:09:19,000 --> 00:09:20,000\r\nBiliyor musun?\r\n\r\n75\r\n00:09:22,000 --> 00:09:24,000\r\nBundan alınacak bir ders var.\r\n\r\n76\r\n00:09:26,000 --> 00:09:27,000\r\nDaha kötü bitebilirdi.\r\n",
+    "source": "https://github.com/ghinda/acornmediaplayer/blob/gh-pages/subs/TOS-turkish.srt",
+    "sha": "64b7c37981e77009412cd297d17becb025f23fce"
+  }
+}

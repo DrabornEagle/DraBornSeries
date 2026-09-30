@@ -74,7 +74,7 @@ export const studioTables: StudioTable[] = [
     ] },
   { table: "dbs_subtitles", label: "Altyazılar", singular: "Altyazı", icon: "text-outline",
     template: { episode_id: "", language: "tr", label: "Türkçe", asset_key: "" },
-    fields: [{ key: "episode_id", label: "Bölüm", type: "episode" }, { key: "language", label: "Dil kodu" }, { key: "label", label: "Görünen dil adı" }, { key: "asset_key", label: "VTT dosya anahtarı" }] },
+    fields: [{ key: "episode_id", label: "Bölüm", type: "episode" }, { key: "language", label: "Dil kodu" }, { key: "label", label: "Görünen dil adı" }, { key: "asset_key", label: "VTT/SRT altyazı dosyasının HTTPS adresi" }] },
   { table: "dbs_audio_tracks", label: "Ses dilleri", singular: "Ses", icon: "musical-notes-outline",
     template: { episode_id: "", language: "tr", label: "Türkçe", asset_key: "" },
     fields: [{ key: "episode_id", label: "Bölüm", type: "episode" }, { key: "language", label: "Dil kodu" }, { key: "label", label: "Görünen dil adı" }, { key: "asset_key", label: "Ses dosyası anahtarı" }] },

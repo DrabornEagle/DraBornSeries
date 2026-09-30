@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -10,12 +10,12 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import type { Store } from "../../packages/api/store";
 import type { Episode, Series } from "../../packages/types";
-import { usePreview } from "../../packages/api/preview";
+import { usePreviewSource } from "../../packages/api/preview";
 import InlineVideo from "../../packages/ui/InlineVideo";
 import { Artwork } from "../../packages/ui/Catalog";
 import { Button, Icon, colors, Empty } from "../../packages/ui/theme";
 import { config } from "../../packages/shared/config";
-import { saveProgress } from "../../packages/api/progress";
+import { buildDiscoverEntries } from "../../packages/shared/discover";
 import { compactCount } from "../../packages/shared/domain";
 type Entry = { episode: Episode; series: Series };
 function Scene({
@@ -39,11 +39,10 @@ function Scene({
   muted: boolean;
   onMute: () => void;
 }) {
-  const url = usePreview(item.episode.id, active),
+  const source = usePreviewSource(item.episode.id, active), url = source?.url,
     [paused, setPaused] = useState(false),
     [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false), [retry, setRetry] = useState(0);
-  const saved = useRef(0);
   useEffect(() => {
     if (active) { setReady(false); setFailed(false); setPaused(false); }
   }, [active, url]);
@@ -65,6 +64,8 @@ function Scene({
             url={url}
             active={!paused}
             muted={muted}
+            startFromMiddle
+            subtitles={source?.subtitles}
             poster={item.series.poster_url}
             onReady={() => {
               setReady(true);
@@ -72,12 +73,6 @@ function Scene({
             }}
             onError={() => setFailed(true)}
             onAutoplayBlocked={() => setPaused(true)}
-            onTime={(seconds) => {
-              if (Date.now() - saved.current > 5000) {
-                saved.current = Date.now();
-                saveProgress(item.episode.id, seconds).catch(() => {});
-              }
-            }}
           />
         )}
         <Pressable
@@ -138,7 +133,7 @@ function Scene({
               Senin için
             </Text>
             <Text style={{ color: "#ffffff95", fontSize: 11, marginTop: 5 }}>
-              Keşfet · Dikey kısa hikâyeler
+              Keşfet · Tüm hikâyeler
             </Text>
           </View>
           <Pressable
@@ -266,36 +261,13 @@ export default function Discover({
   const [height, setHeight] = useState(650),
     [index, setIndex] = useState(0), [muted, setMuted] = useState(false);
   const [seed] = useState(() => Math.floor(Math.random() * 2147483647));
-  const items = useMemo(() => {
-    let state = seed;
-    const random = () => {
-      state = (state * 16807) % 2147483647;
-      return state / 2147483647;
-    };
-    const entries = store.series
-      .filter((s) => s.status === "published")
-      .flatMap((series) => {
-        const eps = store.episodes.filter(
-          (e) =>
-            e.series_id === series.id &&
-            e.orientation === "portrait" &&
-            e.access_type === "free",
-        );
-        if (!eps.length) return [];
-        return [{ series, episode: eps[Math.floor(random() * eps.length)] }];
-      });
-    for (let i = entries.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [entries[i], entries[j]] = [entries[j], entries[i]];
-    }
-    return entries;
-  }, [store.series, store.episodes, seed]);
+  const items = useMemo(() => buildDiscoverEntries(store.series, store.episodes, seed), [store.series, store.episodes, seed]);
   if (!items.length)
     return (
       <View style={{ flex: 1, justifyContent: "center" }}>
         <Empty
-          title="Dikey hikâyeler hazırlanıyor"
-          detail="Yayınlanmış kısa bölümler burada görünür."
+          title="Hikâyeler hazırlanıyor"
+          detail="Yayınlanmış tüm dizi ve filmler burada görünür."
         />
       </View>
     );

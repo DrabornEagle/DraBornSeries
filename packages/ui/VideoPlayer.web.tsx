@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { View, useWindowDimensions } from "react-native";
 import RotateHint from "./RotateHint";
+import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 // eslint-disable-next-line import/no-named-as-default
 import Hls, { Events } from "hls.js";
 import type { VideoProps } from "./VideoPlayer.types";
@@ -9,6 +10,7 @@ import PlayerChrome from "./PlayerChrome";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
+  const captions = useSubtitleSelection(source.subtitles, source.url);
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
     [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
@@ -57,23 +59,23 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
     : levels.map((level, index) => ({ key: "h:" + index, label: Math.min(level.width, level.height) + "p" })) )];
-  const playerView = <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: portrait ? 420 : 1100,
-    maxHeight: expanded ? undefined : 760, aspectRatio: portrait ? 9 / 16 : 16 / 9, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
+  const playerView = <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: 420,
+    maxHeight: expanded ? undefined : 760, aspectRatio: 9 / 16, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
     <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
       #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
       #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; object-position: center; }
       #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
       ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
-    <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload" crossOrigin={source.subtitles.length ? "anonymous" : undefined}
-      style={{ width: "100%", height: "100%", objectFit: portrait && !expanded ? "cover" : "contain", objectPosition: "center", background: "#05020a" }}
+    <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload"
+      style={{ width: "100%", height: "100%", objectFit: expanded ? "contain" : "cover", objectPosition: "center", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);
         if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
       onPause={() => { setPlaying(false); if (video.current) onProgress(video.current.currentTime); }} onPlay={() => setPlaying(true)}
       onEnded={onEnd} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
       onError={() => { setBuffering(false); setError("Video bağlantısı açılamadı. Tekrar dene."); }}>
-      {source.subtitles.map((item) => <track key={item.language} kind="subtitles" src={item.url} srcLang={item.language} label={item.label} />)}
     </video>
+    <SubtitleOverlay track={captions.track} time={time} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
       quality={quality} choices={choices} fullscreen={expanded} error={error}
       onPlay={() => { if (playing) video.current?.pause(); else video.current?.play().catch(() => {}); }}
@@ -94,8 +96,8 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
         else { if (hls.current) hls.current.currentLevel = -1; else if (currentUrl.current !== source.url) replace(source.url); } }}
       onRetry={() => replace(currentUrl.current)}
       onPiP={typeof document !== "undefined" && document.pictureInPictureEnabled ? () => { video.current?.requestPictureInPicture?.().catch(() => {}); } : undefined}
-      subtitles={source.subtitles.length ? [{ key: "off", label: "Altyazı kapalı" }, ...source.subtitles.map((item) => ({ key: item.language, label: item.label }))] : undefined}
-      onSubtitle={(key) => { if (video.current) Array.from(video.current.textTracks).forEach((track) => { track.mode = track.language === key ? "showing" : "disabled"; }); }} />
+      subtitles={captions.choices.length ? captions.choices : undefined}
+      onSubtitle={captions.select} />
     <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return viewportFullscreen ? createPortal(playerView, document.body) : playerView;

@@ -1,34 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AccessibilityInfo, Animated, Text, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Icon } from "./theme";
 
-/** One hint per device. Rotating never replaces the video or resets its time. */
+/** A fresh hint on every fullscreen entry for a landscape episode. */
 export default function RotateHint({ fullscreen, landscapeVideo, landscapeScreen }: {
   fullscreen: boolean; landscapeVideo: boolean; landscapeScreen: boolean;
 }) {
   const [visible, setVisible] = useState(false), [reduced, setReduced] = useState(false);
-  const attempted = useRef(false), rotation = useRef(new Animated.Value(0)).current;
+  const previousFullscreen = useRef(false), previousLandscape = useRef(landscapeScreen);
+  const rotation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduced);
     const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", setReduced);
     return () => subscription.remove();
   }, []);
   useEffect(() => {
-    if (!fullscreen || landscapeScreen) { setVisible(false); return; }
-    if (!landscapeVideo || attempted.current) return;
-    attempted.current = true;
-    let live = true;
-    const key = "dbs-landscape-hint-v05";
-    AsyncStorage.getItem(key).then(async (seen) => {
-      if (seen || !live) return;
-      await AsyncStorage.setItem(key, "shown");
-      if (live) setVisible(true);
-    }).catch(() => { if (live) setVisible(true); });
-    return () => { live = false; };
+    const entered = fullscreen && !previousFullscreen.current;
+    const rotated = landscapeScreen && !previousLandscape.current;
+    previousFullscreen.current = fullscreen;
+    previousLandscape.current = landscapeScreen;
+    if (!fullscreen || !landscapeVideo) setVisible(false);
+    else if (entered) setVisible(true);
+    else if (rotated) setVisible(false);
   }, [fullscreen, landscapeVideo, landscapeScreen]);
   useEffect(() => {
     if (!visible) return;
+    rotation.setValue(0);
     const timeout = setTimeout(() => setVisible(false), 6000);
     const animation = Animated.loop(Animated.sequence([
       Animated.timing(rotation, { toValue: 1, duration: 900, useNativeDriver: true }),

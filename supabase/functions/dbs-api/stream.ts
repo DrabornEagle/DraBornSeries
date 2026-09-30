@@ -24,5 +24,5 @@ export async function verifyStreamWebhook(raw: string, header: string, secret: s
 
 export function naturalConflict(table: string, hasID: boolean) {
   if (hasID) return "id";
-  return ({ dbs_seasons: "series_id,number", dbs_episodes: "series_id,number", dbs_video_assets: "episode_id", dbs_series: "slug" } as Record<string,string>)[table] || "id";
+  return ({ dbs_seasons: "series_id,number", dbs_episodes: "series_id,number", dbs_video_assets: "episode_id", dbs_series: "slug", dbs_subtitles: "episode_id,language" } as Record<string,string>)[table] || "id";
 }

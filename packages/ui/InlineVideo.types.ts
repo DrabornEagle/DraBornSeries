@@ -4,6 +4,8 @@ export type InlineVideoProps = {
   muted?: boolean;
   poster?: string | null;
   preview?: boolean;
+  startFromMiddle?: boolean;
+  subtitles?: import("../types").Playback["subtitles"];
   onTime?: (seconds: number) => void;
   onReady?: () => void;
   onError?: () => void;

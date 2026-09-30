@@ -137,7 +137,7 @@ export default function Player({
           source={source}
           title={episode.title}
           initialTime={initialTime}
-          portrait={episode.orientation === "portrait"}
+          portrait={episode.orientation !== "landscape"}
           onProgress={(seconds) => {
             saveProgress(episode.id, seconds).catch(() => {});
           }}

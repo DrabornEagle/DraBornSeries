@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { assertPlayableStream, naturalConflict, streamUID, verifyStreamWebhook } from "./stream.ts";
+import { publicSubtitleTracks } from "./subtitles.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const admin = createClient(
   env("SUPABASE_URL"),
@@ -124,12 +125,14 @@ Deno.serve(async (req) => {
           .single(),
       );
       if (!asset.ready) return send(req, { error: "VIDEO_NOT_READY" }, 409);
+      const subtitles = publicSubtitleTracks(await checked(admin.from("dbs_subtitles")
+        .select("language,label,asset_key").eq("episode_id", body.episode).order("language")));
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
         return send(req, {
           url: asset.demo_url,
           qualities: asset.renditions || [],
           provider: "demo",
-          subtitles: [],
+          subtitles,
         });
       }
       // The Edge function has already checked the real user's entitlement.
@@ -141,7 +144,7 @@ Deno.serve(async (req) => {
         if (!episode.dbs_series.is_demo && !video.requireSignedURLs)
           return send(req, { error: "VIDEO_MUST_REQUIRE_SIGNED_URLS" }, 503);
         if (!video.requireSignedURLs && episode.dbs_series.is_demo)
-          return send(req, { url: video.playback.hls, provider: "cloudflare", subtitles: [] });
+          return send(req, { url: video.playback.hls, provider: "cloudflare", subtitles });
         const expires = Math.floor(Date.now() / 1000) + 7200;
         const response = await fetch(cfBase() + "/" + asset.stream_uid + "/token", {
           method: "POST", headers: cfHeaders(), body: JSON.stringify({ exp: expires }),
@@ -149,7 +152,7 @@ Deno.serve(async (req) => {
         const signed = await response.json();
         if (!response.ok || !signed.success || !signed.result?.token) throw Error("SIGNING_UNAVAILABLE");
         return send(req, { provider: "cloudflare", url: `https://videodelivery.net/${signed.result.token}/manifest/video.m3u8`,
-          expires_at: new Date(expires * 1000).toISOString(), subtitles: [] });
+          expires_at: new Date(expires * 1000).toISOString(), subtitles });
       }
       if (!env("DBS_WORKER_URL")) return send(req, { error: "STREAM_NOT_CONFIGURED" }, 503);
       const response = await fetch(env("DBS_WORKER_URL") + "/playback", {
@@ -160,7 +163,8 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({ episode: body.episode }),
       });
-      return send(req, await response.json(), response.status);
+      const playback = await response.json();
+      return send(req, response.ok ? { ...playback, subtitles: subtitles.length ? subtitles : playback.subtitles || [] } : playback, response.status);
     }
     if (!user) return send(req, { error: "AUTH_REQUIRED" }, 401);
     const profile = await checked(
