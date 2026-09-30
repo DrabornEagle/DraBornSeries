@@ -79,7 +79,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
       quality={quality} choices={choices} fullscreen={expanded} error={error}
       onPlay={() => { if (playing) video.current?.pause(); else video.current?.play().catch(() => {}); }}
-      onSeek={(value) => { if (video.current) video.current.currentTime = value; }}
+      onSeek={(value) => { if (video.current) { video.current.currentTime = value; setTime(value); } }}
       onMute={() => { if (video.current) { video.current.muted = !muted; setMuted(!muted); } }}
       onFullscreen={() => {
         if (viewportFullscreen) setViewportFullscreen(false);

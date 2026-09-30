@@ -26,7 +26,7 @@ export default function PlayerChrome(props: Props) {
       style={({ pressed }) => ({ minWidth: 42, minHeight: 42, alignItems: "center", justifyContent: "center", opacity: pressed ? 0.6 : 1 })}>
       <Icon name={name} size={size} color="white" />
     </Pressable>;
-  const seek = (time: number) => { wake(); props.onSeek(Math.max(0, Math.min(props.duration || Infinity, time))); };
+  const seek = (time: number) => { if (!Number.isFinite(time)) return; wake(); props.onSeek(Math.max(0, Math.min(props.duration || Infinity, time))); };
   return <View style={{ position: "absolute", inset: 0 }} pointerEvents="box-none">
     <Pressable accessibilityLabel="Oynatıcı kontrollerini göster veya gizle" onPress={() => { if (visible && !settings) setVisible(false); else wake(); }} style={{ position: "absolute", inset: 0 }} />
     {(visible || !props.playing || props.loading || !!props.error) && <>
@@ -60,7 +60,16 @@ export default function PlayerChrome(props: Props) {
           accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
           onAccessibilityAction={(event) => seek(props.time + (event.nativeEvent.actionName === "increment" ? 10 : -10))}
           onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
-          onPress={(event) => seek(event.nativeEvent.locationX / barWidth * props.duration)}
+          onPress={(event) => {
+            const pointer = event.nativeEvent as unknown as { locationX?: number; clientX?: number };
+            const target = event.currentTarget as unknown as { getBoundingClientRect?: () => { left: number; width: number } };
+            const bounds = target.getBoundingClientRect?.();
+            // Native presses expose locationX; web mouse clicks expose clientX.
+            const x = Number.isFinite(pointer.locationX) ? pointer.locationX!
+              : bounds && Number.isFinite(pointer.clientX) ? pointer.clientX! - bounds.left : NaN;
+            const width = bounds?.width || barWidth;
+            if (width > 0 && props.duration > 0) seek(x / width * props.duration);
+          }}
           style={{ height: 28, justifyContent: "center" }}>
           <View pointerEvents="none" style={{ height: 3, borderRadius: 3, backgroundColor: "#ffffff45" }}>
             <View style={{ height: 3, borderRadius: 3, backgroundColor: colors.pink, width: `${Math.min(100, Math.max(0, props.time / (props.duration || 1) * 100))}%` }} />
