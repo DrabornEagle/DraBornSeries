@@ -98,7 +98,7 @@ export default function SeriesDetail({
         >
           <Text style={styles.eyebrow}>
             {series.source_credit?.creator
-              ? "LİSANSLI FİLM · DİKEY UYARLAMA"
+              ? episodes[0]?.orientation === "landscape" ? "LİSANSLI FİLM · TAM FİLM" : "LİSANSLI FİLM · DİKEY UYARLAMA"
               : series.is_demo ? "DİKEY TEST KOLEKSİYONU" : "DRABORNSERIES"}
           </Text>
           <Text style={[styles.h1, { fontSize: compact ? 42 : 58 }]}>
