@@ -66,7 +66,7 @@ Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sürüml
 
 ## Test hesabı ve içerik
 
-Kendi e-posta hesabını oluştur. Ödüller'den doğrulanmış e-posta hesabına bir defa 80 BornCoins karşılama ödülü, ilk favori ve kişiselleştirilmiş profil için ayrı görev ödülleri alabilirsin. Cüzdanda **DBS2026** kodu bir defa 30 BornCoins verir; günlük ödül de aktiftir. İlk bakış kataloğunda **4 koleksiyon / 8 lisanslı 9:16 demo sahnesi** vardır. Bunlar tamamlanmış diziler değildir. Altı özgün dizi konsepti **Yakında** durumundadır. Eski yatay test filmleri arşivlendi; eski kullanıcı geçmişi silinmedi.
+Kendi e-posta hesabını oluştur. Ödüller'den doğrulanmış e-posta hesabına bir defa 80 BornCoins karşılama ödülü, ilk favori ve kişiselleştirilmiş profil için ayrı görev ödülleri alabilirsin. Cüzdanda **DBS2026** kodu bir defa 30 BornCoins verir; günlük ödül de aktiftir. Test kataloğunda **4 lisanslı gerçek kısa film / 14 kronolojik 9:16 bölüm uyarlaması** vardır: Tears of Steel (5), Spring (3), Charge (3) ve Coffee Run (3). Bunlar özgün dikey TV dizileri veya DraBornSeries yapımları değildir; lisans ve değişiklik bilgileri dizi detayında görünür. Altı özgün dizi konsepti **Yakında** durumundadır. Neon Postası/Yıldız Tohumu vektör testleri yayından arşive alındı; kullanıcı geçmişi ve işlem kayıtları korundu.
 
 Yönetici: doğrulanmış `draborneagle@gmail.com` hesabı. Profil → **DraBornSeries Stüdyo**, veya `?page=admin`. Bu yalnızca UI gizleme değildir; backend role kontrolü yapar.
 
