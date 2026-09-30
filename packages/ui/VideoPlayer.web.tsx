@@ -77,7 +77,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onEnded={onEnd} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
       onError={() => { setBuffering(false); setError("Video bağlantısı açılamadı. Tekrar dene."); }}>
     </video>
-    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible)} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, 0, portrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
       onControlsVisibilityChange={setControlsVisible}
       quality={quality} choices={choices} fullscreen={expanded} error={error}

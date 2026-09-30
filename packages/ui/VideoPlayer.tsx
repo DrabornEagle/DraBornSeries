@@ -88,7 +88,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
       contentFit={expanded ? "contain" : "cover"} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
-    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom)} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, portrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
       fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality}

@@ -210,15 +210,40 @@ export default function Account({ page, store, go, run }: Props) {
     );
   if (!store.session)
     return (
-      <Empty
-        title="Hikâyene giriş yap"
-        detail={t.synced}
-        icon="person-circle-outline"
-      >
-        <Button onPress={() => go("auth")}>{t.login}</Button>
-        <Button secondary small onPress={() => go("privacy")}>Gizlilik Politikası</Button>
-        <Button secondary small onPress={() => go("delete-account")}>Hesap silme</Button>
-      </Empty>
+      <View style={{ gap: 20, maxWidth: 960, width: "100%", alignSelf: "center" }}>
+        <LinearGradient colors={["#412247", "#251937", "#141221"]} style={[styles.card, { padding: 28, gap: 20, overflow: "hidden" }]}>
+          <View style={[styles.row, { justifyContent: "space-between", flexWrap: "wrap" }]}>
+            <Image source={require("../../assets/icons/icon.png")} style={{ width: 68, height: 68, borderRadius: 21 }} />
+            <Chip label="HİKÂYEN SENİNLE" active />
+          </View>
+          <Text style={styles.eyebrow}>DRABORNSERIES HESABIN</Text>
+          <Text style={[styles.h1, { maxWidth: 600 }]}>Bir sonraki hikâyene hazır mısın?</Text>
+          <Text style={[styles.body, { color: "#e4d5ee", maxWidth: 640 }]}>{t.synced}</Text>
+          <Button icon="logo-google" onPress={() => go("auth")}>Giriş yap veya kayıt ol</Button>
+          <Button secondary icon="play-circle-outline" onPress={() => go("home")}>Dizileri keşfet</Button>
+        </LinearGradient>
+        <View style={[styles.wrap, { gap: 12 }]}>
+          {([["bookmark-outline", "Kendi koleksiyonun", "Sevdiğin hikâyeleri bir araya getir.", "#f143a1"],
+            ["play-circle-outline", "Kaldığın yerden", "Web ve Android’de izlemeye devam et.", "#a88aff"],
+            ["gift-outline", "Günlük ödüller", "BornCoins ve izleme deneyimin hesabında.", "#ffb56b"]] as const).map(([icon, title, detail, accent]) =>
+            <View key={title} style={[styles.card, { flexGrow: 1, flexBasis: 230, padding: 20, borderColor: accent + "40" }]}>
+              <Icon name={icon} color={accent} size={28} /><Text style={styles.h3}>{title}</Text><Text style={styles.body}>{detail}</Text>
+            </View>)}
+        </View>
+        <View style={[styles.card, { gap: 14, padding: 20 }]}>
+          <Text style={styles.h3}>Tercihler ve yardım</Text>
+          <View style={styles.wrap}>
+            <Chip label="Türkçe" active={store.language === "tr"} onPress={() => store.setLanguage("tr")} />
+            <Chip label="English" active={store.language === "en"} onPress={() => store.setLanguage("en")} />
+          </View>
+          <View style={styles.wrap}>
+            <Button secondary small icon="help-circle-outline" onPress={() => go("help")}>Yardım</Button>
+            <Button secondary small icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
+            <Button secondary small icon="document-text-outline" onPress={() => go("terms")}>Koşullar</Button>
+            <Button secondary small icon="person-remove-outline" onPress={() => go("delete-account")}>Hesap silme</Button>
+          </View>
+        </View>
+      </View>
     );
   if (page === "wallet")
     return (
@@ -479,7 +504,7 @@ export default function Account({ page, store, go, run }: Props) {
             label="Kullanıcı adı"
             value={username}
             onChangeText={setUsername}
-            maxLength={40}
+            maxLength={320}
           />
           <Field
             label="Ad soyad (isteğe bağlı)"

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 · 2026-09-30 · Android versionCode 1
+
+- R2 object keys replace Stream UID entry for new Studio videos. Preserve all existing series, episodes, artwork, subtitles and media URLs. Authenticated folder scanning, manual key/URL entry, preview and duration detection share the web/Android API.
+- Replace the publishing guide and separate new-series forms with a single tabbed editor. Save series, seasons, episodes and validated R2 assets in one transaction; failed imports cannot leave partial series or overwrite another episode by number.
+- Series-wide orientation applies to every existing and future episode when the owner saves that setting. Legacy series remain unchanged until edited.
+- Google bootstrap imports the full email as username and the Google avatar once; preserve subsequent manual edits. Repair old generated names at the next authenticated bootstrap.
+- Modern gradient Studio overview and signed-out profile/settings page. Raise portrait fullscreen captions by 46 px without changing landscape/Discover positions.
+- Add a deployable Worker with signed, entitlement-checked R2 playback, authenticated listing and byte ranges. Existing public Worker supports free-file imports; folder scanning/private playback require deployment. Google notification branding requires the connected OAuth project's verified/published Branding configuration.
+- TypeScript/lint, 29 unit tests, web export, Android JS export and rollback SQL security checks pass. No APK/AAB or physical Android test was performed.
+
 ## 0.6.0 · 2026-09-30 · Android versionCode 1
 
 - Fullscreen captions sit closer to the bottom, moving clear of visible controls and Android navigation safe areas. Normal portrait-player captions keep their existing position; Discover captions move 30 px lower. Android and web share the positions and caption clock.

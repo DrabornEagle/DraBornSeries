@@ -1,4 +1,5 @@
 import StudioMediaPicker from "./StudioMediaPicker";
+import R2MediaPicker from "./R2MediaPicker";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Button, Chip, Field, colors, styles } from "../../packages/ui/theme";
@@ -54,7 +55,6 @@ export const studioTables: StudioTable[] = [
       { key: "description", label: "Bölüm açıklaması", type: "long" },
       { key: "duration_seconds", label: "Süre (saniye)", type: "number" },
       { key: "thumbnail_url", label: "Bölüm küçük görseli URL" },
-      { key: "orientation", label: "Video yönü", type: "choice", choices: [["portrait", "Dikey 9:16"], ["landscape", "Yatay"]] },
       { key: "access_type", label: "Bölüm erişimi", type: "choice", choices: [
         ["free", "Ücretsiz"], ["coins", "BornCoins"], ["ad", "Reklamla açılır"],
         ["vip", "VIP"], ["vip_or_coins", "VIP veya BornCoins"], ["promotion", "Promosyon"],
@@ -65,11 +65,10 @@ export const studioTables: StudioTable[] = [
       { key: "publish_at", label: "Yayın tarihi ve saati", type: "date", hint: "2026-10-01T21:00:00+03:00 biçiminde" },
     ] },
   { table: "dbs_video_assets", label: "Videolar", singular: "Video", icon: "videocam-outline",
-    template: { episode_id: "", provider: "cloudflare", stream_uid: "", r2_key: "", ready: false },
+    template: { episode_id: "", provider: "r2", r2_key: "", ready: false },
     fields: [
       { key: "episode_id", label: "Bağlı bölüm", type: "episode" },
-      { key: "stream_uid", label: "Cloudflare Stream video UID", hint: "Hesap bağlıysa listeden de seçilebilir" },
-      { key: "r2_key", label: "R2 kaynak anahtarı (isteğe bağlı)" },
+      { key: "r2_key", label: "R2 video dosya yolu", hint: "Dizi Adı/Bolum-01.mp4 veya Worker video bağlantısı" },
       { key: "ready", label: "Video oynatmaya hazır", type: "toggle" },
     ] },
   { table: "dbs_subtitles", label: "Altyazılar", singular: "Altyazı", icon: "text-outline",
@@ -105,9 +104,9 @@ function fieldGroup(table: string, key: string) {
   };
   return groups[table]?.[key];
 }
-export function StudioForm({ config, initial, series, seasons, episodes, streamVideos, save, close, remove, readOnly }: {
+export function StudioForm({ config, initial, series, seasons, episodes, save, close, remove, readOnly }: {
   config: StudioTable; initial: StudioRow; series: StudioRow[]; seasons: StudioRow[];
-  episodes: StudioRow[]; streamVideos: StudioRow[];
+  episodes: StudioRow[]; streamVideos?: StudioRow[];
   save: (row: StudioRow) => void; close: () => void; remove?: () => void; readOnly?: boolean;
 }) {
   const [form, setForm] = useState<StudioRow>({ ...initial });
@@ -128,8 +127,8 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
     if (config.fields.some((f) => (f.key.endsWith("_url") && form[f.key] && !String(form[f.key]).startsWith("https://")))) {
       setError("Medya bağlantıları HTTPS ile başlamalı."); return;
     }
-    if (config.table === "dbs_video_assets" && (!form.episode_id || !form.stream_uid)) {
-      setError("Bölüm ve Cloudflare Stream UID gerekli."); return;
+    if (config.table === "dbs_video_assets" && (!form.episode_id || !form.r2_key)) {
+      setError("Bölüm ve R2 video yolu gerekli."); return;
     }
     const row: StudioRow = { ...(initial.id ? { id: initial.id } : {}) };
     try {
@@ -145,7 +144,7 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
               : value === "" && (field.type === "date" || field.type === "season") ? null : value;
       }
     } catch { setError("Ek ayarlar geçerli bir JSON nesnesi olmalı."); return; }
-    if (config.table === "dbs_video_assets") row.provider = "cloudflare";
+    if (config.table === "dbs_video_assets") row.provider = "r2";
     save(row);
   };
   return <View style={[styles.card, { borderColor: colors.pink, gap: 20 }]}>
@@ -154,10 +153,7 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
       <Text style={styles.h2}>{initial.id ? config.singular + " düzenle" : "Yeni " + config.singular.toLocaleLowerCase("tr-TR")}</Text>
       <Text style={styles.body}>Alanları doldur ve kaydet. Yayından kaldırmak için “Gizli” veya “Arşiv” seç.</Text>
     </View>
-    {config.table === "dbs_series" && !initial.id && <View style={{ padding: 15, borderRadius: 16, backgroundColor: "#49243b" }}>
-      <Text style={styles.label}>Bölüm ve videoları nasıl eklerim?</Text>
-      <Text style={styles.body}>Diziyi önce kaydet. Sonraki adımda “Bu diziye sezon ekle”, ardından “Bu sezona bölüm ekle” ve “Bölüme video yükle / bağla” düğmeleri görünür. Yayını, video hazır olduktan sonra aç.</Text>
-    </View>}
+    {config.table === "dbs_episodes" && <Text style={styles.body}>Video yönü, dizinin ayarlarından tüm bölümler için birlikte değiştirilir.</Text>}
     {readOnly && <Text style={styles.body}>Destek yetkisiyle kayıtları görebilirsin. Düzenleme için içerik yetkisi gerekir.</Text>}
     {config.fields.map((field) => {
       if (field.type === "json" && !advanced) return null;
@@ -192,8 +188,8 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
           keyboardType={field.type === "number" ? "numeric" : "default"}
           style={field.type === "long" || field.type === "json" ? { minHeight: 90, textAlignVertical: "top" } : undefined} />
         {field.hint && <Text style={[styles.body, { fontSize: 12 }]}>{field.hint}</Text>}
-        {!readOnly && ["poster_url", "banner_url", "thumbnail_url", "trailer_url"].includes(field.key) && <StudioMediaPicker
-          kind={field.key === "trailer_url" ? "trailer" : "image"} value={form[field.key]} onValue={(value) => update(field.key, value)} />}
+        {!readOnly && ["poster_url", "banner_url", "thumbnail_url"].includes(field.key) && <StudioMediaPicker
+          kind="image" value={form[field.key]} onValue={(value) => update(field.key, value)} />}
         </View>
       </React.Fragment>;
     })}
@@ -201,13 +197,8 @@ export function StudioForm({ config, initial, series, seasons, episodes, streamV
       {advanced ? "Ek ayarları gizle" : "Gelişmiş ayarları göster"}
     </Button>}
     {config.table === "dbs_video_assets" && <View style={{ gap: 8 }}>
-      {!readOnly && <StudioMediaPicker kind="episode" episodeId={form.episode_id} value={form.stream_uid}
-        onValue={(value) => update("stream_uid", value)} onReady={(ready) => update("ready", ready)} />}
-      <Text style={styles.label}>Cloudflare hesabındaki videolar</Text>
-      <View style={styles.wrap}>{streamVideos.length ? streamVideos.map((v) =>
-        <Chip key={v.uid} label={(v.name || v.uid) + (v.ready ? " ✓" : " · işleniyor")}
-          active={form.stream_uid === v.uid} onPress={() => update("stream_uid", v.uid)} />)
-        : <Text style={styles.body}>Hesap bağlı değilse Stream UID alanına videonun kimliğini gir.</Text>}</View>
+      {!readOnly && <R2MediaPicker value={form.r2_key} onValue={(value) => update("r2_key", value)} />}
+      <Text style={styles.body}>Mevcut video, yeni R2 dosyası doğrulanıp kaydedilene kadar oynatılmaya devam eder.</Text>
     </View>}
     {!!error && <Text style={{ color: colors.orange }}>{error}</Text>}
     <View style={styles.wrap}>

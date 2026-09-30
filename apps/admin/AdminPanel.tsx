@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { api } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
 import { Button, Chip, Empty, Field, Icon, Loading, colors, styles } from "../../packages/ui/theme";
 import StudioUsers from "./StudioUsers";
+import SeriesEditor from "./SeriesEditor";
+import { LinearGradient } from "expo-linear-gradient";
 import StudioMetrics from "./StudioMetrics";
 import { StudioForm, studioTables, statusLabel, type StudioRow, type StudioTable } from "./StudioForms";
 
@@ -15,13 +17,13 @@ const sections: [Section, string, React.ComponentProps<typeof Icon>["name"]][] =
 ];
 const contentTables = studioTables.filter((item) => !["dbs_reports", "dbs_content_reports", "dbs_comments"].includes(item.table));
 const reportTables = studioTables.filter((item) => !contentTables.includes(item));
-function title(row: StudioRow, config: StudioTable) {
+function title(row: StudioRow, config: StudioTable, episodes: StudioRow[] = []) {
   if (config.table === "dbs_episodes")
     return "Bölüm " + row.number + " · " + row.title;
   if (config.table === "dbs_seasons")
     return row.title || "Sezon " + row.number;
   if (config.table === "dbs_video_assets")
-    return "Stream videosu · " + (row.stream_uid || "UID eksik");
+    return episodes.find((episode) => episode.id === row.episode_id)?.title || row.r2_key?.split("/").pop() || "Mevcut video";
   if (config.table === "dbs_subtitles" || config.table === "dbs_audio_tracks")
     return row.label || row.language;
   return row.title || row.name || row.kind || row.body || config.singular;
@@ -60,15 +62,12 @@ export default function AdminPanel({ store, run }: {
   const [deleteName, setDeleteName] = useState("");
   const [section, setSection] = useState<Section>("content");
   const [table, setTable] = useState("dbs_series");
-  const pendingDraft = useRef<StudioRow | null>(null);
   const [total, setTotal] = useState(0);
   const [moreLoading, setMoreLoading] = useState(false);
-  const [guide, setGuide] = useState<{ table: string; row: StudioRow } | null>(null);
   const [rows, setRows] = useState<StudioRow[]>([]);
   const [series, setSeries] = useState<StudioRow[]>([]);
   const [seasons, setSeasons] = useState<StudioRow[]>([]);
   const [episodes, setEpisodes] = useState<StudioRow[]>([]);
-  const [streamVideos, setStreamVideos] = useState<StudioRow[]>([]);
   const [role, setRole] = useState("support");
   const [editor, setEditor] = useState<StudioRow | null>(null);
   const [editKey, setEditKey] = useState(0);
@@ -96,27 +95,20 @@ export default function AdminPanel({ store, run }: {
     run(async () => {
       const me = await api<{ role: string }>("admin-me");
       setRole(me.role);
-      if (["owner", "editor"].includes(me.role)) await api("admin-sync-videos");
       await catalog();
     });
   }, [store.isAdmin, catalog, run]);
   useEffect(() => {
     if (!store.isAdmin || section === "users" || section === "metrics") return;
-    run(load); setEditor(pendingDraft.current); if (pendingDraft.current) setEditKey((key) => key + 1);
-    pendingDraft.current = null; setQuery("");
+    run(load); setEditor(null); setQuery("");
   }, [store.isAdmin, section, load, run]);
-  useEffect(() => {
-    if (!store.isAdmin || table !== "dbs_video_assets" || section !== "content") return;
-    api<{ videos: StudioRow[] }>("admin-stream-videos").then((result) => setStreamVideos(result.videos)).catch(() => setStreamVideos([]));
-  }, [store.isAdmin, section, table]);
   if (!store.isAdmin)
     return <Empty title="Yönetici erişimi gerekiyor"
       detail="Bu alan yalnızca yetkili DraBornSeries yöneticilerine açıktır."
       icon="shield-checkmark-outline" />;
   const open = (row: StudioRow) => { setEditor({ ...row }); setEditKey((current) => current + 1); setConfirmDelete(false); };
   const save = (row: StudioRow) => run(async () => {
-    const saved = await api<{ row: StudioRow }>("admin-save", { table, row });
-    setGuide({ table, row: saved.row });
+    await api<{ row: StudioRow }>("admin-save", { table, row });
     setEditor(null); await load(); await catalog(); await store.refreshCatalog();
   }, config.singular + " kaydedildi.");
   const loadMore = () => run(async () => {
@@ -128,12 +120,6 @@ export default function AdminPanel({ store, run }: {
       setTotal(result.total);
     } finally { setMoreLoading(false); }
   });
-  const nextForm = (target: string, values: StudioRow) => {
-    const template = studioTables.find((item) => item.table === target)?.template || {};
-    const draft = { ...template, ...values };
-    if (table === target) open(draft);
-    else { pendingDraft.current = draft; setTable(target); }
-  };
   const remove = () => {
     if (!confirmDelete) { setDeleteName(""); setConfirmDelete(true); return; }
     if (!editor?.id) return;
@@ -146,11 +132,12 @@ export default function AdminPanel({ store, run }: {
     JSON.stringify(row).toLocaleLowerCase("tr-TR").includes(query.toLocaleLowerCase("tr-TR")));
   const choices = section === "reports" ? reportTables : contentTables;
   return <View style={{ gap: 21 }}>
-    <View style={{ gap: 8 }}>
-      <Text style={styles.eyebrow}>DRABORNSERIES STÜDYO</Text>
-      <Text style={styles.h1}>Hikâyelerin kontrol odası.</Text>
-      <Text style={styles.body}>İçerik yayınla, üyeleri yönet, verileri izle. Her bölüm kendi adımlarıyla düzenlenir.</Text>
-    </View>
+    <LinearGradient colors={["#432440", "#281a3a", "#151321"]} style={[styles.card, { padding: 25, gap: 15 }]}>
+      <View style={[styles.row, { justifyContent: "space-between", flexWrap: "wrap" }]}><Text style={styles.eyebrow}>DRABORNSERIES STÜDYO</Text><Chip label="R2 · WEB + ANDROID" active /></View>
+      <Text style={styles.h1}>Hikâyelerini yönet.</Text>
+      <Text style={[styles.body, { color: "#d8c6e1" }]}>Diziler, R2 videoları ve izleyicilerin bir arada. Yeni dizini aç, bölümlerini ekle ve tüm ayarlarını aynı yerde düzenle.</Text>
+      <View style={styles.wrap}><Chip label={series.length + " dizi"} /><Chip label={episodes.length + " bölüm"} /></View>
+    </LinearGradient>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
       {sections.map(([key, label, icon]) => <Pressable key={key} accessibilityRole="button"
         onPress={() => { setSection(key); setTable(key === "reports" ? "dbs_reports" : "dbs_series"); setEditor(null); }}
@@ -173,31 +160,11 @@ export default function AdminPanel({ store, run }: {
           <Text style={styles.h2}>{section === "logs" ? "Yönetici işlem kayıtları" : config.label}</Text>
           <Text style={styles.body}>{section === "content"
             ? config.table === "dbs_episodes" ? "Bölüm oluştur, erişim türünü ve BornCoins fiyatını seç, yayın tarihini ayarla."
-              : config.table === "dbs_video_assets" ? "Bölümü Cloudflare Stream videosuyla bağla. Önce videonun işlenmesini bekle."
+              : config.table === "dbs_video_assets" ? "R2 dosya yolunu seç, videoyu doğrula ve bölümle bağla."
               : config.table === "dbs_series" ? "Dizi bilgilerini, görsellerini, fragmanını, VIP ve vitrin sırasını yönet."
               : "Kayıtları düzenle; sıralama ve görünürlük değişikliklerini kaydet."
             : section === "logs" ? "Hangi yöneticinin hangi kaydı değiştirdiğini gör." : "Raporları incele ve durumlarını güncelle."}</Text>
         </View>
-        {section === "content" && <View style={[styles.card, { gap: 12, padding: 18 }]}>
-          <Text style={styles.h3}>Dizi yayınlama adımları</Text>
-          <Text style={styles.body}>1. Diziyi kaydet → 2. Sezon ekle → 3. Bölüm oluştur → 4. Bölüme video yükle veya Stream videosu bağla.</Text>
-          {guide && <View style={{ gap: 10 }}>
-            <Text style={{ color: colors.pink, fontWeight: "700" }}>Kaydedildi: {guide.row.title || "Bölüm videosu"}</Text>
-            <View style={styles.wrap}>
-              {guide.table === "dbs_series" && <Button small icon="layers-outline" onPress={() => nextForm("dbs_seasons", { series_id: guide.row.id, number: 1 })}>Bu diziye sezon ekle</Button>}
-              {guide.table === "dbs_seasons" && <Button small icon="add-circle-outline" onPress={() => nextForm("dbs_episodes", { series_id: guide.row.series_id, season_id: guide.row.id, number: 1 })}>Bu sezona bölüm ekle</Button>}
-              {guide.table === "dbs_video_assets" && episodes.find((episode) => episode.id === guide.row.episode_id) && <>
-                <Button small icon="settings-outline" onPress={() => nextForm("dbs_episodes", episodes.find((episode) => episode.id === guide.row.episode_id)!)}>Bölüm ayarları / Yayınla</Button>
-                <Button small secondary icon="add" onPress={() => {
-                  const selected = episodes.find((episode) => episode.id === guide.row.episode_id)!;
-                  nextForm("dbs_episodes", { series_id: selected.series_id, season_id: selected.season_id,
-                    number: Math.max(...episodes.filter((episode) => episode.series_id === selected.series_id).map((episode) => Number(episode.number))) + 1 });
-                }}>Sıradaki bölümü ekle</Button>
-              </>}
-              {guide.table === "dbs_episodes" && <Button small icon="cloud-upload-outline" onPress={() => nextForm("dbs_video_assets", { episode_id: guide.row.id })}>Bölüme video yükle / bağla</Button>}
-            </View>
-          </View>}
-        </View>}
         <View style={{ gap: 12, width: "100%", paddingBottom: 4 }}>
           <View style={{ width: "100%" }}>
             <Field value={query} onChangeText={setQuery} placeholder="Listede ara…" />
@@ -211,11 +178,12 @@ export default function AdminPanel({ store, run }: {
         {!editor && (loading ? <Loading /> : <View style={{ gap: 10 }}>
           <Text style={styles.body}>{visible.length} / {total} kayıt gösteriliyor · İlk 10 kayıt yüklenir</Text>
           {visible.map((row, index) => <Pressable key={row.id || row.user_id || index}
-            accessibilityRole="button" accessibilityLabel={title(row, config) + " kaydını aç"}
+            accessibilityRole="button" accessibilityLabel={title(row, config, episodes) + " kaydını aç"}
             onPress={() => section === "logs" ? undefined : open(row)}
             style={[styles.card, { padding: 18, gap: 8 }]}>
             <View style={[styles.row, { justifyContent: "space-between" }]}>
-              <Text style={[styles.h3, { flex: 1 }]} numberOfLines={2}>{section === "logs" ? logTitle(row) : title(row, config)}</Text>
+              {config.table === "dbs_series" && !!row.poster_url && <Image source={{ uri: row.poster_url }} style={{ width: 55, height: 76, borderRadius: 11 }} />}
+              <Text style={[styles.h3, { flex: 1 }]} numberOfLines={2}>{section === "logs" ? logTitle(row) : title(row, config, episodes)}</Text>
               {section !== "logs" && <Icon name="chevron-forward" color={colors.pink} />}
             </View>
             <Text style={styles.body} numberOfLines={3}>{section === "logs"
@@ -225,10 +193,12 @@ export default function AdminPanel({ store, run }: {
           {!visible.length && <Empty title="Kayıt yok" detail="Aramayı değiştir veya yeni kayıt oluştur." icon="albums-outline" />}
         </View>)}
         {editor && section !== "logs" && <View style={{ gap: 12 }}>
-          <StudioForm key={table + "-" + editKey} config={config} initial={editor}
-            series={series} seasons={seasons} episodes={episodes} streamVideos={streamVideos}
+          {table === "dbs_series" && role !== "support" ? <SeriesEditor key={table + "-" + editKey} initial={editor}
+            close={() => setEditor(null)} remove={editor.id && role === "owner" ? remove : undefined}
+            onSaved={async () => { setEditor(null); await load(); await catalog(); await store.refreshCatalog(); }} /> : <StudioForm key={table + "-" + editKey} config={config} initial={editor}
+            series={series} seasons={seasons} episodes={episodes} streamVideos={[]}
             save={save} close={() => setEditor(null)} readOnly={role === "support"}
-            remove={table === "dbs_series" && editor.id && role === "owner" ? remove : undefined} />
+            remove={table === "dbs_series" && editor.id && role === "owner" ? remove : undefined} />}
           <Modal transparent visible={confirmDelete} animationType="fade" onRequestClose={() => setConfirmDelete(false)}>
             <View style={{ flex: 1, backgroundColor: "#07030ed9", padding: 24, justifyContent: "center" }}>
               <View style={[styles.card, { width: "100%", maxWidth: 480, alignSelf: "center", padding: 25, borderColor: "#ff5b8770" }]}>

@@ -5,16 +5,16 @@ on:
     branches: [main]
     paths:
       - 'supabase/functions/dbs-api/**'
-      - 'scripts/configure-stream.mjs'
-      - 'docs/blender-film-catalog.json'
+      - 'scripts/configure-r2.mjs'
+      - 'cloudflare/r2-worker.js'
       - '.github/workflows/deploy-services.yml'
 permissions:
   contents: read
 concurrency:
-  group: dbs-stream-setup
+  group: dbs-r2-setup
   cancel-in-progress: false
 jobs:
-  stream:
+  r2:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
@@ -29,9 +29,9 @@ jobs:
         run: |
           node --input-type=module <<'JS'
           import { appendFileSync } from 'node:fs';
-          const missing=['SUPABASE_ACCESS_TOKEN','CLOUDFLARE_ACCOUNT_ID','CLOUDFLARE_API_TOKEN'].filter(name=>!process.env[name]);
+          const missing=['SUPABASE_ACCESS_TOKEN'].filter(name=>!process.env[name]);
           appendFileSync(process.env.GITHUB_OUTPUT,`configured=${missing.length===0}\n`);
-          if(missing.length){console.log('::warning::Stream setup is blocked: '+missing.join(', ')+' not configured in the production environment.');appendFileSync(process.env.GITHUB_STEP_SUMMARY,'Stream setup pending. Missing secret names: '+missing.join(', ')+'. No catalog UIDs were fabricated.\n');}
+          if(missing.length){console.log('::warning::API deployment via Actions is unavailable: '+missing.join(', ')+'.');appendFileSync(process.env.GITHUB_STEP_SUMMARY,'API deployment via Actions unavailable. Worker code can still be deployed independently.\n');}
           JS
       - uses: actions/setup-node@v4
         if: steps.access.outputs.configured == 'true'
@@ -41,9 +41,8 @@ jobs:
         run: npm ci
       - if: steps.access.outputs.configured == 'true'
         run: npm run check
-      - name: Deploy the authenticated API and signed webhook handler
+      - name: Deploy the authenticated R2 API (legacy media retained)
         if: steps.access.outputs.configured == 'true'
         run: npx --yes supabase@2.118.0 functions deploy dbs-api --project-ref xpdiwyxnnrmyvpcqwuyb
-      - name: Configure Stream, webhook, server secrets and catalog UIDs
-        if: steps.access.outputs.configured == 'true'
-        run: node scripts/configure-stream.mjs
+      - name: Deploy R2 Worker while retaining its existing bucket and secrets
+        run: node scripts/configure-r2.mjs

@@ -1,4 +1,16 @@
-# DraBornSeries · v0.6 current checkpoint
+# DraBornSeries · v0.7 current checkpoint
+
+Version 0.7.0 / Android versionCode 1. New media uses R2 object keys and the owner's existing `drabornseries.draborneagle.workers.dev` gateway. The tabbed series editor integrates series details, artwork, folder selection/manual video paths, previews, episode settings and one atomic save. Publishing steps were removed. Series orientation applies to all current/future episodes; no catalog backfill runs. Signed-out settings and Studio were redesigned; portrait fullscreen captions move 46 px upward.
+
+The v0.7 R2/Google migration and guest RPC schema grant are applied to the isolated DraBornSeries schema. `dbs-api` v19 and v0.7 release metadata are deployed. Google identity bootstrap uses the full email and Google avatar, repairs generated usernames, and preserves subsequent manual changes. An actual Google email branding change remains external: Google Auth Platform Branding must be verified and published for the connected OAuth client. The Google Console was unavailable to this browser.
+
+Local TypeScript/lint, 29 unit tests, web export and Android JavaScript export passed. Remote rollback SQL verifies Google initialization/manual-edit retention, atomic R2 import, duplicate protection, duration constraints, series-wide direction, existing episode edits, anonymous free playback and denied paid-media access. Existing ledger/RLS/account deletion tests also pass. Security advisor has only the intended policy-free service-only upload table for this app. The actual R2 test is H.264 478×850 + AAC, 9.203844 s / 2,151,763 bytes; HEAD and byte-range GET (206) work.
+
+Catalog preservation is verified by ordered serialized fingerprints before/after (new nullable series fields excluded): series `9480f7da7c5daf5144364e1507292ece`, episodes `df926de007fbd48862326a69a8422568`, video assets `9058bbd51eb212ca4e2f27c85cb2ff41`. All 27 series / 36 episodes / 36 assets retain their data; the existing 18 published films / 28 playable episodes stay available. Rollback fixtures leave no test catalog behind.
+
+The deployable `cloudflare/r2-worker.js` retains an existing R2 bucket binding and supports authenticated listing, signed preview/trailer/playback and GET/HEAD/206/416. The service workflow deploys it only with a configured account token; it performs no legacy Stream migration. At implementation time the owner's Worker health is plain text rather than the new JSON capabilities, so free videos work through manual key/URL entry, while folder scanning and paid/VIP imports require the Worker update. Current external setup instructions: `docs/R2_SETUP.md`. No physical Android test, APK/AAB or Play submission was performed. GitHub Actions and the live exported `DBS-SOURCE.json` record publication results.
+
+## Previous v0.6 checkpoint
 
 Version 0.6.0 / Android versionCode 1. Shared Android/web detail redesign, lower fullscreen/Discover captions and trailer orientation/automatic matching Turkish captions are implemented. Native player loading respects foreground state, controls respect safe areas, and series/comment state is isolated across routes/accounts. Public privacy/terms/deletion HTML shares the in-app text. Account deletion removes app registration metadata and local progress/photo staging. Comment rules acceptance and account-synced blocking are available.
 

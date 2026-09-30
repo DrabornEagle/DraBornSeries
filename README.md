@@ -1,8 +1,20 @@
-# DraBornSeries · v0.6.0 · versionCode 1
+# DraBornSeries · v0.7.0 · versionCode 1
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
-Bu sürüm resmi ticari lansman değildir. Ticari içerik hakları, Cloudflare hesabı, Google OAuth, Play Console/Billing, RTDN/iade sistemi, AdMob SSV ve Android push bağlantıları henüz tamamlanmadı. Ayrıntılı durum: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7 güncel düzenlemeler
+
+- Stüdyo’da yeni dizi için sekmeli tek editör: dizi bilgileri, görseller, R2 bölümleri ve yayın ayarları. Eski yayınlama adımları kaldırıldı.
+- Stream UID yerine R2 dosya yolu veya mevcut Worker’ın `/media/` bağlantısı. Klasördeki videoları toplu seçme, doğal dosya sıralaması, otomatik bölüm numarası/süresi ve kaydetmeden önizleme. Dizi, sezon, bölümler ve video bağlantıları tek veritabanı işlemiyle kaydedilir.
+- Dizi video yönünü bir kez seçmek mevcut ve sonraki bütün bölümlere uygulanır. Mevcut katalogda kendiliğinden yön veya medya değişikliği yapılmaz.
+- Google hesabı ilk açıldığında kullanıcı adı tam e-posta adresi, profil fotoğrafı Google fotoğrafı olur. Eski otomatik `viewer_` adları sonraki girişte düzelir; kullanıcının elle değiştirdiği bilgiler korunur.
+- Oturum kapalı profil sayfası renkli kartlar, ayrı giriş/kayıt düğmeleri, dil ve destek bağlantılarıyla yenilendi. Dikey tam ekran altyazıları yukarı alındı; yatay ve Keşfet yerleşimi korunur.
+- R2 Worker kaynak kodu imzalı ücretsiz/ücretli oynatma, yetkili klasör tarama ve Range/seek yanıtlarını içerir. Hesap erişimi sağlandığında hizmet workflow’u mevcut bucket binding ve secret’ları koruyarak dağıtır. Mevcut public Worker ile ücretsiz videolar dosya yolları yapıştırılarak bağlanabilir; klasör tarama ve ücretli video için yeni Worker’ın dağıtılması gerekir.
+- [R2 kullanım/kurulum ve Google uygulama adı](docs/R2_SETUP.md). Google’ın gönderdiği e-postadaki ad, OAuth projesinin Branding ayarıdır; uygulama kodundan değiştirilemez.
+
+Doğrulama: TypeScript, lint, 29 birim testi, web export, Android JavaScript export ve rollback veritabanı güvenlik testleri geçti. Kullanıcının R2 test MP4’ü H.264/AAC ve 9,20 saniye; HTTP Range 206 yanıtı doğrulandı. APK/AAB veya fiziksel Android testi bu görevde yapılmadı.
 
 ## v0.6 güncel düzenlemeler
 
@@ -101,7 +113,7 @@ npm run export:android
 npm run sync:web
 ```
 
-`apps/mobile` ortak uygulama, `apps/web` web davranışı, `apps/admin` yönetim paneli; ortak servisler `packages/api`, bileşenler `packages/ui`. Backend migration/seed/Edge Functions `supabase`, video gateway `cloudflare/workers` altında.
+`apps/mobile` ortak uygulama, `apps/web` web davranışı, `apps/admin` yönetim paneli; ortak servisler `packages/api`, bileşenler `packages/ui`. Backend migration/seed/Edge Functions `supabase`, yeni R2 gateway `cloudflare/r2-worker.js` altında. Önceki Stream adaptörleri mevcut kaynaklarla uyumluluk için tutulur; otomatik Stream katalog aktarımı çalıştırılmaz.
 
 GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Native APK build veya Play release tetiklenmez. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
 

@@ -2,21 +2,17 @@
 
 These source adapters do **not** mean the production services are connected. The Expo Go release keeps store products inactive. Never enable products until RTDN/refund lifecycle tests, native Billing and Play Console setup pass.
 
-## Cloudflare
+## Cloudflare R2 · v0.7
 
-v0.5 uses the authenticated `dbs-api` as the upload, reconciliation and signed playback backend. In the DraBornSeries GitHub repository's `production` environment, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account-scoped Stream Edit) and `SUPABASE_ACCESS_TOKEN` enable the automatic service workflow. `scripts/configure-stream.mjs` installs server secrets, configures the signed webhook when available, copies verified catalog sources to Stream, records real returned UIDs and waits for encoding. Another application's webhook is preserved; Studio polling provides reconciliation instead. Credentials never enter source or client bundles.
+New media uses the owner's existing R2 Worker at `https://drabornseries.draborneagle.workers.dev`. R2 account: `073b0f4e7f33bf2ce56fe8f60dbe6067`. The S3 API is for authenticated bucket uploads, not a browser/Android playback URL. No R2 access key belongs in the application.
 
-After the account is connected, select an episode and a local video in Studio. The resumable tus uploader reports progress; encoding is checked automatically, and the completed signed video is bound to the episode without copying a UID by hand. A failed or still-processing replacement keeps the previously playable asset. Manual UID saves also require a signed, ready asset. The episode's selected portrait/landscape direction is preserved.
+Upload video files into a series folder in R2. Studio accepts a key such as `Dizi Adı/Bolum-01.mp4` or that Worker's `/media/` URL. One series editor handles series/artwork/episodes/access/status, verifies each R2 object and detects duration before saving the whole change atomically. Published free episodes use the same web/native player, subtitle tracks, progress and fullscreen behavior as existing episodes. Series direction propagates to all current and future episodes. Existing catalog assets and Stream compatibility remain intact.
 
-Current account state: `cloudflare=false`, `uploads=false`, `webhook=false`, with no real Stream UIDs. Account access is unavailable and the Cloudflare panel is blocked at browser security verification. The 18-film test catalog plays from verified public media sources. Automatic setup cannot run without account credentials.
+`cloudflare/r2-worker.js` is a standalone module for the existing Worker. It detects the existing R2 binding, checks editor privileges for folder listing/preview, resolves published free/entitled playback via Supabase RPC, signs media URLs, streams byte ranges and provides CORS. Paid/VIP imports are refused while the Worker exposes public unsigned files. Signing is bearer access with a two-hour expiry, not DRM. Disable any separate public bucket access before publishing paid media.
 
-The Worker below remains an optional separate playback gateway. Direct signed playback through `dbs-api` supports the v0.5 Studio flow without requiring `DBS_WORKER_URL` or `STREAM_CUSTOMER_CODE`. R2 source/subtitle ingest is a separate pending integration.
+`scripts/configure-r2.mjs` in the service workflow uses `CLOUDFLARE_API_TOKEN` with Workers Scripts Edit on the owner's account and optional `CLOUDFLARE_ACCOUNT_ID` (defaults to the supplied account). It preserves the existing bucket binding and secret bindings; a missing signing secret is generated inside the deployment process. `SUPABASE_ACCESS_TOKEN` separately enables API deploy through Actions. Without the account token the Worker step reports a pending deployment, rather than pretending the connection is complete. No videos are copied to Stream.
 
-`cloudflare/workers/src/index.ts` validates the Supabase user and `dbs_episode_access`, limits requests per user, checks Stream `requireSignedURLs`, and signs a 30 minute HLS URL. Permanent Cloudflare video IDs stay in the protected `dbs_video_assets` table. R2 is for private source media, posters and subtitle ingest; no raw paid-video R2 public URL belongs in the client.
-
-Required Worker secrets: `SUPABASE_SECRET_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `STREAM_CUSTOMER_CODE`. Set `DBS_WORKER_URL` in Supabase Edge secrets after deploying the Worker. Configure allowed origins on each Stream asset. Native apps have no Origin header, so Origin is an additional browser control, never the authorization mechanism.
-
-Full DRM and screenshot prevention are not provided. Signed tokens remain bearer credentials until expiry. Test HLS refresh for any episode approaching 30 minutes before publishing it. R2 upload UI and private subtitle URL issuance are pending.
+At implementation time the existing Worker serves the supplied MP4 and Range 206, but `/health` is plain text and no authenticated folder API is available. Manual file-key integration works for free videos; folder listing and protected playback become available after deploying the new module. Cloudflare's panel challenged this cloud browser, so its settings could not be changed through that panel. See [R2_SETUP.md](R2_SETUP.md) for the exact remaining account setup and usage.
 
 ## Turkish captions
 
@@ -40,7 +36,7 @@ No client callback can add coins or unlock an ad episode. Before enabling ads, c
 
 ## Auth, push, links
 
-Email Auth is active. Google provider was disabled in the shared Supabase project's settings when verified. Add a Google OAuth client and allow web and native callback URLs without removing other apps' redirects. Email confirmations and SMTP are shared project settings; this change does not alter them.
+Email Auth is active; the owner has connected Google OAuth. The first Google bootstrap imports the full email as username, full name and a validated Google avatar. Existing generated usernames are repaired on the next login; manual changes are retained. Shared Auth redirects, confirmations and SMTP are preserved. Google-generated account-access emails use the connected OAuth client's Google Auth Platform Branding configuration. Setting DraBornSeries and verifying/publishing that branding is an external account action, not a Supabase project-name or email-template change. See [R2_SETUP.md](R2_SETUP.md).
 
 Remote push and native billing/ads require a development build, not Expo Go. Push token registration, delivery worker and notification retry queue are pending. In-app notifications work.
 

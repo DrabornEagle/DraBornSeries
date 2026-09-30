@@ -21,6 +21,8 @@ export type Page =
   | "terms"
   | "delete-account";
 export interface Series {
+  video_orientation?: "portrait" | "landscape" | null;
+  r2_folder?: string | null;
   source_credit?: { creator: string; license: string; license_url: string; source_url: string; modifications: string; preview_allowed?: boolean };
   id: string;
   slug: string;
@@ -91,7 +93,7 @@ export interface Playback {
   qualities?: { label: string; width: number; height: number; url: string }[];
   url: string;
   expires_at?: string;
-  provider: "demo" | "cloudflare";
+  provider: "demo" | "cloudflare" | "r2";
   subtitles: { language: string; label: string; url: string }[];
 }
 export interface Notice {

@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { assertPlayableStream, naturalConflict, streamUID, verifyStreamWebhook } from "./stream.ts";
 import { publicSubtitleTracks } from "./subtitles.ts";
 import { resolveTrailer } from "./trailer.ts";
+import { workerDefault, mediaUrl, normalizeR2Key, probeR2, r2Playback, workerCapabilities } from "./r2.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const admin = createClient(
   env("SUPABASE_URL"),
@@ -37,6 +38,7 @@ const checked = async (result: any) => {
   return data;
 };
 const streamConfigured = () => !!env("CLOUDFLARE_ACCOUNT_ID") && !!env("CLOUDFLARE_API_TOKEN");
+const r2Base = () => env("DBS_R2_WORKER_URL") || workerDefault;
 const cfBase = () => `https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream`;
 const cfHeaders = () => ({ Authorization: `Bearer ${env("CLOUDFLARE_API_TOKEN")}`, "Content-Type": "application/json" });
 async function getStreamVideo(uid: string) {
@@ -79,31 +81,42 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.6.0",
+        version: "0.7.0",
         versionCode: 1,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
         uploads: streamConfigured(),
         webhook: !!env("DBS_STREAM_WEBHOOK_SECRET"),
+        video_provider: "r2",
+        r2_worker: r2Base(),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: !!env("DBS_ADMOB_AD_UNIT"),
       });
     if (body.action === "trailer") {
       if (typeof body.series !== "string") return send(req, { error: "INVALID_SERIES" }, 400);
-      const series = await checked(admin.from("dbs_series").select("id,status,is_demo,trailer_url,source_credit").eq("id", body.series).single());
+      const series = await checked(admin.from("dbs_series").select("id,status,is_demo,trailer_url,source_credit,video_orientation,r2_trailer_key").eq("id", body.series).single());
       if (series.status !== "published" || !/^https:\/\//i.test(series.trailer_url || ""))
         return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
       const episodes = await checked(admin.from("dbs_episodes").select("id,orientation,number").eq("series_id", series.id)
         .eq("status", "published").lte("publish_at", new Date().toISOString()).order("number"));
-      const assets = series.is_demo && episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,demo_url,renditions")
-        .in("episode_id", episodes.map((episode: any) => episode.id)).eq("provider", "demo").eq("ready", true).eq("demo_url", series.trailer_url)) : [];
-      const resolved = resolveTrailer(series.trailer_url, episodes, assets, series.source_credit?.trailer_orientation);
+      const allAssets = episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,demo_url,renditions,r2_key,provider")
+        .in("episode_id", episodes.map((episode: any) => episode.id)).eq("ready", true)) : [];
+      const assets = allAssets.map((asset: any) => ({ ...asset, demo_url: asset.provider === "r2" ? mediaUrl(asset.r2_key, r2Base()) : asset.demo_url }));
+      const resolved = resolveTrailer(series.trailer_url, episodes, assets, series.video_orientation || series.source_credit?.trailer_orientation);
       if (!resolved) return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
       // Reuse captions only when the trailer is exactly that episode's media.
       // A separate edit has a different clock and must never inherit those cues.
       const subtitles = resolved.matchedEpisodeId ? publicSubtitleTracks(await checked(admin.from("dbs_subtitles")
         .select("language,label,asset_key").eq("episode_id", resolved.matchedEpisodeId).order("language"))) : [];
-      return send(req, { url: series.trailer_url, provider: series.is_demo ? "demo" : "cloudflare", subtitles,
+      let trailerUrl = series.trailer_url;
+      const isR2 = new URL(trailerUrl).origin === new URL(r2Base()).origin;
+      if (isR2 && (await workerCapabilities(r2Base())).privateMedia) {
+        const response = await fetch(r2Base() + "/trailer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series: series.id }), signal: AbortSignal.timeout(15000) });
+        const result = await response.json();
+        if (!response.ok || !result.url) throw Error("TRAILER_UNAVAILABLE");
+        trailerUrl = result.url;
+      }
+      return send(req, { url: trailerUrl, provider: isR2 ? "r2" : series.is_demo ? "demo" : "cloudflare", subtitles,
         qualities: resolved.qualities, orientation: resolved.orientation });
     }
     if (body.action === "playback") {
@@ -123,7 +136,7 @@ Deno.serve(async (req) => {
       )
         return send(req, { error: "EPISODE_UNAVAILABLE" }, 403);
       const demoGuest =
-        episode.dbs_series.is_demo && episode.access_type === "free" && !user;
+        episode.access_type === "free" && !user;
       if (
         !demoGuest &&
         (!user ||
@@ -153,6 +166,10 @@ Deno.serve(async (req) => {
           provider: "demo",
           subtitles,
         });
+      }
+      if (asset.provider === "r2") {
+        const key = normalizeR2Key(asset.r2_key, r2Base());
+        return send(req, { ...await r2Playback(body.episode, key, authorization, episode.access_type, r2Base()), subtitles });
       }
       // The Edge function has already checked the real user's entitlement.
       // It can sign directly too, without requiring a separate Worker/code.
@@ -210,6 +227,10 @@ Deno.serve(async (req) => {
     }
     if (
       body.action === "admin-list" ||
+      body.action === "admin-r2-list" ||
+      body.action === "admin-r2-probe" ||
+      body.action === "admin-series-editor" ||
+      body.action === "admin-studio-save" ||
       body.action === "admin-options" ||
       body.action === "admin-upload-video" ||
       body.action === "admin-video-status" ||
@@ -254,6 +275,60 @@ Deno.serve(async (req) => {
       if (body.action === "admin-me") {
         const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
         return send(req, { role: membership.role });
+      }
+      if (["admin-r2-list", "admin-r2-probe", "admin-studio-save", "admin-series-editor"].includes(body.action)) {
+        const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
+        if (!["owner", "editor"].includes(membership.role)) return send(req, { error: "EDITOR_REQUIRED" }, 403);
+        if (body.action === "admin-series-editor") {
+          const episodes = await checked(admin.from("dbs_episodes").select("*").eq("series_id", body.series).order("number"));
+          const assets = episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,provider,r2_key,ready").in("episode_id", episodes.map((item: any) => item.id))) : [];
+          const seasons = await checked(admin.from("dbs_seasons").select("id,number").eq("series_id", body.series));
+          return send(req, { episodes: episodes.map((item: any) => ({ ...item, season_number: seasons.find((season: any) => season.id === item.season_id)?.number || 1, ...assets.find((asset: any) => asset.episode_id === item.id) })) });
+        }
+        const capabilities = await workerCapabilities(r2Base());
+        if (body.action === "admin-r2-list") {
+          if (!capabilities.listing) return send(req, { configured: false, objects: [], cursor: null,
+            message: "Klasör taraması için R2 Worker güncellemesi gerekiyor. Şimdilik dosya yollarını veya video bağlantılarını aşağıya yapıştırabilirsin." });
+          const prefix = String(body.prefix || "").trim();
+          if (prefix.length > 1000 || /[\\?#\u0000-\u001f]/.test(prefix) || prefix.split("/").includes("..")) throw Error("INVALID_R2_KEY");
+          const url = new URL(r2Base() + "/studio/media"); url.searchParams.set("prefix", prefix);
+          if (body.cursor) url.searchParams.set("cursor", String(body.cursor));
+          const response = await fetch(url, { headers: { Authorization: authorization }, signal: AbortSignal.timeout(15000) });
+          if (!response.ok) throw Error("R2_LIST_UNAVAILABLE");
+          return send(req, await response.json());
+        }
+        if (body.action === "admin-r2-probe") {
+          const key = normalizeR2Key(body.key, r2Base());
+          return send(req, await probeR2(key, authorization, r2Base(), capabilities.privateMedia));
+        }
+        const payload = body.payload;
+        if (!payload || !payload.series || !Array.isArray(payload.episodes) || payload.episodes.length > 50) throw Error("INVALID_SERIES");
+        if (!capabilities.privateMedia) {
+          const protectedIds = payload.episodes.filter((item: any) => item.id && item.access_type && item.access_type !== "free").map((item: any) => item.id);
+          if (protectedIds.length && (await checked(admin.from("dbs_video_assets").select("provider").in("episode_id", protectedIds))).some((asset: any) => asset.provider === "r2")) throw Error("R2_PRIVATE_WORKER_REQUIRED");
+        }
+        // Reject foreign video URLs and confirm every replacement before the atomic save.
+        for (const item of payload.episodes) {
+          if (item.thumbnail_url && (!/^https:\/\//i.test(item.thumbnail_url) || new URL(item.thumbnail_url).username || new URL(item.thumbnail_url).password)) throw Error("INVALID_MEDIA_URL");
+          if (!item.r2_key) continue;
+          item.r2_key = normalizeR2Key(item.r2_key, r2Base());
+          if ((item.access_type || "free") !== "free" && !capabilities.privateMedia) throw Error("R2_PRIVATE_WORKER_REQUIRED");
+        }
+        for (let offset = 0; offset < payload.episodes.length; offset += 5) await Promise.all(payload.episodes.slice(offset, offset + 5).map(async (item: any) => {
+          if (!item.r2_key) return;
+          const probe = await probeR2(item.r2_key, authorization, r2Base(), capabilities.privateMedia);
+          if (probe.duration > 0) item.duration_seconds = Math.ceil(probe.duration);
+        }));
+        for (const key of ["poster_url", "banner_url", "trailer_url"]) {
+          const value = payload.series[key];
+          if (value && (!/^https:\/\//i.test(value) || new URL(value).username || new URL(value).password)) throw Error("INVALID_MEDIA_URL");
+        }
+        payload.series.r2_trailer_key = payload.series.trailer_url && new URL(payload.series.trailer_url).origin === new URL(r2Base()).origin ? normalizeR2Key(payload.series.trailer_url, r2Base()) : null;
+        if (payload.series.r2_trailer_key) {
+          await probeR2(payload.series.r2_trailer_key, authorization, r2Base(), capabilities.privateMedia);
+          payload.series.trailer_url = mediaUrl(payload.series.r2_trailer_key, r2Base());
+        }
+        return send(req, await checked(admin.rpc("dbs_studio_save_series", { actor: user.id, payload })));
       }
       if (body.action === "admin-metrics")
         return send(req, { metrics: await checked(client.rpc("dbs_admin_metrics")) });
@@ -448,6 +523,8 @@ Deno.serve(async (req) => {
           "total_episodes",
           "average_duration",
           "release_at",
+          "video_orientation",
+          "r2_folder",
         ],
         dbs_seasons: ["id", "series_id", "number", "title"],
         dbs_episodes: [
@@ -517,10 +594,18 @@ Deno.serve(async (req) => {
           fields[body.table].includes(key),
         ),
       );
-      if (body.table === "dbs_video_assets" && row.provider !== "cloudflare")
-        return send(req, { error: "CLOUDFLARE_REQUIRED" }, 400);
+      if (body.table === "dbs_video_assets" && !["cloudflare", "r2"].includes(String(row.provider)))
+        return send(req, { error: "R2_REQUIRED" }, 400);
       let uploadedVideo: any = null;
-      if (body.table === "dbs_video_assets") {
+      if (body.table === "dbs_video_assets" && row.provider === "r2") {
+        const capabilities = await workerCapabilities(r2Base());
+        row.r2_key = normalizeR2Key(row.r2_key, r2Base());
+        const episode = await checked(admin.from("dbs_episodes").select("access_type").eq("id", row.episode_id).single());
+        if (episode.access_type !== "free" && !capabilities.privateMedia) throw Error("R2_PRIVATE_WORKER_REQUIRED");
+        await probeR2(String(row.r2_key), authorization, r2Base(), capabilities.privateMedia);
+        row.ready = true; row.stream_uid = null;
+      }
+      if (body.table === "dbs_video_assets" && row.provider === "cloudflare") {
         if (!env("CLOUDFLARE_ACCOUNT_ID") || !env("CLOUDFLARE_API_TOKEN")) return send(req, { error: "STREAM_UPLOAD_NOT_CONFIGURED" }, 503);
         if (typeof row.stream_uid !== "string" || !/^[a-f0-9]{32}$/.test(row.stream_uid)) return send(req, { error: "INVALID_STREAM_UID" }, 400);
         const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env("CLOUDFLARE_ACCOUNT_ID")}/stream/${row.stream_uid}`, {
