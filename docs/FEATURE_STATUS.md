@@ -4,7 +4,7 @@ Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırı
 
 | Alan | Durum |
 |---|---|
-| Android + Web ortak arayüz/backend | Uygulandı; web tarayıcı ve Android export ile kontrol edilir. Fiziksel Expo Go testi burada yapılmadı. |
+| Android + Web ortak arayüz/backend | Uygulandı; web tarayıcı, Android JS export ve Billing/AdMob içeren native APK derlemesiyle kontrol edildi. Fiziksel Android testi burada yapılmadı. |
 | Marka, ikon, splash, neon tasarım | Özgün görseller ve animasyonlu splash; Mağaza/VIP/cüzdan/ödüller/profil ve beşli alt menü yenilendi. |
 | E-posta kayıt/giriş, profil, oturumlar | Uygulandı. Ortak Auth ayarları korunur. |
 | Google giriş | Kullanıcı OAuth bağlantısını yaptı. İlk girişte e-postanın @ öncesindeki kısmı kullanıcı adı ve Google profil fotoğrafı alınır. Google e-postasının uygulama adı için dış Branding doğrulama/yayın ayarı gerekir. |

@@ -1,9 +1,18 @@
-# DraBornSeries v0.7.1 · Kod 1
+# DraBornSeries v0.7.2 · Kod 1
 
 
-Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
+Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.2 güncel düzenlemeler
+
+- Google kullanıcı adı e-postanın `@` öncesindeki kısmıdır; elle değiştirilmiş kullanıcı adı ve profil fotoğrafı korunur.
+- Dizi detayında gerçek izlenme/beğeni sayaçları; yeni yorumlar varsayılan olarak onaylı. Yayın tarihi gün ve saat seçilen takvimle düzenlenir; webde aşağı çekerek yenileme desteklenir.
+- Tek R2 MP4 için gerçek kaynak çözünürlüğü gösterilir. Çoklu kalite kaynakları korunur; **Görüntünün tamamı / Ekranı doldur** seçilebilir. Fragmanın döndürme ipucu yalnız tam ekranda açılır.
+- Tears of Steel'in aynı beş kesimi için kırpılmamış yatay kopyalar eklendi. Mevcut bölüm kimlikleri, dikey dosyalar, altyazı saatleri ve izleme kayıtları korunur.
+- Google Play VIP satın alma/geri yükleme, sunucu doğrulaması ve RTDN; AdMob resmi test reklamları ve üretim SSV ödül doğrulaması hazır. Billing/AdMob özel Android derlemesi gerektirir. Web/Expo Go native satın alma veya reklam SDK'sını içermez; test reklamları gerçek ödül vermez.
+- [Play Console ve AdMob için kurulum değerleri](docs/V072_KURULUM.md). Üretim hizmet hesabı, ürünler ve gerçek reklam kimlikleri hesap tarafında bağlanmalıdır. Test2 altyazı işi Cloudflare 403/1010 indirme engelini açıkça bildirir; engel giderilmeden altyazı oluşmaz.
 
 ## v0.7.1 güncel düzenlemeler
 
@@ -24,7 +33,7 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 - R2 Worker kaynak kodu imzalı ücretsiz/ücretli oynatma, yetkili klasör tarama ve Range/seek yanıtlarını içerir. Canlı v0.7.0 Worker klasör tarama ve imzalı medyayı destekler. v0.7.1 modülü otomatik altyazı için sunucu API key önizlemesini düzeltir; hesap erişimiyle mevcut bucket binding/secret’ları koruyarak dağıtılır. R2 indirmelerinde tespit edilen Cloudflare 1010 engeli hesapta çözülene kadar otomatik altyazı tamamlanamaz.
 - [R2 kullanım/kurulum ve Google uygulama adı](docs/R2_SETUP.md). Google’ın gönderdiği e-postadaki ad, OAuth projesinin Branding ayarıdır; uygulama kodundan değiştirilemez.
 
-Doğrulama: TypeScript, lint, 29 birim testi, web export, Android JavaScript export ve rollback veritabanı güvenlik testleri geçti. Kullanıcının R2 test MP4’ü H.264/AAC ve 9,20 saniye; HTTP Range 206 yanıtı doğrulandı. APK/AAB veya fiziksel Android testi bu görevde yapılmadı.
+v0.7 doğrulaması: TypeScript, lint, 29 birim testi, web export, Android JavaScript export ve rollback veritabanı güvenlik testleri geçti. Kullanıcının R2 test MP4’ü H.264/AAC ve 9,20 saniye; HTTP Range 206 yanıtı doğrulandı. O sürümde APK/AAB veya fiziksel Android testi yapılmadı. Güncel v0.7.2 derleme ve yayın sonuçları [PROGRESS.md](docs/PROGRESS.md) içindedir.
 
 ## v0.6 güncel düzenlemeler
 
@@ -65,8 +74,8 @@ Doğrulama: TypeScript, lint, 29 birim testi, web export, Android JavaScript exp
 - Canlı katalog, dizi/bölüm detayları, tür/isim/oyuncu/etiket arama, geçmiş ve filtreler.
 - Expo Video (Android) ve HTML5/HLS.js (web) oynatıcı: devam, ileri/geri, ses, fullscreen, cihazın desteklediği PiP ve kaynağın sunduğu kalite seçenekleri.
 - BornCoins defteri, atomik ve tekrarlanabilir güvenli bölüm satın alma, günlük ödül, 7 günlük streak, promosyon kodu ve doğrulanan tek kullanımlık karşılama/favori/profil görevleri.
-- Mağazada altı BornCoins paketi ve haftalık, aylık, yıllık VIP plan kartları örnek fiyatlarla gösterilir. Kartlarda fiyatın örnek olduğu belirtilir; Expo Go üzerinden gerçek satın alma yapılmaz.
-- Hesap bazlı favoriler, puan, moderasyona gönderilen yorumlar, spoiler, beğeni/şikayet.
+- Mağazada altı BornCoins paketi ve haftalık, aylık, yıllık VIP plan kartları bulunur. Android native VIP fiyatları Google Play'den alınır; bağlantı kurulmamış platformlardaki örnek fiyatlar açıkça işaretlenir. BornCoins paket satışı kapalıdır; Expo Go üzerinden gerçek satın alma yapılmaz.
+- Hesap bazlı favoriler, puan, varsayılan onaylı yorumlar, spoiler, beğeni/şikayet ve moderasyon.
 - İzleme ilerlemesinin cihazlar arası senkronizasyonu ve bağlantı sonrası yerel progress kuyruğunun gönderilmesi.
 - Katalog/medya/kullanıcı/cüzdan/rapor/yorum/altyazı/ana sayfa yönetimi için web admin paneli.
 - Dakikalık otomatik scheduled bölüm yayınlama ve uygulama içi yeni bölüm bildirimleri.
@@ -125,7 +134,7 @@ npm run sync:web
 
 `apps/mobile` ortak uygulama, `apps/web` web davranışı, `apps/admin` yönetim paneli; ortak servisler `packages/api`, bileşenler `packages/ui`. Backend migration/seed/Edge Functions `supabase`, yeni R2 gateway `cloudflare/r2-worker.js` altında. Önceki Stream adaptörleri mevcut kaynaklarla uyumluluk için tutulur; otomatik Stream katalog aktarımı çalıştırılmaz.
 
-GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Native APK build veya Play release tetiklenmez. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
+GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Ayrı Android işi Billing/AdMob içeren native projeyi derler ve test anahtarıyla imzalı APK üretir; Play Console yayını yapmaz. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
 
 ## Güvenlik
 

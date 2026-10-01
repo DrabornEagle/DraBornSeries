@@ -2,6 +2,12 @@
 
 Paket adı: `com.draborneagle.drabornseries`. Destek: **support@draborneagle.com**. Web, Android ve tüm sunucu değişiklikleri aynı DraBornSeries hesabını kullanır.
 
+## Native Google girişi
+
+Özel Android derlemesinin Google dönüşü `drabornseries` uygulama şemasını kullanır. Supabase Authentication → URL Configuration → Redirect URLs içinde bu uygulamaya ait `drabornseries://**` dönüşünü izinli tut; çalışan web adresini ve diğer DraBornEagle uygulamalarının dönüşlerini silme. Google OAuth istemcisinin Supabase callback adresi değişmez. Bu oturumda native cihazda Google hesap seçimi ve dış redirect allowlist doğrulanamadı.
+
+Google ekranında DraBornSeries adı için bağlı OAuth projesinin Branding doğrulaması ve yayımlanması gerekir; ayrıntılar [R2_SETUP.md](R2_SETUP.md#google-e-postasında-drabornseries-adı) içindedir. Mevcut Google avatarı ve elle seçilmiş profil bilgileri korunur.
+
 ## Google Play VIP
 
 Native Billing istemcisi, sunucu satın alma doğrulaması ve gerçek zamanlı abonelik durum bildirimleri hazırdır. Google Play’den fiyat alınmadan veya sunucu hesabı bağlanmadan ödeme başlatılmaz. Web ve Expo Go ödeme açmaz; Android’de doğrulanmış VIP bu platformlarda da kullanılabilir. BornCoins paket satışı bu sürümde kapalıdır.
@@ -71,7 +77,7 @@ Cloudflare hesabında [R2_SETUP.md](R2_SETUP.md) içindeki mevcut Worker güncel
 
 1080p olarak yüklenen tek MP4 zaten orijinal çözünürlüğünde oynar. Menüde video metadata’sından gerçek **1080p · Orijinal** ve Otomatik gösterilir. R2 otomatik olarak 720p/480p kopya üretmez; aynı dosyaya sahte çözünürlük etiketleri konmaz. Daha düşük kaliteler için ayrı kodlanmış video dosyaları gerekir. Mevcut çoklu kalite film dosyaları ve HLS trackleri seçilebilir kalır.
 
-Tears of Steel’in mevcut dikey dosyaları korunur; dizi yatay seçildiğinde aynı beş kesimin kırpılmamış 720p yatay kopyaları kullanılır. Altyazı saatleri, beğeniler ve izleme ilerlemesi aynı bölüm kimliğinde kalır. Fragmanın yana yatır animasyonu yalnız tam ekran açıldıktan sonra görünür. Oynatıcıda **Tüm kare** ve **Ekranı doldur** yerleşimleri de seçilebilir.
+Tears of Steel’in mevcut dikey dosyaları korunur; dizi yatay seçildiğinde aynı beş kesimin kırpılmamış 720p yatay kopyaları kullanılır. Altyazı saatleri, beğeniler ve izleme ilerlemesi aynı bölüm kimliğinde kalır. Fragmanın yana yatır animasyonu yalnız tam ekran açıldıktan sonra görünür. Oynatıcıda **Görüntünün tamamı** ve **Ekranı doldur** yerleşimleri de seçilebilir.
 
 ## Kaynaklar
 
