@@ -92,12 +92,21 @@ Deno.serve(async (req) => {
             await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "no_speech", language: "" }));
             return send(req, { job: null });
           }
-          const probe = await probeR2(normalizeR2Key(job.source_key, r2Base()), "Bearer " + env("SUPABASE_SERVICE_ROLE_KEY"), r2Base(), true);
-          const episode = await checked(admin.from("dbs_episodes").select("duration_seconds").eq("id", job.episode_id).single());
+          const episode = await checked(admin.from("dbs_episodes").select("duration_seconds,status,publish_at,access_type,dbs_series!inner(status)").eq("id", job.episode_id).single());
+          const capabilities = await workerCapabilities(r2Base());
+          let probe: any;
+          if (capabilities.serviceProbe) {
+            probe = await probeR2(normalizeR2Key(job.source_key, r2Base()), "Bearer " + env("SUPABASE_SERVICE_ROLE_KEY"), r2Base(), true, env("SUPABASE_SERVICE_ROLE_KEY"));
+          } else if (job.preview_url && new Date(job.preview_until).getTime() > Date.now() + 30000
+            && new URL(job.preview_url).origin === new URL(r2Base()).origin && normalizeR2Key(job.preview_url, r2Base()) === job.source_key) {
+            probe = { url: job.preview_url };
+          } else if (episode.access_type === "free" && episode.status === "published" && episode.dbs_series.status === "published" && new Date(episode.publish_at) <= new Date()) {
+            probe = await r2Playback(job.episode_id, job.source_key, "", "free", r2Base());
+          } else throw Error("R2_BACKEND_PROBE_UPDATE_REQUIRED");
           return send(req, { job: { id: job.id, lease: job.lease_id, episode: job.episode_id, url: probe.url, duration: episode.duration_seconds } });
-        } catch {
-          await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "failed", language: "", cause: "Video bağlantısı hazırlanamadı." }));
-          return send(req, { job: null });
+        } catch (error) {
+          await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "failed", language: "", cause: error instanceof Error && error.message === "R2_BACKEND_PROBE_UPDATE_REQUIRED" ? "R2_WORKER_UPDATE_REQUIRED" : "Video bağlantısı hazırlanamadı." }));
+          return send(req, { error: "CAPTION_SOURCE_FAILED" }, 503);
         }
       }
       if (!["completed", "no_speech", "failed"].includes(body.outcome) || !/^[a-f0-9-]{36}$/.test(body.id || "") || !/^[a-f0-9-]{36}$/.test(body.lease || "")) return send(req, { error: "INVALID_CAPTION" }, 400);
@@ -115,6 +124,7 @@ Deno.serve(async (req) => {
       }
       const result = await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: body.lease, outcome: body.outcome,
         language: typeof body.language === "string" ? body.language.slice(0, 20) : "", actual_duration: Number(body.duration) > 0 && Number(body.duration) <= 7200 ? Math.ceil(Number(body.duration)) : null, cause: body.outcome === "failed" ? "Otomatik altyazı hazırlanamadı. Stüdyo’dan yeniden deneyebilirsin." : null }));
+      if (["completed", "no_speech", "manual", "superseded"].includes(result.status)) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: null, preview_until: null }).eq("id", job.id));
       if (objectKey && result.status !== "completed") await admin.storage.from("dbs-auto-subtitles").remove([objectKey]);
       return send(req, result);
     }
@@ -329,7 +339,8 @@ Deno.serve(async (req) => {
         if (!job) return send(req, { error: "CAPTION_NOT_RETRYABLE" }, 409);
         const asset = await checked(admin.from("dbs_video_assets").select("r2_key").eq("episode_id", body.episode).eq("provider", "r2").single());
         if (asset.r2_key !== job.source_key) return send(req, { error: "CAPTION_NOT_RETRYABLE" }, 409);
-        await checked(admin.from("dbs_auto_subtitle_jobs").update({ status: "queued", attempts: 0, error: null, updated_at: new Date().toISOString() }).eq("id", job.id).in("status", ["failed", "no_speech"]));
+        const preview = await probeR2(job.source_key, authorization, r2Base(), true);
+        await checked(admin.from("dbs_auto_subtitle_jobs").update({ status: "queued", attempts: 0, error: null, preview_url: preview.url, preview_until: preview.expires_at, updated_at: new Date().toISOString() }).eq("id", job.id).in("status", ["failed", "no_speech"]));
         return send(req, { status: "queued" });
       }
       if (["admin-r2-list", "admin-r2-probe", "admin-studio-save", "admin-series-editor"].includes(body.action)) {
@@ -371,9 +382,11 @@ Deno.serve(async (req) => {
           item.r2_key = normalizeR2Key(item.r2_key, r2Base());
           if ((item.access_type || "free") !== "free" && !capabilities.privateMedia) throw Error("R2_PRIVATE_WORKER_REQUIRED");
         }
+        const previews = new Map<string, any>();
         for (let offset = 0; offset < payload.episodes.length; offset += 5) await Promise.all(payload.episodes.slice(offset, offset + 5).map(async (item: any) => {
           if (!item.r2_key) return;
           const probe = await probeR2(item.r2_key, authorization, r2Base(), capabilities.privateMedia);
+          previews.set(item.r2_key, probe);
           if (probe.duration > 0) item.duration_seconds = Math.ceil(probe.duration);
         }));
         for (const key of ["poster_url", "banner_url", "trailer_url"]) {
@@ -385,7 +398,11 @@ Deno.serve(async (req) => {
           await probeR2(payload.series.r2_trailer_key, authorization, r2Base(), capabilities.privateMedia);
           payload.series.trailer_url = mediaUrl(payload.series.r2_trailer_key, r2Base());
         }
-        return send(req, await checked(admin.rpc("dbs_studio_save_series", { actor: user.id, payload })));
+        const saved = await checked(admin.rpc("dbs_studio_save_series", { actor: user.id, payload }));
+        for (const [key, preview] of previews) {
+          if (preview.expires_at) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: preview.url, preview_until: preview.expires_at }).eq("source_key", key).in("status", ["queued", "failed"]));
+        }
+        return send(req, saved);
       }
       if (body.action === "admin-metrics")
         return send(req, { metrics: await checked(client.rpc("dbs_admin_metrics")) });
@@ -667,12 +684,13 @@ Deno.serve(async (req) => {
       if (body.table === "dbs_video_assets" && !["cloudflare", "r2"].includes(String(row.provider)))
         return send(req, { error: "R2_REQUIRED" }, 400);
       let uploadedVideo: any = null;
+      let r2Preview: any = null;
       if (body.table === "dbs_video_assets" && row.provider === "r2") {
         const capabilities = await workerCapabilities(r2Base());
         row.r2_key = normalizeR2Key(row.r2_key, r2Base());
         const episode = await checked(admin.from("dbs_episodes").select("access_type").eq("id", row.episode_id).single());
         if (episode.access_type !== "free" && !capabilities.privateMedia) throw Error("R2_PRIVATE_WORKER_REQUIRED");
-        await probeR2(String(row.r2_key), authorization, r2Base(), capabilities.privateMedia);
+        r2Preview = await probeR2(String(row.r2_key), authorization, r2Base(), capabilities.privateMedia);
         row.ready = true; row.stream_uid = null;
       }
       if (body.table === "dbs_video_assets" && row.provider === "cloudflare") {
@@ -705,6 +723,7 @@ Deno.serve(async (req) => {
             .eq(primaryKey, row[primaryKey])
         : admin.from(body.table).upsert(row, { onConflict: naturalConflict(body.table, !!row.id) });
       const saved = await checked(write.select().single());
+      if (r2Preview?.expires_at) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: r2Preview.url, preview_until: r2Preview.expires_at }).eq("asset_id", saved.id).eq("source_key", saved.r2_key).in("status", ["queued", "failed"]));
       let changedSeries = saved.series_id;
       if (uploadedVideo?.readyToStream && uploadedVideo.duration > 0) {
         const values: Record<string, unknown> = { duration_seconds: Math.max(1, Math.ceil(uploadedVideo.duration)) };

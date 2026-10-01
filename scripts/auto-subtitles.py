@@ -179,14 +179,41 @@ def run():
             claim()
 
 
+def selftest():
+    from faster_whisper import WhisperModel
+    import shutil
+    synthesizer = shutil.which("espeak-ng") or shutil.which("espeak")
+    if not synthesizer:
+        raise RuntimeError("Speech fixture synthesizer unavailable")
+    with tempfile.TemporaryDirectory(prefix="dbs-speech-test-") as folder:
+        audio = Path(folder) / "speech.wav"
+        subprocess.run([synthesizer, "-v", "en-us", "-s", "140", "-w", str(audio), "Hello. I am testing automatic Turkish subtitles. Thank you for watching."], check=True, capture_output=True)
+        metadata = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", str(audio)], check=True, capture_output=True)
+        duration = float(json.loads(metadata.stdout)["format"]["duration"])
+        # Exercise the same real recognition/translation path without publishing a fixture.
+        global download
+        original_download = download
+        download = lambda _url, target: shutil.copyfile(audio, target)
+        try:
+            model = WhisperModel("small", device="cpu", compute_type="int8", cpu_threads=2)
+            vtt, language, _ = process({"url": "fixture", "duration": duration}, model)
+            if not vtt or language != "en" or not any(word in vtt.lower() for word in ["merhaba", "türkçe", "izledi", "teşekkür"]):
+                raise RuntimeError("Speech recognition / Turkish translation smoke test failed")
+            print("Speech fixture recognized and translated to Turkish; no fixture published.")
+        finally:
+            download = original_download
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["claim", "run", "fail"])
+    parser.add_argument("mode", choices=["claim", "run", "fail", "selftest"])
     args = parser.parse_args()
     if args.mode == "claim":
         claim()
     elif args.mode == "run":
         run()
+    elif args.mode == "selftest":
+        selftest()
     elif JOB_FILE.exists():
         job = json.loads(JOB_FILE.read_text(encoding="utf-8"))
         if job:

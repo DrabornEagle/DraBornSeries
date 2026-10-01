@@ -19,17 +19,21 @@ export const mediaUrl = (key: string, base = workerDefault) => base.replace(/\/$
 export async function workerCapabilities(base = workerDefault) {
   try {
     const response = await fetch(base + "/health", { signal: AbortSignal.timeout(5000) });
-    if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) return { privateMedia: false, listing: false };
+    if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) return { privateMedia: false, listing: false, serviceProbe: false };
     const data = await response.json();
-    return { privateMedia: data.provider === "r2" && data.privateMedia === true, listing: data.provider === "r2" && data.listing === true };
-  } catch { return { privateMedia: false, listing: false }; }
+    return { privateMedia: data.provider === "r2" && data.privateMedia === true, listing: data.provider === "r2" && data.listing === true, serviceProbe: data.serviceProbe === true };
+  } catch { return { privateMedia: false, listing: false, serviceProbe: false }; }
 }
 
-export async function probeR2(key: string, authorization: string, base = workerDefault, secure = false) {
+export async function probeR2(key: string, authorization: string, base = workerDefault, secure = false, serviceKey = "") {
   if (secure) {
-    const response = await fetch(base + "/studio/probe", { method: "POST", headers: { Authorization: authorization, "Content-Type": "application/json" },
+    const response = await fetch(base + "/studio/probe", { method: "POST", headers: { Authorization: authorization, "Content-Type": "application/json", ...(serviceKey ? { "X-Dbs-Service-Key": serviceKey } : {}) },
       body: JSON.stringify({ key }), signal: AbortSignal.timeout(15000) });
-    if (!response.ok) throw Error("R2_VIDEO_UNAVAILABLE");
+    if (!response.ok) {
+      let detail = "";
+      try { const result = await response.json(); if (/^[A-Z_]{2,60}$/.test(result.error || "")) detail = result.error; } catch { /* no private response body in logs */ }
+      throw new Error("R2_VIDEO_UNAVAILABLE", { cause: "R2_WORKER_HTTP_" + response.status + (detail ? "_" + detail : "") });
+    }
     const data = await response.json();
     if (!data.size || !data.url) throw Error("R2_VIDEO_UNAVAILABLE");
     return { ...data, key };

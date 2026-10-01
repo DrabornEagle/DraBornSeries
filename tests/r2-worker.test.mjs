@@ -39,3 +39,28 @@ test('R2 Worker signs only authorized media and rejects tampered/expired links',
     assert.equal(outside.status, 416);
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test('server secret API keys are forwarded as API keys while user JWTs remain separate', async () => {
+  const originalFetch = globalThis.fetch;
+  const serviceKey = 'sb_secret_worker_fixture_only';
+  let observed;
+  const env = { SIGNING_SECRET: 'fixture-only-secret', VIDEOS: { head: async () => ({ size: 200 }), get: async () => ({}), list: async () => ({ objects: [] }) } };
+  globalThis.fetch = async (_url, options) => {
+    observed = options.headers;
+    const allowed = options.headers.apikey === serviceKey && !options.headers.Authorization
+      || options.headers.Authorization === 'Bearer editor-user-jwt' && options.headers.apikey !== serviceKey;
+    return Response.json(allowed, { status: allowed ? 200 : 401 });
+  };
+  const probe = (headers) => worker.fetch(new Request('https://worker.example/studio/probe', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: '{"key":"Fixture/01.mp4"}' }), env);
+  try {
+    const server = await probe({ Authorization: 'Bearer ' + serviceKey, 'X-Dbs-Service-Key': serviceKey });
+    assert.equal(server.status, 200);
+    assert.equal(observed.apikey, serviceKey);
+    assert.equal(observed.Authorization, undefined);
+    assert.ok(!(await server.text()).includes(serviceKey));
+    assert.equal((await probe({ Authorization: 'Bearer editor-user-jwt' })).status, 200);
+    assert.equal(observed.Authorization, 'Bearer editor-user-jwt');
+    assert.equal((await probe({ Authorization: 'Bearer invalid', 'X-Dbs-Service-Key': 'sb_secret_invalid_fixture' })).status, 403);
+    assert.equal((await probe({})).status, 403);
+  } finally { globalThis.fetch = originalFetch; }
+});

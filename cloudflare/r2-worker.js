@@ -33,9 +33,12 @@ async function verifyUrl(url, env, key) {
   return crypto.subtle.verify("HMAC", await hmacKey(secret), Uint8Array.from(signature.match(/../g), (pair) => parseInt(pair, 16)), encoder.encode(key + "\n" + expires));
 }
 async function rpc(request, name, args = {}) {
+  // Server-only secret keys are API keys, not user JWTs. Never return or log this header.
+  const serviceKey = request.headers.get("x-dbs-service-key");
+  if (serviceKey && !serviceKey.startsWith("sb_secret_") && !serviceKey.startsWith("eyJ")) throw Error("ACCESS_DENIED");
   const response = await fetch(SUPABASE_URL + "/rest/v1/rpc/" + name, { method: "POST", headers: {
-    apikey: PUBLISHABLE_KEY, "Content-Type": "application/json", "Content-Profile": "drabornseries",
-    ...(request.headers.get("authorization") ? { Authorization: request.headers.get("authorization") } : {}),
+    apikey: serviceKey || PUBLISHABLE_KEY, "Content-Type": "application/json", "Content-Profile": "drabornseries",
+    ...(!serviceKey?.startsWith("sb_secret_") && request.headers.get("authorization") ? { Authorization: request.headers.get("authorization") } : {}),
   }, body: JSON.stringify(args) });
   if (!response.ok) throw Error("ACCESS_DENIED");
   return response.json();
@@ -64,7 +67,7 @@ export default {
     const reply = (data, status = 200) => { const headers = new Headers(cors); headers.set("Content-Type", "application/json"); return new Response(JSON.stringify(data), { status, headers }); };
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (origin && !allowedOrigins.includes(origin)) return reply({ error: "ORIGIN_DENIED" }, 403);
-    if (url.pathname === "/health" && request.method === "GET") return reply({ ok: !!bucket, provider: "r2", version: "0.7.0", listing: !!bucket, privateMedia: !!bucket && !!signingSecret(env) });
+    if (url.pathname === "/health" && request.method === "GET") return reply({ ok: !!bucket, provider: "r2", version: "0.7.1", serviceProbe: true, listing: !!bucket, privateMedia: !!bucket && !!signingSecret(env) });
     if (!bucket) return reply({ error: "R2_BUCKET_BINDING_REQUIRED" }, 503);
     try {
       if (url.pathname === "/studio/media" && request.method === "GET") {
