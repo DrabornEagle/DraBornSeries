@@ -1,5 +1,6 @@
 """Generate Turkish captions for R2 uploads. No paid transcription API or stored runner credential."""
 import argparse
+import base64
 import html
 import json
 import os
@@ -27,12 +28,20 @@ def oidc_token():
 
 def api(action, **values):
     payload = json.dumps({"action": action, **values}, ensure_ascii=False).encode()
-    request = urllib.request.Request(API, data=payload, headers={"Authorization": "Bearer " + oidc_token(), "Content-Type": "application/json"})
+    token = oidc_token()
+    request = urllib.request.Request(API, data=payload, headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(request, timeout=75) as response:
             return json.load(response)
     except urllib.error.HTTPError as error:
         # Never log a token, media link, or transcript.
+        if error.code == 401:
+            segment = token.split(".")[1]
+            claims = json.loads(base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4)))
+            fields = ["iss", "aud", "repository", "repository_id", "ref", "sub", "workflow_ref", "workflow", "event_name", "iat", "nbf", "exp"]
+            print("Runner validation context: " + json.dumps({key: claims.get(key) for key in fields}))
+            response = json.loads(error.read())
+            print("Runner rejection: " + str(response.get("error", response.get("code", "HTTP401"))))
         raise RuntimeError("Caption service HTTP " + str(error.code)) from None
 
 
