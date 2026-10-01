@@ -69,8 +69,22 @@ def download(url, target):
     if parsed.scheme + "://" + parsed.netloc != WORKER or not parsed.path.startswith("/media/") or parsed.username or parsed.password:
         raise RuntimeError("Unexpected media origin")
     opener = urllib.request.build_opener(NoRedirect)
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Linux x86_64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/141.0.0.0 Safari/537.36"
+            ),
+            "Accept": "video/mp4,video/*;q=0.9,*/*;q=0.8",
+            "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Cache-Control": "no-cache",
+        },
+        method="GET",
+    )
     total = 0
-    with opener.open(url, timeout=120) as response, target.open("wb") as output:
+    with opener.open(request, timeout=120) as response, target.open("wb") as output:
         if not response.headers.get("Content-Type", "").startswith("video/"):
             raise RuntimeError("Unexpected media type")
         while chunk := response.read(1024 * 1024):
