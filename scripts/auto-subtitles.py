@@ -117,7 +117,13 @@ def process(job, model):
     duration = float(job["duration"])
     with tempfile.TemporaryDirectory(prefix="dbs-caption-") as folder:
         video, audio = Path(folder) / "video.mp4", Path(folder) / "audio.wav"
-        download(job["url"], video)
+        print("Downloading the authorized video.", flush=True)
+        try:
+            download(job["url"], video)
+        except urllib.error.HTTPError as error:
+            print("Video download HTTP " + str(error.code) + ".", flush=True)
+            raise
+        print("Reading video duration and audio.", flush=True)
         probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type:format=duration", "-of", "json", str(video)], capture_output=True, check=True, timeout=60)
         metadata = json.loads(probe.stdout)
         duration = float(metadata.get("format", {}).get("duration", duration))
@@ -127,12 +133,14 @@ def process(job, model):
         if not any(stream["codec_type"] == "audio" for stream in streams):
             return None, "", duration
         subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(video), "-vn", "-ac", "1", "-ar", "16000", str(audio)], capture_output=True, check=True, timeout=600)
+        print("Recognizing speech.", flush=True)
         segments, info = model.transcribe(str(audio), task="transcribe", beam_size=5, vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500}, condition_on_previous_text=False, hallucination_silence_threshold=2)
         speech = [(part.start, part.end, part.text) for part in segments if part.no_speech_prob < 0.65 and part.avg_logprob > -1.0 and part.text.strip()]
         if not speech:
             return None, info.language, duration
         if info.language != "tr":
+            print("Translating recognized speech to Turkish.", flush=True)
             if info.language != "en":
                 segments, _ = model.transcribe(str(audio), language=info.language, task="translate", beam_size=5, vad_filter=True,
                     condition_on_previous_text=False, hallucination_silence_threshold=2)

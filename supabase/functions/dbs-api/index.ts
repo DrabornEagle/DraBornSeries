@@ -723,7 +723,7 @@ Deno.serve(async (req) => {
             .eq(primaryKey, row[primaryKey])
         : admin.from(body.table).upsert(row, { onConflict: naturalConflict(body.table, !!row.id) });
       const saved = await checked(write.select().single());
-      if (r2Preview?.expires_at) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: r2Preview.url, preview_until: r2Preview.expires_at }).eq("asset_id", saved.id).eq("source_key", saved.r2_key).in("status", ["queued", "failed"]));
+      if (r2Preview?.expires_at) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: r2Preview.url, preview_until: r2Preview.expires_at }).eq("episode_id", saved.episode_id).eq("source_key", saved.r2_key).in("status", ["queued", "failed"]));
       let changedSeries = saved.series_id;
       if (uploadedVideo?.readyToStream && uploadedVideo.duration > 0) {
         const values: Record<string, unknown> = { duration_seconds: Math.max(1, Math.ceil(uploadedVideo.duration)) };
