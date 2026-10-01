@@ -1,0 +1,48 @@
+name: DraBornSeries native Android
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'plugins/**'
+      - 'app.json'
+      - 'app.config.cjs'
+      - 'package*.json'
+      - '.github/workflows/android.yml'
+permissions:
+  contents: read
+concurrency:
+  group: dbs-native-android-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Generate native Android project with Billing and AdMob
+        run: |
+          npm pack expo-template-bare-minimum@58.0.10 --pack-destination /tmp --silent
+          npx expo prebuild --platform android --no-install --template /tmp/expo-template-bare-minimum-58.0.10.tgz
+      - name: Compile installable Android test build
+        working-directory: android
+        run: ./gradlew :app:assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DraBornSeries-v0.7.2-test-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
