@@ -12,7 +12,7 @@ Dış hesap adımları: Canlı Worker v0.7.0 imzalı oynatma/klasör tarama sunu
 
 Google: `https://console.cloud.google.com/auth/branding` bu tarayıcıda Site Unavailable. Bağlı OAuth projesinde DraBornSeries adı için Branding → Verify Branding → Publish branding tamamlanmalı. Authorized domains veya Supabase proje adını düzenlemek tek başına görünen adı değiştirmez. Çalışan OAuth istemcisi/callback korunur. Kod tarafında Google tam e-posta kullanıcı adı/avatar alma önceki sürümden devam eder; manuel profil değişiklikleri korunur.
 
-Web yayın kontrol noktası: İlk v0.7.1 [web sync](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36801107172) ve [Pages](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36801192896) başarılı. Son hata mesajı düzenlemeleri için aynı sync yeni source commit'iyle tetiklenir; yayınlanan `DBS-SOURCE.json` kullanılan kaynak SHA'sını gösterir.
+Son yayın: kaynak `51f38fab983afb9e242c57653b9886c23bafdf6b`, web commit'i `0d5ec9feb73260278e41c3411d6ca6c53f941c1e`. [Web sync](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36805368779), [Pages](https://github.com/DrabornEagle/DrabornEagle_Web/actions/runs/36805466726) ve [son uygulama/veritabanı CI](https://github.com/DrabornEagle/DraBornSeries/actions/runs/36805343184) başarılı. `DBS-SOURCE.json` v0.7.1 ve aynı kaynak SHA'sını gösterir. Canlı yardım sayfası Kod 1 ve support@draborneagle.com; korunmuş Sintel videosu 1690×720, 888.09 saniye ve ilerleyen oynatma zamanıyla doğrulandı. Tam ekran yerleşimi `cover` kullanır. Dış Google/Cloudflare adımlarının durumu yukarıda kayıtlıdır.
 
 # Önceki v0.7 kontrol noktası
 
