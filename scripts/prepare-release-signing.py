@@ -1,5 +1,5 @@
 """Create the first release key, or restore the same private Actions backup."""
-import hashlib, json, os, pathlib, secrets, subprocess, urllib.request, zipfile, io
+import hashlib, json, os, pathlib, secrets, subprocess, urllib.request
 
 root = pathlib.Path("artifacts/signing")
 root.mkdir(parents=True, exist_ok=True)
@@ -12,9 +12,8 @@ archives = json.loads(request(f"https://api.github.com/repos/{repo}/actions/arti
 available = [item for item in archives if not item["expired"] and str(item["workflow_run"]["id"]) != os.environ["GITHUB_RUN_ID"]]
 if available:
     item = max(available, key=lambda entry: entry["id"])
-    with zipfile.ZipFile(io.BytesIO(request(item["archive_download_url"]))) as archive:
-        for name in ["DraBornSeries-release.jks", "signing.json", "KEYSTORE-README.txt"]:
-            (root / name).write_bytes(archive.read(name))
+    # gh handles the signed storage redirect without forwarding API credentials.
+    subprocess.run(["gh", "run", "download", str(item["workflow_run"]["id"]), "--repo", repo, "--name", "DraBornSeries-release-signing", "--dir", str(root)], check=True)
     print("Restored the existing release signing key.")
 else:
     if archives or pathlib.Path("docs/release-certificate.json").exists():
