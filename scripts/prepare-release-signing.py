@@ -1,5 +1,5 @@
 """Create the first release key, or restore the same private Actions backup."""
-import json, os, pathlib, secrets, subprocess, urllib.request, zipfile, io
+import hashlib, json, os, pathlib, secrets, subprocess, urllib.request, zipfile, io
 
 root = pathlib.Path("artifacts/signing")
 root.mkdir(parents=True, exist_ok=True)
@@ -27,6 +27,11 @@ else:
     print("Created the first DraBornSeries release signing key.")
 
 info = json.loads((root / "signing.json").read_text())
+checkpoint = pathlib.Path("docs/release-certificate.json")
+if checkpoint.exists():
+    certificate = subprocess.check_output(["keytool", "-exportcert", "-keystore", str(root / info["storeFile"]), "-alias", info["alias"], "-storepass:env", "DBS_VERIFY_PASSWORD"], env={**os.environ, "DBS_VERIFY_PASSWORD": info["storePassword"]})
+    if hashlib.sha256(certificate).hexdigest() != json.loads(checkpoint.read_text())["sha256"]:
+        raise SystemExit("Signing certificate does not match the owner's release key. Refusing a replacement key.")
 for value in [info["storePassword"], info["keyPassword"]]: print("::add-mask::" + value)
 with open(os.environ["GITHUB_ENV"], "a") as env:
     env.write(f"DBS_RELEASE_STORE_FILE={root.resolve() / info['storeFile']}\nDBS_RELEASE_STORE_PASSWORD={info['storePassword']}\nDBS_RELEASE_KEY_PASSWORD={info['keyPassword']}\nDBS_RELEASE_KEY_ALIAS={info['alias']}\n")

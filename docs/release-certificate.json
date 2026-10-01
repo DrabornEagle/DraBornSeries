@@ -1,0 +1,7 @@
+{
+  "alias": "drabornseries-release",
+  "sha256": "fb9208a8099d459d685994973cc3f34fd4f075f6c94539d91c193231071e4ec1",
+  "algorithm": "RSA",
+  "keySize": 4096,
+  "createdForVersion": "0.7.3"
+}

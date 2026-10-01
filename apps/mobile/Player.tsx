@@ -53,6 +53,7 @@ export default function Player({
     progress?.completed ? 0 : progress?.position_seconds || 0,
   );
   const confirmationShown = useRef(false);
+  const countedViewRefreshed = useRef(false);
   useEffect(() => {
     if (
       !allowed &&
@@ -134,7 +135,16 @@ export default function Player({
           initialTime={initialTime}
           portrait={episode.orientation !== "landscape"}
           onProgress={(seconds) => {
-            if (seconds > 0) void saveProgress(episode.id, seconds).then(() => store.refreshCatalog()).catch(() => {});
+            if (seconds <= 0) return;
+            void saveProgress(episode.id, seconds).then(async () => {
+              // The server counts one view once this episode's threshold is crossed.
+              // Refresh that result promptly without downloading the catalog every 5s.
+              if (store.session && !countedViewRefreshed.current && seconds >= Math.min(5, episode.duration_seconds / 2)) {
+                countedViewRefreshed.current = true;
+                try { await store.refreshCatalog(); }
+                catch { countedViewRefreshed.current = false; }
+              }
+            }).catch(() => {});
           }}
           onEnd={() => {
             if (auto && next) onEpisode(next);

@@ -144,8 +144,8 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.2",
-        versionCode: 1,
+        version: "0.7.3",
+        versionCode: 2,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
         uploads: streamConfigured(),
@@ -154,6 +154,7 @@ Deno.serve(async (req) => {
         r2_worker: r2Base(),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
         ads: true,
+        ads_platform: "android",
         ads_mode: env("DBS_ADMOB_MODE") === "production" && !!env("DBS_ADMOB_AD_UNIT") ? "production" : "test",
         billing_integration: "google_play",
       });
