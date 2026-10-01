@@ -10,10 +10,10 @@ import RotateHint from "./RotateHint";
 import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import { isTurkish } from "../shared/subtitles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { subtitleBottom } from "../shared/player-layout";
+import { subtitleBottom, videoFit } from "../shared/player-layout";
 // Serialize orientation changes so closing quickly cannot leave ALL applied.
 let orientationQueue = Promise.resolve();
-export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, showRotateHint = false, onProgress, onEnd }: VideoProps) {
   const [status, setStatus] = useState("loading"), [error, setError] = useState(""),
     [tracks, setTracks] = useState<VideoTrack[]>([]), [quality, setQuality] = useState("Otomatik"),
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
@@ -25,7 +25,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const captions = useSubtitleSelection(source.subtitles, source.url), manualSubtitles = useRef(false);
   const { width, height } = useWindowDimensions();
   useEffect(() => {
-    if (!fullscreen) return;
+    if (!fullscreen && !(showRotateHint && !portrait)) return;
     let previous = ScreenOrientation.OrientationLock.PORTRAIT_UP;
     orientationQueue = orientationQueue.then(async () => {
       previous = await ScreenOrientation.getOrientationLockAsync();
@@ -36,7 +36,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
         previous === ScreenOrientation.OrientationLock.UNKNOWN ? ScreenOrientation.OrientationLock.PORTRAIT_UP : previous,
       )).catch(() => {});
     };
-  }, [fullscreen, portrait]);
+  }, [fullscreen, portrait, showRotateHint]);
   const current = useRef(initialTime), lastSaved = useRef(0), resumed = useRef(false), resumeTime = useRef(initialTime),
     shouldPlay = useRef(true), progressCallback = useRef(onProgress), endCallback = useRef(onEnd);
   progressCallback.current = onProgress; endCallback.current = onEnd;
@@ -87,7 +87,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const render = (expanded: boolean) => <View style={{ flex: expanded ? 1 : undefined, backgroundColor: "#05020a", overflow: "hidden",
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
-      contentFit={expanded ? "contain" : "cover"} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
+      contentFit={videoFit(expanded, portrait, width > height)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
     <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, portrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
@@ -108,7 +108,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
         captions.select(key.startsWith("embedded:") ? "off" : key);
         player.subtitleTrack = key.startsWith("embedded:") ? player.availableSubtitleTracks[Number(key.slice(9))] : null;
       }} />
-    {expanded && <RotateHint fullscreen landscapeVideo={!portrait} landscapeScreen={width > height} />}
+    <RotateHint fullscreen={expanded} presentationOpen={showRotateHint} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return <View>
     {fullscreen ? <View style={{ aspectRatio: 9 / 16, maxHeight: 720, justifyContent: "center", alignItems: "center" }}><Text style={{ color: colors.muted }}>Tam ekran oynatılıyor</Text></View> : render(false)}

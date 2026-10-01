@@ -27,12 +27,12 @@ test("Google Play legal pages are standalone, public HTML with a usable outside-
       assert.match(html, /<html lang="tr">/);
       assert.match(html, /DraBornSeries/);
       assert.match(html, /DraBornEagle/);
-      assert.match(html, /mailto:draborneagle@gmail\.com/);
+      assert.match(html, /mailto:support@draborneagle\.com/);
       assert.doesNotMatch(html, /<script|type="password"/);
     }
     const deletion = await readFile(join(output, "account-deletion.html"), "utf8");
     assert.match(deletion, /\.\/\?page=delete-account/);
-    assert.match(deletion, /mailto:draborneagle@gmail\.com\?subject=/);
+    assert.match(deletion, /mailto:support@draborneagle\.com\?subject=/);
     assert.match(deletion, /Korunan asgari kayıtlar/);
   } finally { await rm(output, { recursive: true, force: true }); }
 });

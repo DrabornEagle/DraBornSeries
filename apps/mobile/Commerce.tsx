@@ -559,7 +559,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             <Button
               onPress={() =>
                 needLogin(async () => {
-                  await rpc("dbs_redeem_promo", { code: promo });
+                  await rpc("dbs_redeem_reward", { code: promo });
                   await store.refreshAccount();
                   setPromo("");
                 })
@@ -569,7 +569,7 @@ export default function Commerce({ page, store, go, run, onHistory }: Props) {
             </Button>
           </View>
           <Text style={{ color: colors.muted, fontSize: 11 }}>
-            DBS2026 → bir defaya mahsus 30 BornCoins
+            Koduna tanımlı BornCoins ve VIP günleri hesabına eklenir. Her kod bir kez kullanılabilir.
           </Text>
         </View>
         <View style={[panel, styles.row]}>

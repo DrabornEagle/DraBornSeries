@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { api } from "../../packages/api/client";
@@ -17,8 +17,9 @@ const tabs: [Tab, string, React.ComponentProps<typeof Button>["icon"]][] = [
   ["story", "Dizi bilgileri", "film-outline"], ["art", "Görseller", "image-outline"],
   ["episodes", "Bölümler ve R2", "folder-open-outline"], ["publish", "Yayın ayarları", "radio-outline"],
 ];
-export default function SeriesEditor({ initial, onSaved, close, remove }: {
+export default function SeriesEditor({ initial, onSaved, close, remove, onPreviewVisible }: {
   initial: StudioRow; onSaved: () => Promise<void>; close: () => void; remove?: () => void;
+  onPreviewVisible: (view: React.ElementRef<typeof View> | null) => void;
 }) {
   const [form, setForm] = useState<StudioRow>({ title: "", slug: "", description: "", short_description: "", genres: [],
     status: "draft", poster_url: "", banner_url: "", trailer_url: "", video_orientation: "portrait", r2_folder: "", is_vip: false, ...initial });
@@ -26,7 +27,8 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
   const [episodes, setEpisodes] = useState<StudioRow[]>([]), [loading, setLoading] = useState(!!initial.id), [saving, setSaving] = useState(false);
   const [folder, setFolder] = useState(initial.r2_folder || ""), [objects, setObjects] = useState<R2Object[]>([]), [selected, setSelected] = useState<string[]>([]);
   const [cursor, setCursor] = useState<string | null>(null), [scanning, setScanning] = useState(false), [manual, setManual] = useState("");
-  const [message, setMessage] = useState(""), [error, setError] = useState(""), [preview, setPreview] = useState<{ url: string; key: string }>();
+  const [message, setMessage] = useState(""), [error, setError] = useState(""), [preview, setPreview] = useState<{ url: string; key: string; request: number }>();
+  const previewView = useRef<React.ElementRef<typeof View>>(null), previewRequest = useRef(0), pendingPreviewScroll = useRef(false);
   const [activeEpisode, setActiveEpisode] = useState<string | null>(null);
   const update = (key: string, value: unknown) => setForm((current) => ({ ...current, [key]: value }));
   const changeEpisode = (key: string, field: string, value: unknown) => setEpisodes((current) => current.map((item) => item.localKey === key ? { ...item, [field]: value, dirty: true } : item));
@@ -65,7 +67,8 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
     try {
       const key = r2Key(episode.r2_key);
       const result = await api<{ url: string; duration?: number }>("admin-r2-probe", { key });
-      setPreview({ key, url: result.url });
+      pendingPreviewScroll.current = true;
+      setPreview({ key, url: result.url, request: ++previewRequest.current });
       const duration = result.duration || await videoDuration(result.url);
       if (duration) changeEpisode(episode.localKey, "duration_seconds", Math.ceil(duration));
     } catch (err) { setError(readableError(err)); }
@@ -114,7 +117,7 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
     {loading ? <Loading /> : <>
       {tab === "story" && <View style={styles.card}>
         <Text style={styles.h2}>Hikâyeni tanıt</Text>
-        <Field label="Dizi adı" value={form.title} onChangeText={(value) => { update("title", value); if (!slugManual) update("slug", seriesSlug(value)); }} placeholder="Örn. Son Gece" />
+        <Field label="Dizi adı" value={form.title} onChangeText={(value) => { update("title", value); if (!slugManual) update("slug", seriesSlug(value)); }} placeholder="Örn. Kayıp Rota" />
         <Field label="Bağlantı adı" value={form.slug} onChangeText={(value) => { setSlugManual(true); update("slug", value); }} autoCapitalize="none" />
         {input("short_description", "Kısa tanıtım", true)}{input("description", "Dizi hakkında", true)}
         <Field label="Dizi türleri" value={Array.isArray(form.genres) ? form.genres.join(", ") : form.genres} onChangeText={(value) => update("genres", value)} placeholder="Dram, Gerilim, Romantik" />
@@ -144,6 +147,7 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
         <View style={[styles.card, { borderColor: "#73e1cd50" }]}>
           <View style={styles.row}><Icon name="folder-open-outline" color={colors.mint} size={30} /><Text style={styles.h2}>R2’den bölüm ekle</Text></View>
           <Text style={styles.body}>R2’de dizi adına bir klasör açıp bölümleri yükle. Buradan klasörü seç veya dosya yollarını yapıştır.</Text>
+          <Text style={{ color: colors.mint, lineHeight: 23 }}>Bölümü kaydettiğinde konuşma varsa Türkçe altyazı otomatik hazırlanır. İşlem arka planda tamamlanır; hazır Türkçe altyazılar korunur.</Text>
           <Field label="Dizinin R2 klasörü" value={folder} onChangeText={setFolder} placeholder="Dizi Adı" autoCapitalize="none" />
           <Button secondary icon="search-outline" disabled={scanning} onPress={() => void scan()}>{scanning ? "Videolar aranıyor…" : "Klasördeki videoları bul"}</Button>
           {objects.length > 0 && <>
@@ -164,7 +168,11 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
             catch (err) { setError(readableError(err)); }
           }}>Bu videoları ekle</Button>
         </View>
-        {!!preview && <View style={[styles.card, { padding: 15 }]}><Text style={styles.label}>Önizleme · {r2EpisodeTitle(preview.key)}</Text>
+        {!!preview && <View key={preview.request} ref={previewView} onLayout={() => {
+          if (!pendingPreviewScroll.current) return;
+          pendingPreviewScroll.current = false;
+          requestAnimationFrame(() => onPreviewVisible(previewView.current));
+        }} style={[styles.card, { padding: 15 }]}><Text style={styles.label}>Önizleme · {r2EpisodeTitle(preview.key)}</Text>
           <View style={{ height: 320, backgroundColor: "#050309", borderRadius: 16, overflow: "hidden" }}><InlineVideo url={preview.url} active muted preview={false} /></View>
           <Button secondary small onPress={() => setPreview(undefined)}>Önizlemeyi kapat</Button></View>}
         <Text style={styles.h2}>Bölümlerin · {episodes.length}</Text>
@@ -174,6 +182,14 @@ export default function SeriesEditor({ initial, onSaved, close, remove }: {
             <View style={{ flex: 1, gap: 4 }}><Text style={styles.h3}>{item.number}. {item.title}</Text><Text style={styles.body}>{item.newVideo ? "Yeni R2 videosu" : item.provider === "r2" ? "R2 videosu" : "Mevcut video"} · {item.access_type === "free" ? "Ücretsiz" : item.access_type.toUpperCase()}</Text></View><Icon name={activeEpisode === item.localKey ? "chevron-up" : "chevron-down"} color={colors.pink} />
           </Pressable>
           {activeEpisode === item.localKey && <View style={{ gap: 14 }}>
+            {(item.r2_key || item.newVideo) && <View style={{ gap: 9, padding: 13, backgroundColor: "#212039", borderRadius: 14 }}>
+              <Text style={styles.label}>Otomatik Türkçe altyazı</Text>
+              <Text style={styles.body}>{item.caption ? ({ queued: "Hazırlanmak için sırada", processing: "Konuşma çözümleniyor…", completed: "Türkçe altyazı hazır", no_speech: "Konuşma bulunamadı; altyazı eklenmedi", failed: "Altyazı hazırlanamadı. Yeniden deneyebilirsin.", manual: "Eklediğin Türkçe altyazı kullanılıyor", superseded: "Video değişti; yeni dosya işlenecek" } as Record<string, string>)[item.caption.status] : item.id ? "Hazır Türkçe altyazılar korunur. Yeni R2 videoları otomatik işlenir." : "Bölüm kaydedildikten sonra otomatik hazırlanır."}</Text>
+              {item.id && ["failed", "no_speech"].includes(item.caption?.status) && <Button secondary small icon="refresh" onPress={async () => {
+                try { await api("admin-caption-retry", { episode: item.id }); setEpisodes((old) => old.map((episode) => episode.id === item.id ? { ...episode, caption: { status: "queued" } } : episode)); }
+                catch (err) { setError(readableError(err)); }
+              }}>Altyazıyı yeniden oluştur</Button>}
+            </View>}
             <Field label="Bölüm adı" value={item.title} onChangeText={(value) => changeEpisode(item.localKey, "title", value)} />
             <View style={styles.wrap}><View style={{ flex: 1, minWidth: 120 }}><Field label="Bölüm numarası" value={String(item.number)} keyboardType="numeric" onChangeText={(value) => changeEpisode(item.localKey, "number", value)} /></View>
               <View style={{ flex: 1, minWidth: 120 }}><Field label="Sezon numarası" value={String(item.season_number)} keyboardType="numeric" onChangeText={(value) => changeEpisode(item.localKey, "season_number", value)} /></View></View>

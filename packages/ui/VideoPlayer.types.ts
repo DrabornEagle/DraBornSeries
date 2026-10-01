@@ -4,6 +4,7 @@ export interface VideoProps {
   title?: string;
   initialTime: number;
   portrait: boolean;
+  showRotateHint?: boolean;
   onProgress: (seconds: number) => void;
   onEnd: () => void;
 }

@@ -1,6 +1,6 @@
-# DraBornSeries v0.6 · Google Play hazırlığı
+# DraBornSeries v0.7.1 · Google Play hazırlığı
 
-Uygulama kimliği: `com.draborneagle.drabornseries`. Sürüm: `0.6.0`, Android versionCode: `1`. Geliştirici ve gizlilik iletişimi: **DraBornEagle**, **draborneagle@gmail.com**. Bu belgede v0.6’nın mevcut veri kullanımı açıklanır; Play Console’a gönderim yapılmış veya Google onayı alınmış değildir.
+Uygulama kimliği: `com.draborneagle.drabornseries`. Sürüm: `0.7.1`, Android versionCode: `1`. Geliştirici ve gizlilik iletişimi: **DraBornEagle**, **support@draborneagle.com**. Bu belgede v0.7.1’nın mevcut veri kullanımı açıklanır; Play Console’a gönderim yapılmış veya Google onayı alınmış değildir.
 
 ## Console’a girilecek bağlantılar
 
@@ -10,7 +10,7 @@ Uygulama kimliği: `com.draborneagle.drabornseries`. Sürüm: `0.6.0`, Android v
 | Hesap/veri silme | https://www.draborneagle.com/DraBornSeries/account-deletion.html |
 | Kullanım ve topluluk kuralları | https://www.draborneagle.com/DraBornSeries/terms.html |
 | Web uygulaması | https://www.draborneagle.com/DraBornSeries/ |
-| Destek | draborneagle@gmail.com |
+| Destek | support@draborneagle.com |
 
 HTML belgeleri JavaScript, giriş veya uygulama kurulumu gerektirmez. Aynı metinler Android ve webde Ayarlar, Yardım, giriş/kayıt ve alt bağlantılardan açılır. Silme sayfasında e-posta talebi ve giriş yapılmış web hesabından doğrudan silme vardır. Sunucu hesabın sahipliğini ve onayı kontrol eder; uygulama profil fotoğrafını ve `dbs_registration` kimlik doğrulama metadata alanını da temizler. Yerel bekleyen ilerleme ve kayıt fotoğrafı temizlenir. Diğer uygulamaların ortak Auth hesabı otomatik silinmez; kapsam ve korunan asgari güvenlik kaydı her iki politikada açıkça belirtilir. Ortak giriş hesabının tamamını silme talebi aynı destek adresine yapılır.
 
@@ -30,9 +30,9 @@ Google formundaki son cevaplar uygulamanın gönderilecek AAB’si ve sağlayıc
 | Device or other IDs | Uygulamanın ürettiği rastgele cihaz kimliği, oturum kimliği | Güvenlik, cihaz/oturum yönetimi; donanım/reklam kimliği değil |
 | Sunucu teknik kayıtları | IP, istemci bilgisi, erişim ve teknik hata kayıtları | Sağlayıcıların işletim/güvenlik kayıtları; formda diagnostics ve sağlayıcıların saklaması ayrıca doğrulanmalı |
 
-Supabase hesap/veritabanı/depolama hizmet sağlayıcısıdır. Test medyası CloudFront üzerinden sunulur; Cloudflare Stream yapılandırıldığında videolar ilgili sağlayıcıdan gelir. Hizmet sağlayıcıya aktarım ile Google’ın “sharing” tanımı aynı değildir; sağlayıcının işlemesi geliştirici adına olduğunda formdaki istisna uygulanabilir. Kullanıcının yayımladığı yorum/profil görselinin ve dış bağlantı/paylaşımın beyanı ayrıca değerlendirilmelidir. “Veri toplanmıyor” yanıtı bu uygulama için doğru değildir.
+Supabase hesap/veritabanı/depolama hizmet sağlayıcısıdır. Test medyası CloudFront üzerinden sunulur; Yeni yüklemeler Cloudflare R2 Worker üzerinden sunulur. Otomatik Türkçe altyazı için yayıncı videoları GitHub Actions üzerinde Whisper ve çeviri modeliyle işlenir. İzleyici mikrofonu kaydedilmez. Mevcut Stream bağlantıları desteklenir. Hizmet sağlayıcıya aktarım ile Google’ın “sharing” tanımı aynı değildir; sağlayıcının işlemesi geliştirici adına olduğunda formdaki istisna uygulanabilir. Kullanıcının yayımladığı yorum/profil görselinin ve dış bağlantı/paylaşımın beyanı ayrıca değerlendirilmelidir. “Veri toplanmıyor” yanıtı bu uygulama için doğru değildir.
 
-v0.6’da Play Billing, AdMob ve push etkin değildir; ödeme bilgisi veya reklam kimliği toplanması varmış gibi beyan edilmez. Bu hizmetler açıldığında SDK envanteri, politika, consent akışları ve Data safety birlikte güncellenir.
+v0.7.1’da Play Billing, AdMob ve push etkin değildir; ödeme bilgisi veya reklam kimliği toplanması varmış gibi beyan edilmez. Bu hizmetler açıldığında SDK envanteri, politika, consent akışları ve Data safety birlikte güncellenir.
 
 ## Android ve içerik hazırlığı
 

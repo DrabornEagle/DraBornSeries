@@ -3,7 +3,7 @@
     "name": "DraBornSeries",
     "slug": "drabornseries",
     "scheme": "drabornseries",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "orientation": "default",
     "userInterfaceStyle": "dark",
     "icon": "./assets/icons/icon.png",

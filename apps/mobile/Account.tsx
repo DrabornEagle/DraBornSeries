@@ -305,8 +305,8 @@ export default function Account({ page, store, go, run }: Props) {
         <View style={styles.card}>
           <Text style={styles.h3}>Promosyon kodu</Text>
           <Text style={styles.body}>
-            Erken erişim için DBS2026 koduyla bir defaya mahsus 30 BornCoins
-            alıp bölüm kilidini deneyebilirsin.
+            Promosyon kodunu gir; kodun BornCoins ve VIP ödülleri hesabına
+            otomatik eklensin. Her kodu bir kez kullanabilirsin.
           </Text>
           <Field
             value={promo}
@@ -317,10 +317,10 @@ export default function Account({ page, store, go, run }: Props) {
           <Button
             onPress={() =>
               run(async () => {
-                await rpc("dbs_redeem_promo", { code: promo });
+                await rpc("dbs_redeem_reward", { code: promo });
                 setPromo("");
                 await store.refreshAccount();
-              }, "BornCoins hesabına eklendi.")
+              }, "Promosyon ödüllerin hesabına eklendi.")
             }
           >
             Kodu kullan

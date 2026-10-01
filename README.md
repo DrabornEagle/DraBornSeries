@@ -1,8 +1,18 @@
-# DraBornSeries · v0.7.0 · versionCode 1
+# DraBornSeries v0.7.1 · Kod 1
+
 
 Android (Expo Go 58) + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.1 güncel düzenlemeler
+
+- Stüdyo araması tüm katalogda çalışır; tam dizi adı ve adın başlangıcı açıklama eşleşmelerinden önce gelir. Yeni dizi örneği Kayıp Rota. Önizleme düğmesi videoya tek kez kaydırır.
+- Promosyon kodları: manuel BornCoins miktarı ve VIP günleri, beraber veya ayrı; kullanım limiti, son tarih ve etkinlik ayarı. Kullanıcı kodu bir kez alabilir; VIP mevcut geçerli sürenin sonuna eklenir.
+- Yeni R2 yüklemelerindeki konuşmadan [otomatik Türkçe altyazı](docs/AUTO_SUBTITLES.md). Kuyruk iş akışı ek ücretli ASR/çeviri API'si gerektirmez; manuel Türkçe altyazıyı korur.
+- Tam ekran aynı video/cihaz yönünde görüntüyü oranını koruyarak doldurur; yatay fragman açılışında döndürme animasyonu. Günlük/haftalık/aylık aktif kullanıcı başlıkları Türkçe.
+- Gizlilik, kullanım ve hesap silme metinleri 1 Ekim 2026; genel destek support@draborneagle.com. Android versionCode 1.
+- Google marka doğrulaması Google Auth Platform konsolunda tamamlanmalıdır. Konsol bu tarayıcıda erişilemiyor; mevcut çalışan callback/client bilgileri korunur.
 
 ## v0.7 güncel düzenlemeler
 

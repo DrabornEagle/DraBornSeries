@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { api } from "../../packages/api/client";
 import type { Store } from "../../packages/api/store";
@@ -7,12 +7,13 @@ import StudioUsers from "./StudioUsers";
 import SeriesEditor from "./SeriesEditor";
 import { LinearGradient } from "expo-linear-gradient";
 import StudioMetrics from "./StudioMetrics";
+import StudioPromos from "./StudioPromos";
 import { StudioForm, studioTables, statusLabel, type StudioRow, type StudioTable } from "./StudioForms";
 
-type Section = "content" | "users" | "metrics" | "reports" | "logs";
+type Section = "content" | "users" | "metrics" | "promos" | "reports" | "logs";
 const sections: [Section, string, React.ComponentProps<typeof Icon>["name"]][] = [
   ["content", "İçerik", "film-outline"], ["users", "Kullanıcılar", "people-outline"],
-  ["metrics", "İstatistikler", "analytics-outline"], ["reports", "Raporlar", "flag-outline"],
+  ["metrics", "İstatistikler", "analytics-outline"], ["promos", "Promosyon kodları", "gift-outline"], ["reports", "Raporlar", "flag-outline"],
   ["logs", "İşlem kayıtları", "time-outline"],
 ];
 const contentTables = studioTables.filter((item) => !["dbs_reports", "dbs_content_reports", "dbs_comments"].includes(item.table));
@@ -56,8 +57,9 @@ function logDetail(row: StudioRow) {
           : "";
   return [target, detail, row.admin_name || "Yönetici", new Date(row.created_at).toLocaleString("tr-TR")].filter(Boolean).join(" · ");
 }
-export default function AdminPanel({ store, run }: {
+export default function AdminPanel({ store, run, onPreviewVisible }: {
   store: Store; run: (fn: () => Promise<unknown>, success?: string) => Promise<void>;
+  onPreviewVisible: (view: React.ElementRef<typeof View> | null) => void;
 }) {
   const [deleteName, setDeleteName] = useState("");
   const [section, setSection] = useState<Section>("content");
@@ -74,14 +76,18 @@ export default function AdminPanel({ store, run }: {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const request = useRef(0);
+  useEffect(() => { const timer = setTimeout(() => setSearch(query.trim()), 250); return () => clearTimeout(timer); }, [query]);
   const config = studioTables.find((item) => item.table === table) || studioTables[0];
   const load = useCallback(async () => {
+    const current = ++request.current;
     setLoading(true);
     try {
-      const data = await api<{ rows: StudioRow[]; total: number }>("admin-list", { table: section === "logs" ? "dbs_admin_logs" : table, limit: 10, offset: 0 });
-      setRows(data.rows || []); setTotal(data.total || 0);
-    } finally { setLoading(false); }
-  }, [table, section]);
+      const data = await api<{ rows: StudioRow[]; total: number }>("admin-list", { table: section === "logs" ? "dbs_admin_logs" : table, search, limit: 10, offset: 0 });
+      if (current === request.current) { setRows(data.rows || []); setTotal(data.total || 0); }
+    } finally { if (current === request.current) setLoading(false); }
+  }, [table, section, search]);
   const catalog = useCallback(async () => {
     const [s, seasonsResult, episodeResult] = await Promise.all([
       api<{ rows: StudioRow[] }>("admin-options", { table: "dbs_series" }),
@@ -99,9 +105,10 @@ export default function AdminPanel({ store, run }: {
     });
   }, [store.isAdmin, catalog, run]);
   useEffect(() => {
-    if (!store.isAdmin || section === "users" || section === "metrics") return;
-    run(load); setEditor(null); setQuery("");
+    if (!store.isAdmin || ["users", "metrics", "promos"].includes(section)) return;
+    void run(load);
   }, [store.isAdmin, section, load, run]);
+  useEffect(() => { setEditor(null); setQuery(""); setSearch(""); }, [section, table]);
   if (!store.isAdmin)
     return <Empty title="Yönetici erişimi gerekiyor"
       detail="Bu alan yalnızca yetkili DraBornSeries yöneticilerine açıktır."
@@ -112,10 +119,12 @@ export default function AdminPanel({ store, run }: {
     setEditor(null); await load(); await catalog(); await store.refreshCatalog();
   }, config.singular + " kaydedildi.");
   const loadMore = () => run(async () => {
+    const current = request.current;
     setMoreLoading(true);
     try {
       const result = await api<{ rows: StudioRow[]; total: number }>("admin-list", {
-        table: section === "logs" ? "dbs_admin_logs" : table, limit: 5, offset: rows.length });
+        table: section === "logs" ? "dbs_admin_logs" : table, search, limit: 5, offset: rows.length });
+      if (current !== request.current) return;
       setRows((current) => [...current, ...result.rows.filter((row) => !current.some((old) => (old.id || old.user_id) === (row.id || row.user_id)))]);
       setTotal(result.total);
     } finally { setMoreLoading(false); }
@@ -128,8 +137,7 @@ export default function AdminPanel({ store, run }: {
       setEditor(null); setConfirmDelete(false); await load(); await catalog(); await store.refreshCatalog();
     }, "Dizi ve bölümleri silindi.");
   };
-  const visible = rows.filter((row) =>
-    JSON.stringify(row).toLocaleLowerCase("tr-TR").includes(query.toLocaleLowerCase("tr-TR")));
+  const visible = rows;
   const choices = section === "reports" ? reportTables : contentTables;
   return <View style={{ gap: 21 }}>
     <LinearGradient colors={["#432440", "#281a3a", "#151321"]} style={[styles.card, { padding: 25, gap: 15 }]}>
@@ -150,6 +158,7 @@ export default function AdminPanel({ store, run }: {
     </ScrollView>
     {section === "users" ? <StudioUsers role={role} run={run} /> :
       section === "metrics" ? <StudioMetrics run={run} /> :
+      section === "promos" ? <StudioPromos role={role} run={run} /> :
       <View style={{ gap: 19 }}>
         {section !== "logs" && <View style={styles.wrap}>
           {choices.map((item) => <Chip key={item.table} label={item.label}
@@ -167,7 +176,7 @@ export default function AdminPanel({ store, run }: {
         </View>
         <View style={{ gap: 12, width: "100%", paddingBottom: 4 }}>
           <View style={{ width: "100%" }}>
-            <Field value={query} onChangeText={setQuery} placeholder="Listede ara…" />
+            <Field value={query} onChangeText={setQuery} placeholder={table === "dbs_series" ? "Tüm dizilerde ara…" : "Tüm kayıtlarda ara…"} />
           </View>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, minHeight: 44 }}>
           <Button secondary small icon="refresh" onPress={() => run(load)}>Yenile</Button>
@@ -176,7 +185,7 @@ export default function AdminPanel({ store, run }: {
           </View>
         </View>
         {!editor && (loading ? <Loading /> : <View style={{ gap: 10 }}>
-          <Text style={styles.body}>{visible.length} / {total} kayıt gösteriliyor · İlk 10 kayıt yüklenir</Text>
+          <Text style={styles.body}>{visible.length} / {total} {search ? "eşleşme gösteriliyor · Dizi adı eşleşmeleri önce gelir" : "kayıt gösteriliyor"}</Text>
           {visible.map((row, index) => <Pressable key={row.id || row.user_id || index}
             accessibilityRole="button" accessibilityLabel={title(row, config, episodes) + " kaydını aç"}
             onPress={() => section === "logs" ? undefined : open(row)}
@@ -194,6 +203,7 @@ export default function AdminPanel({ store, run }: {
         </View>)}
         {editor && section !== "logs" && <View style={{ gap: 12 }}>
           {table === "dbs_series" && role !== "support" ? <SeriesEditor key={table + "-" + editKey} initial={editor}
+            onPreviewVisible={onPreviewVisible}
             close={() => setEditor(null)} remove={editor.id && role === "owner" ? remove : undefined}
             onSaved={async () => { setEditor(null); await load(); await catalog(); await store.refreshCatalog(); }} /> : <StudioForm key={table + "-" + editKey} config={config} initial={editor}
             series={series} seasons={seasons} episodes={episodes} streamVideos={[]}

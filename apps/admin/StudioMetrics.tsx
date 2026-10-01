@@ -46,9 +46,9 @@ export default function StudioMetrics({ run }: { run: (fn: () => Promise<unknown
       <Button small secondary icon="refresh" onPress={() => run(load)}>Yenile</Button>
     </View>
     <View style={styles.wrap}>
-      <Metric title="Aktif kullanıcı · DAU" value={data.dau} hint="Son 24 saat" />
-      <Metric title="WAU" value={data.wau} hint="Son 7 gün" />
-      <Metric title="MAU" value={data.mau} hint="Son 30 gün" />
+      <Metric title="Günlük aktif kullanıcı" value={data.dau} hint="Son 24 saat" />
+      <Metric title="Haftalık aktif kullanıcı" value={data.wau} hint="Son 7 gün" />
+      <Metric title="Aylık aktif kullanıcı" value={data.mau} hint="Son 30 gün" />
       <Metric title="Toplam hesap" value={data.users} />
       <Metric title="Günlük izleme" value={data.daily} hint="Son ilerleme kaydı; toplam oynatma sayısı değil" />
       <Metric title="Haftalık izleme" value={data.weekly} hint="Son ilerleme kaydı" />
@@ -69,7 +69,7 @@ export default function StudioMetrics({ run }: { run: (fn: () => Promise<unknown
       detail="Retention ve en yüksek gerçek gelirli dizi için oturum/oynatma olay geçmişi ile Google Play'den doğrulanmış fiyat ve bölüm atfı gerekiyor. Henüz rakam üretilmiyor."
       icon="analytics-outline" />
     <Text style={[styles.body, { fontSize: 12 }]}>
-      İzleme sayıları tekil kullanıcı-bölüm ilerleme kayıtlarıdır; aynı bölümü tekrar oynatma ayrı olay olarak sayılmaz. DAU/WAU/MAU, son cihaz oturumu veya izleme güncellemesine göre hesaplanır.
+      İzleme sayıları tekil kullanıcı-bölüm ilerleme kayıtlarıdır; aynı bölümü tekrar oynatma ayrı olay olarak sayılmaz. Günlük, haftalık ve aylık aktif kullanıcı sayıları, son cihaz oturumu veya izleme güncellemesine göre hesaplanır.
     </Text>
   </View>;
 }

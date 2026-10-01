@@ -154,7 +154,7 @@ export default function SeriesDetail({
           </View>
         </View>
       </View>
-      <Modal visible={trailer} transparent animationType="slide" onRequestClose={() => setTrailer(false)}>
+      <Modal visible={trailer} transparent animationType="slide" supportedOrientations={series.video_orientation === "landscape" || trailerSource?.orientation === "landscape" ? ["portrait", "landscape-left", "landscape-right"] : ["portrait"]} onRequestClose={() => setTrailer(false)}>
         <View style={{ flex: 1, backgroundColor: "#000c", justifyContent: "center", padding: 14 }}>
           <View style={[styles.card, { width: "100%", maxWidth: 650, maxHeight: "92%", alignSelf: "center", padding: 14, gap: 12 }]}>
             <View style={[styles.row, { justifyContent: "space-between" }]}><Text style={[styles.h3, { flex: 1 }]}>{series.title} · Fragman</Text>
@@ -162,7 +162,7 @@ export default function SeriesDetail({
             <ScrollView contentContainerStyle={{ paddingBottom: 12 }}>
               {trailerSource ? <VideoPlayer key={series.id + "-trailer"} source={trailerSource}
                 title={series.title + " · Fragman"} portrait={trailerSource.orientation !== "landscape"}
-                initialTime={0} onProgress={() => {}} onEnd={() => {}} />
+                showRotateHint={trailer} initialTime={0} onProgress={() => {}} onEnd={() => {}} />
                 : <Text style={[styles.body, { padding: 24 }]}>{trailerError || "Fragman hazırlanıyor…"}</Text>}
               {!!trailerError && <Button secondary onPress={() => { setTrailer(false); }}>Kapat</Button>}
             </ScrollView>

@@ -113,6 +113,7 @@ function Main() {
     [dismissedError, setDismissedError] = useState(""),
     [previewRegion, setPreviewRegion] = useState("hero"),
     [busy, setBusy] = useState(false);
+  const scrollOffset = useRef(0);
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null),
     history = useRef<Route[]>([]),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
@@ -277,7 +278,11 @@ function Main() {
         <Empty title="Bölüm bulunamadı" />
       );
     if (route.page === "auth") return <Auth store={store} run={run} onLegal={(page) => go(page)} />;
-    if (route.page === "admin") return <AdminPanel store={store} run={run} />;
+    if (route.page === "admin") return <AdminPanel store={store} run={run} onPreviewVisible={(view) => {
+      view?.measureInWindow((_x, targetY) => scroll.current?.measureInWindow((_sx, containerY) => {
+        scroll.current?.scrollTo({ y: Math.max(0, scrollOffset.current + targetY - containerY - 16), animated: true });
+      }));
+    }} />;
     if (route.page === "browse" || route.page === "search")
       return (
         <View style={{ gap: 25 }}>
@@ -645,6 +650,7 @@ function Main() {
               style={{ flex: 1 }}
               scrollEventThrottle={150}
               onScroll={(event) => {
+                scrollOffset.current = event.nativeEvent.contentOffset.y;
                 if (route.page === "home") {
                   const y = event.nativeEvent.contentOffset.y;
                   setPreviewRegion(

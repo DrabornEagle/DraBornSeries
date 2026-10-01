@@ -1,6 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { assertPlayableStream, naturalConflict, streamUID, verifyStreamWebhook } from "./stream.ts";
 import { publicSubtitleTracks } from "./subtitles.ts";
+import { verifyCaptionRunner } from "./caption-auth.ts";
+import { validateAutoVtt } from "./captions.ts";
 import { resolveTrailer } from "./trailer.ts";
 import { workerDefault, mediaUrl, normalizeR2Key, probeR2, r2Playback, workerCapabilities } from "./r2.ts";
 const env = (key: string) => Deno.env.get(key) || "";
@@ -50,16 +52,25 @@ async function getStreamVideo(uid: string) {
 async function reconcileVideo(video: any) {
   return checked(admin.rpc("dbs_complete_stream_upload", { upload_uid: video.uid, details: video }));
 }
+async function subtitleTracks(episode: string) {
+  const tracks = await checked(admin.from("dbs_subtitles").select("language,label,asset_key").eq("episode_id", episode).order("language"));
+  return publicSubtitleTracks(await Promise.all(tracks.map(async (track: any) => {
+    if (!/^dbs-auto\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.vtt$/.test(track.asset_key)) return track;
+    const result = await admin.storage.from("dbs-auto-subtitles").createSignedUrl(track.asset_key.slice(9), 7200);
+    if (result.error || !result.data?.signedUrl) return { ...track, asset_key: "" };
+    return { ...track, asset_key: result.data.signedUrl };
+  })));
+}
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { status: 204, headers: headers(req) });
   if (req.method !== "POST")
     return send(req, { error: "METHOD_NOT_ALLOWED" }, 405);
   try {
-    if (Number(req.headers.get("content-length") || 0) > 100000)
+    if (Number(req.headers.get("content-length") || 0) > 450000)
       return send(req, { error: "BODY_TOO_LARGE" }, 413);
     const raw = await req.text();
-    if (raw.length > 100000) return send(req, { error: "BODY_TOO_LARGE" }, 413);
+    if (raw.length > 450000) return send(req, { error: "BODY_TOO_LARGE" }, 413);
     if (req.headers.has("Webhook-Signature")) {
       if (!(await verifyStreamWebhook(raw, req.headers.get("Webhook-Signature")!, env("DBS_STREAM_WEBHOOK_SECRET"))))
         return send(req, { error: "INVALID_WEBHOOK_SIGNATURE" }, 401);
@@ -70,6 +81,43 @@ Deno.serve(async (req) => {
     }
     const body = JSON.parse(raw);
     const authorization = req.headers.get("authorization") || "";
+    if (["caption-jobs", "caption-complete"].includes(body.action)) {
+      try { await verifyCaptionRunner(authorization); } catch { return send(req, { error: "INVALID_RUNNER" }, 401); }
+      if (body.action === "caption-jobs") {
+        const job = await checked(admin.rpc("dbs_claim_caption"));
+        if (!job) return send(req, { job: null });
+        try {
+          const asset = await checked(admin.from("dbs_video_assets").select("r2_key").eq("episode_id", job.episode_id).eq("provider", "r2").maybeSingle());
+          if (asset?.r2_key !== job.source_key) {
+            await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "no_speech", language: "" }));
+            return send(req, { job: null });
+          }
+          const probe = await probeR2(normalizeR2Key(job.source_key, r2Base()), "Bearer " + env("SUPABASE_SERVICE_ROLE_KEY"), r2Base(), true);
+          const episode = await checked(admin.from("dbs_episodes").select("duration_seconds").eq("id", job.episode_id).single());
+          return send(req, { job: { id: job.id, lease: job.lease_id, episode: job.episode_id, url: probe.url, duration: episode.duration_seconds } });
+        } catch {
+          await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "failed", language: "", cause: "Video bağlantısı hazırlanamadı." }));
+          return send(req, { job: null });
+        }
+      }
+      if (!["completed", "no_speech", "failed"].includes(body.outcome) || !/^[a-f0-9-]{36}$/.test(body.id || "") || !/^[a-f0-9-]{36}$/.test(body.lease || "")) return send(req, { error: "INVALID_CAPTION" }, 400);
+      const job = await checked(admin.from("dbs_auto_subtitle_jobs").select("*").eq("id", body.id).single());
+      if (job.status !== "processing" || job.lease_id !== body.lease || new Date(job.lease_until) < new Date()) return send(req, { error: "CAPTION_LEASE_EXPIRED" }, 409);
+      let objectKey: string | undefined;
+      if (body.outcome === "completed") {
+        const episode = await checked(admin.from("dbs_episodes").select("duration_seconds").eq("id", job.episode_id).single());
+        const duration = Number(body.duration || episode.duration_seconds);
+        if (!(duration > 0 && duration <= 7200)) return send(req, { error: "INVALID_CAPTION" }, 400);
+        const vtt = validateAutoVtt(body.vtt, duration);
+        objectKey = job.episode_id + "/" + job.id + ".vtt";
+        const result = await admin.storage.from("dbs-auto-subtitles").upload(objectKey, new TextEncoder().encode(vtt), { contentType: "text/vtt", upsert: true });
+        if (result.error) throw Error("CAPTION_UPLOAD_FAILED");
+      }
+      const result = await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: body.lease, outcome: body.outcome,
+        language: typeof body.language === "string" ? body.language.slice(0, 20) : "", actual_duration: Number(body.duration) > 0 && Number(body.duration) <= 7200 ? Math.ceil(Number(body.duration)) : null, cause: body.outcome === "failed" ? "Otomatik altyazı hazırlanamadı. Stüdyo’dan yeniden deneyebilirsin." : null }));
+      if (objectKey && result.status !== "completed") await admin.storage.from("dbs-auto-subtitles").remove([objectKey]);
+      return send(req, result);
+    }
     const client = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
       db: { schema: "drabornseries" },
       global: { headers: { Authorization: authorization } },
@@ -81,7 +129,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.0",
+        version: "0.7.1",
         versionCode: 1,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
@@ -106,8 +154,7 @@ Deno.serve(async (req) => {
       if (!resolved) return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
       // Reuse captions only when the trailer is exactly that episode's media.
       // A separate edit has a different clock and must never inherit those cues.
-      const subtitles = resolved.matchedEpisodeId ? publicSubtitleTracks(await checked(admin.from("dbs_subtitles")
-        .select("language,label,asset_key").eq("episode_id", resolved.matchedEpisodeId).order("language"))) : [];
+      const subtitles = resolved.matchedEpisodeId ? await subtitleTracks(resolved.matchedEpisodeId) : [];
       let trailerUrl = series.trailer_url;
       const isR2 = new URL(trailerUrl).origin === new URL(r2Base()).origin;
       if (isR2 && (await workerCapabilities(r2Base())).privateMedia) {
@@ -157,8 +204,7 @@ Deno.serve(async (req) => {
           .single(),
       );
       if (!asset.ready) return send(req, { error: "VIDEO_NOT_READY" }, 409);
-      const subtitles = publicSubtitleTracks(await checked(admin.from("dbs_subtitles")
-        .select("language,label,asset_key").eq("episode_id", body.episode).order("language")));
+      const subtitles = await subtitleTracks(body.episode);
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
         return send(req, {
           url: asset.demo_url,
@@ -244,7 +290,7 @@ Deno.serve(async (req) => {
       body.action === "admin-metrics" ||
       body.action === "admin-delete" ||
       body.action === "admin-stream-videos"
-      || body.action === "admin-me"
+      || body.action === "admin-me" || body.action === "admin-caption-retry"
     ) {
       if (!(await checked(client.rpc("dbs_is_admin"))))
         return send(req, { error: "ADMIN_REQUIRED" }, 403);
@@ -276,14 +322,25 @@ Deno.serve(async (req) => {
         const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
         return send(req, { role: membership.role });
       }
+      if (body.action === "admin-caption-retry") {
+        const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
+        if (!["owner", "editor"].includes(membership.role)) return send(req, { error: "EDITOR_REQUIRED" }, 403);
+        const job = await checked(admin.from("dbs_auto_subtitle_jobs").select("id,source_key").eq("episode_id", body.episode).in("status", ["failed", "no_speech"]).order("created_at", { ascending: false }).limit(1).maybeSingle());
+        if (!job) return send(req, { error: "CAPTION_NOT_RETRYABLE" }, 409);
+        const asset = await checked(admin.from("dbs_video_assets").select("r2_key").eq("episode_id", body.episode).eq("provider", "r2").single());
+        if (asset.r2_key !== job.source_key) return send(req, { error: "CAPTION_NOT_RETRYABLE" }, 409);
+        await checked(admin.from("dbs_auto_subtitle_jobs").update({ status: "queued", attempts: 0, error: null, updated_at: new Date().toISOString() }).eq("id", job.id).in("status", ["failed", "no_speech"]));
+        return send(req, { status: "queued" });
+      }
       if (["admin-r2-list", "admin-r2-probe", "admin-studio-save", "admin-series-editor"].includes(body.action)) {
         const membership = await checked(admin.from("dbs_admin_users").select("role").eq("user_id", user.id).single());
         if (!["owner", "editor"].includes(membership.role)) return send(req, { error: "EDITOR_REQUIRED" }, 403);
         if (body.action === "admin-series-editor") {
           const episodes = await checked(admin.from("dbs_episodes").select("*").eq("series_id", body.series).order("number"));
           const assets = episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,provider,r2_key,ready").in("episode_id", episodes.map((item: any) => item.id))) : [];
+          const captions = episodes.length ? await checked(admin.from("dbs_auto_subtitle_jobs").select("episode_id,source_key,status,error").in("episode_id", episodes.map((item: any) => item.id))) : [];
           const seasons = await checked(admin.from("dbs_seasons").select("id,number").eq("series_id", body.series));
-          return send(req, { episodes: episodes.map((item: any) => ({ ...item, season_number: seasons.find((season: any) => season.id === item.season_id)?.number || 1, ...assets.find((asset: any) => asset.episode_id === item.id) })) });
+          return send(req, { episodes: episodes.map((item: any) => ({ ...item, season_number: seasons.find((season: any) => season.id === item.season_id)?.number || 1, ...assets.find((asset: any) => asset.episode_id === item.id), caption: captions.find((job: any) => job.episode_id === item.id && job.source_key === assets.find((asset: any) => asset.episode_id === item.id)?.r2_key) })) });
         }
         const capabilities = await workerCapabilities(r2Base());
         if (body.action === "admin-r2-list") {
@@ -476,8 +533,17 @@ Deno.serve(async (req) => {
         const limit = options ? 1000 : Math.max(1, Math.min(50, Number.isInteger(body.limit) ? body.limit : 10));
         const offset = options ? 0 : Math.max(0, Math.min(100000, Number.isInteger(body.offset) ? body.offset : 0));
         const primaryKey = ["dbs_profiles", "dbs_borncoins_wallet"].includes(body.table) ? "user_id" : "id";
-        const query = admin.from(body.table).select("*", { count: "exact" })
+        const search = String(body.search || "").trim().slice(0, 100);
+        if (!options && body.table === "dbs_series") return send(req, await checked(admin.rpc("dbs_studio_search_series", { search, page_limit: limit, page_offset: offset })));
+        let query = admin.from(body.table).select("*", { count: "exact" })
           .order(primaryKey, { ascending: true }).range(offset, offset + limit - 1);
+        if (!options && search) {
+          const columns: Record<string, string[]> = { dbs_episodes: ["title", "description"], dbs_seasons: ["title"], dbs_video_assets: ["r2_key", "stream_uid"],
+            dbs_subtitles: ["label", "language"], dbs_audio_tracks: ["label", "language"], dbs_promo_codes: ["code"], dbs_reports: ["kind", "body"], dbs_content_reports: ["reason"], dbs_comments: ["body"],
+            dbs_admin_logs: ["action", "target"], dbs_categories: ["name"], dbs_genres: ["name"], dbs_home_sections: ["name"], dbs_featured_content: ["name"], dbs_content_schedule: ["name"] };
+          const safe = search.replace(/[^\p{L}\p{N} _-]/gu, "");
+          if (safe && columns[body.table]?.length) query = query.or(columns[body.table].map((name) => name + ".ilike.%" + safe + "%").join(","));
+        }
         const result = await query;
         if (result.error) throw result.error;
         let rows = result.data || [];
@@ -495,6 +561,10 @@ Deno.serve(async (req) => {
         .single();
       if (!membership || !["owner", "editor"].includes(membership.role))
         return send(req, { error: "EDITOR_REQUIRED" }, 403);
+      if (body.table === "dbs_promo_codes") {
+        if (!body.row || !Number.isInteger(Number(body.row.coins)) || !Number.isInteger(Number(body.row.vip_days || 0)) || !Number.isInteger(Number(body.row.max_uses)) || !Number.isFinite(Date.parse(body.row.expires_at))) return send(req, { error: "INVALID_PROMO_SETTINGS" }, 400);
+        return send(req, { row: await checked(admin.rpc("dbs_studio_save_promo", { actor: user.id, payload: body.row })) });
+      }
       const fields: Record<string, string[]> = {
         dbs_series: [
           "id",

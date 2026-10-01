@@ -7,9 +7,9 @@ import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import Hls, { Events } from "hls.js";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
-import { subtitleBottom } from "../shared/player-layout";
+import { subtitleBottom, videoFit } from "../shared/player-layout";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
-export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, showRotateHint = false, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
   const captions = useSubtitleSelection(source.subtitles, source.url);
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -65,11 +65,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     maxHeight: expanded ? undefined : 760, aspectRatio: 9 / 16, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
     <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
       #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
-      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; object-position: center; }
+      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: ${videoFit(true, portrait, width > height)} !important; object-position: center; }
       #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
       ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
     <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload"
-      style={{ width: "100%", height: "100%", objectFit: expanded ? "contain" : "cover", objectPosition: "center", background: "#05020a" }}
+      style={{ width: "100%", height: "100%", objectFit: videoFit(expanded, portrait, width > height), objectPosition: "center", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);
         if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
@@ -101,7 +101,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onPiP={typeof document !== "undefined" && document.pictureInPictureEnabled ? () => { video.current?.requestPictureInPicture?.().catch(() => {}); } : undefined}
       subtitles={captions.choices.length ? captions.choices : undefined}
       onSubtitle={captions.select} />
-    <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
+    <RotateHint fullscreen={expanded} presentationOpen={showRotateHint} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return viewportFullscreen ? createPortal(playerView, document.body) : playerView;
 }

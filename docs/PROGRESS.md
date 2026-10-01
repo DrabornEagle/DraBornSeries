@@ -1,3 +1,12 @@
+# v0.7.1 çalışma kontrol noktası · 1 Ekim 2026
+
+- Kullanıcının son talebi: versionCode 1; tüm katalogda ada öncelik veren Stüdyo araması, yeni örnek ad, tek seferlik önizlemeye kaydırma, yatay fragman animasyonu, ekrana göre tam ekran doldurma, Türkçe istatistik başlıkları, VIP gün/BornCoins promosyon kodları, otomatik Türkçe R2 altyazısı ve support@draborneagle.com iletişimi.
+- Uygulandı: `20261001005519_dbs_v071_promotions_search_captions`; `dbs-api` Edge sürüm 20 aktif. Anonim altyazı işi isteği 401; mevcut R2 Test oynatması imzalı ve çalışıyor. Test araması sunucuda ilk sırada Test sonucunu veriyor.
+- Otomatik altyazı: `.github/workflows/subtitles.yml`; yalnız bu deponun main dalındaki bu iş akışının imzalı GitHub OIDC kimliği kabul edilir. Konuşma Whisper small CPU ile çözümlenir, yabancı dil gerekirse İngilizce üzerinden Türkçeye çevrilir. Gerçek konuşma yoksa altyazı eklenmez. VTT özel depolanır; izleme yetkisi kontrolünden sonra süreli bağlantı verilir. Manuel Türkçe altyazılar korunur. İlk işlem ve kuyruk durumu yayında doğrulanacak.
+- Google marka değişikliği: `https://console.cloud.google.com/auth/branding` bu tarayıcıda Site Unavailable. Kod veya Supabase proje adı Google'ın hesap seçme ekranındaki adı değiştirmez. Google Auth Platform marka doğrulaması/publish adımı dış konsolda tamamlanmalı. OAuth client/callback değiştirilmedi.
+- Yayın öncesi kontrol: 32 test ve TypeScript geçti; lint düzeltildi; web export tamamlandı. Android export ve promosyon/altyazı DB güvenlik fikstürleri geçti. `20261001012219_dbs_v071_caption_completion_guard` da uygulandı; manuel altyazı eşzamanlı tamamlanan otomatik işten korunur. Katalog başlangıcı 27 dizi / 37 bölüm, yayında 19 / 29; tek R2 bölüm Test. Lisanslı mevcut videolar değiştirilmez.
+- Yönetici hesabı draborneagle@gmail.com korunur; herkese açık destek/gizlilik iletişimi support@draborneagle.com.
+
 # DraBornSeries · v0.7 current checkpoint
 
 Version 0.7.0 / Android versionCode 1. New media uses R2 object keys and the owner's existing `drabornseries.draborneagle.workers.dev` gateway. The tabbed series editor integrates series details, artwork, folder selection/manual video paths, previews, episode settings and one atomic save. Publishing steps were removed. Series orientation applies to all current/future episodes; no catalog backfill runs. Signed-out settings and Studio were redesigned; portrait fullscreen captions move 46 px upward.

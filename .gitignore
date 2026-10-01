@@ -9,3 +9,6 @@ dist-android/
 supabase/.temp/
 supabase/.branches/
 artifacts/
+
+__pycache__/
+.caption-models/
