@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { SignJWT, importPKCS8 } from "npm:jose@6.1.0";
+import { syncSubscription } from "./sync.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const service = createClient(
   env("SUPABASE_URL"),
@@ -47,6 +48,7 @@ Deno.serve(async (request) => {
     if (
       typeof productId !== "string" ||
       typeof purchaseToken !== "string" ||
+      purchaseToken.length < 1 ||
       purchaseToken.length > 4096
     )
       return reply({ error: "INVALID_PURCHASE" }, 400);
@@ -57,6 +59,10 @@ Deno.serve(async (request) => {
       .eq("active", true)
       .single();
     if (!product) return reply({ error: "PRODUCT_INACTIVE" }, 409);
+    if (product.kind === "vip") {
+      const result = await syncSubscription(service,user.id,productId,purchaseToken,env("DBS_GOOGLE_SERVICE_ACCOUNT"));
+      return reply(result, result.entitled ? result.acknowledged ? 200 : 202 : 409);
+    }
     const credentials = JSON.parse(env("DBS_GOOGLE_SERVICE_ACCOUNT"));
     const privateKey = await importPKCS8(credentials.private_key, "RS256");
     const assertion = await new SignJWT({
@@ -165,11 +171,8 @@ Deno.serve(async (request) => {
         return reply({ credited: true, acknowledged: false, retry: true }, 202);
     }
     return reply({ verified: true, ...data });
-  } catch (error) {
-    console.error(
-      "dbs-play-verify",
-      error instanceof Error ? error.message : "unknown",
-    );
+  } catch {
+    console.error("dbs-play-verify: verification failed");
     return reply({ error: "VERIFICATION_FAILED" }, 400);
   }
 });

@@ -18,6 +18,7 @@ import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
 import { pickProfilePhoto, uploadProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
 import { config } from "../../packages/shared/config";
 import { translations } from "../../packages/shared/i18n";
+import { adAvailable, adPrivacyOptions } from "../../packages/api/ads";
 import { legalContact } from "../../packages/shared/legal";
 type Props = {
   page: Page;
@@ -685,6 +686,9 @@ export default function Account({ page, store, go, run }: Props) {
         </View>
         <View style={styles.card}>
           <Text style={styles.h3}>Gizlilik ve kurallar</Text>
+          {adAvailable && <Button secondary icon="options-outline" onPress={() => void run(async () => {
+            if (!(await adPrivacyOptions())) throw Error("Örnek reklamlarda kişiselleştirme kapalıdır. Gerçek reklamlar etkinleştirildiğinde gizlilik tercihlerini burada yönetebilirsin.");
+          })}>Reklam gizlilik tercihleri</Button>}
           <Button secondary icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
           <Button secondary icon="document-text-outline" onPress={() => go("terms")}>Kullanım ve topluluk kuralları</Button>
         </View>

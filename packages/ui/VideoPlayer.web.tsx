@@ -7,12 +7,13 @@ import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import Hls, { Events } from "hls.js";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
-import { subtitleBottom, videoFit } from "../shared/player-layout";
+import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layout";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
-export default function VideoPlayer({ source, initialTime, portrait, title, showRotateHint = false, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
   const captions = useSubtitleSelection(source.subtitles, source.url);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 }), [fit, setFit] = useState<"auto" | "contain" | "cover">("auto");
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
     [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
@@ -25,7 +26,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
     const el = video.current; if (!el) return;
     if (loadedBase.current !== source.url) { loadedBase.current = source.url; currentUrl.current = source.url; resumeAt.current = initialTime; selectedQuality.current = "auto"; }
     const mediaUrl = currentUrl.current;
-    const ready = () => { el.currentTime = resumeAt.current; setDuration(el.duration);
+    const ready = () => { el.currentTime = resumeAt.current; setDuration(el.duration); setDimensions({ width: el.videoWidth, height: el.videoHeight });
       if (resumePlaying.current) el.play().catch(() => { setBuffering(false); }); else setBuffering(false); };
     el.addEventListener("loadedmetadata", ready, { once: true });
     if (mediaUrl.includes(".m3u8") && Hls.isSupported()) {
@@ -60,17 +61,19 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
   };
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
-    : levels.map((level, index) => ({ key: "h:" + index, label: Math.min(level.width, level.height) + "p" })) )];
+    : levels.length ? levels.map((level, index) => ({ key: "h:" + index, label: Math.min(level.width, level.height) + "p" }))
+      : [{ key: "original", label: originalQuality(dimensions.width, dimensions.height) }] )];
+  const mediaPortrait = dimensions.width > 0 ? dimensions.height > dimensions.width : portrait;
   const playerView = <View ref={container} nativeID={viewportFullscreen ? "dbs-premium-player-immersive" : "dbs-premium-player"} style={{ width: "100%", alignSelf: "center", maxWidth: 420,
     maxHeight: expanded ? undefined : 760, aspectRatio: 9 / 16, overflow: "hidden", borderRadius: 22, backgroundColor: "#05020a" }}>
     <style>{`#dbs-premium-player:fullscreen, #dbs-premium-player-immersive { width: 100vw !important; height: 100dvh !important; max-height: none !important; max-width: none !important; border-radius: 0 !important; }
       #dbs-premium-player-immersive { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
-      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: ${videoFit(true, portrait, width > height)} !important; object-position: center; }
+      #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: ${videoFit(true, portrait, width > height, mediaPortrait, fit)} !important; object-position: center; }
       #dbs-premium-player video::-webkit-media-controls, #dbs-premium-player-immersive video::-webkit-media-controls { display: none !important; }
-      ${portrait ? "@media (min-aspect-ratio: 1/1) { #dbs-premium-player:fullscreen video, #dbs-premium-player-immersive video { object-fit: contain !important; background: radial-gradient(ellipse at top, #301939, #0e0918) !important; } }" : ""}`}</style>
+      `}</style>
     <video ref={video} playsInline muted={muted} controls={false} controlsList="nodownload"
-      style={{ width: "100%", height: "100%", objectFit: videoFit(expanded, portrait, width > height), objectPosition: "center", background: "#05020a" }}
-      onLoadedMetadata={() => { if (video.current) setDuration(video.current.duration); }}
+      style={{ width: "100%", height: "100%", objectFit: videoFit(expanded, portrait, width > height, mediaPortrait, fit), objectPosition: "center", background: "#05020a" }}
+      onLoadedMetadata={() => { if (video.current) { setDuration(video.current.duration); setDimensions({ width: video.current.videoWidth, height: video.current.videoHeight }); } }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);
         if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
       onPause={() => { setPlaying(false); if (video.current) onProgress(video.current.currentTime); }} onPlay={() => setPlaying(true)}
@@ -80,7 +83,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
     <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, 0, portrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
       onControlsVisibilityChange={setControlsVisible}
-      quality={quality} choices={choices} fullscreen={expanded} error={error}
+      quality={quality} choices={choices} fullscreen={expanded} error={error} fit={fit} onFit={setFit}
       onPlay={() => { if (playing) video.current?.pause(); else video.current?.play().catch(() => {}); }}
       onSeek={(value) => { if (video.current) { video.current.currentTime = value; setTime(value); } }}
       onMute={() => { if (video.current) { video.current.muted = !muted; setMuted(!muted); } }}
@@ -101,7 +104,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
       onPiP={typeof document !== "undefined" && document.pictureInPictureEnabled ? () => { video.current?.requestPictureInPicture?.().catch(() => {}); } : undefined}
       subtitles={captions.choices.length ? captions.choices : undefined}
       onSubtitle={captions.select} />
-    <RotateHint fullscreen={expanded} presentationOpen={showRotateHint} landscapeVideo={!portrait} landscapeScreen={width > height} />
+    <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return viewportFullscreen ? createPortal(playerView, document.body) : playerView;
 }

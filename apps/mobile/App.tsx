@@ -43,6 +43,8 @@ import Splash from "../../packages/ui/Splash";
 import AdminPanel from "../admin/AdminPanel";
 import ErrorPopup from "../../packages/ui/ErrorPopup";
 import { config } from "../../packages/shared/config";
+import RefreshScrollView from "../../packages/ui/RefreshScrollView";
+import { useBilling } from "../../packages/api/billing";
 const navItems: [Page, React.ComponentProps<typeof Icon>["name"]][] = [
   ["home", "home-outline"],
   ["feed", "play-circle-outline"],
@@ -114,6 +116,7 @@ function Main() {
     [previewRegion, setPreviewRegion] = useState("hero"),
     [busy, setBusy] = useState(false);
   const scrollOffset = useRef(0);
+  const billing = useBilling(store.session?.user.id, store.refreshAccount);
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null),
     history = useRef<Route[]>([]),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
@@ -440,6 +443,7 @@ function Main() {
     if (["store", "vip", "wallet", "rewards", "profile"].includes(route.page))
       return (
         <Commerce
+          billing={billing}
           page={route.page}
           store={store}
           go={go}
@@ -645,8 +649,10 @@ function Main() {
               run={run}
             />
           ) : (
-            <ScrollView
+            <RefreshScrollView
               ref={scroll}
+              refreshEnabled={!busy && route.page !== "player"}
+              onRefresh={async () => { await store.refreshCatalog(); await store.refreshAccount(); }}
               style={{ flex: 1 }}
               scrollEventThrottle={150}
               onScroll={(event) => {
@@ -730,7 +736,7 @@ function Main() {
                   </View>
                 </View>
               </Animated.View>
-            </ScrollView>
+            </RefreshScrollView>
           )}
           {!desktop && (
             <SafeAreaView

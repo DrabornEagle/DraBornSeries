@@ -36,6 +36,6 @@ Bağladığın Google OAuth istemcisinin bulunduğu Cloud projesinde **Google Au
 
 Google’ın güncel akışında marka değişiklikleri önce Draft Branding olur. **Verify Branding** ile doğrula; **Ready to publish** sonrası **Publish branding** ile canlıya al. Alan adı sahipliği veya manuel inceleme istenirse o projenin sahibi tamamlar. Yeni Google girişinde ve Google bildiriminde görünen adı kontrol et; eski gönderilmiş e-postalar değişmez. Bu görevde Google Console bu tarayıcıya açılamadığı için dış marka ayarı tamamlandı olarak raporlanmaz.
 
-Uygulama tarafında ise Google kayıtlarında kullanıcı adı tam e-posta, profil resmi Google avatarı olarak hazırlanır. Önceden otomatik `viewer_...` adıyla oluşturulmuş Google hesabı sonraki girişte düzelir. Sonradan elle değiştirilen ad veya profil fotoğrafı yeniden ezilmez.
+Uygulama tarafında ise Google kayıtlarında kullanıcı adı e-postanın @ işaretinden önceki kısmı, profil resmi Google avatarı olarak hazırlanır. Önceden otomatik `viewer_...` adıyla oluşturulmuş Google hesabı sonraki girişte düzelir. Sonradan elle değiştirilen ad veya profil fotoğrafı yeniden ezilmez.
 
 Google’ın resmi marka doğrulama/yayın akışı: https://developers.google.com/identity/protocols/oauth2/production-readiness/brand-verification

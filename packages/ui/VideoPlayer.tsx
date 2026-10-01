@@ -10,10 +10,10 @@ import RotateHint from "./RotateHint";
 import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import { isTurkish } from "../shared/subtitles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { subtitleBottom, videoFit } from "../shared/player-layout";
+import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layout";
 // Serialize orientation changes so closing quickly cannot leave ALL applied.
 let orientationQueue = Promise.resolve();
-export default function VideoPlayer({ source, initialTime, portrait, title, showRotateHint = false, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const [status, setStatus] = useState("loading"), [error, setError] = useState(""),
     [tracks, setTracks] = useState<VideoTrack[]>([]), [quality, setQuality] = useState("Otomatik"),
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
@@ -21,11 +21,12 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
   const videoView = useRef<VideoView>(null);
   const insets = useSafeAreaInsets();
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [fit, setFit] = useState<"auto" | "contain" | "cover">("auto");
   const foreground = useRef(AppState.currentState === "active");
   const captions = useSubtitleSelection(source.subtitles, source.url), manualSubtitles = useRef(false);
   const { width, height } = useWindowDimensions();
   useEffect(() => {
-    if (!fullscreen && !(showRotateHint && !portrait)) return;
+    if (!fullscreen) return;
     let previous = ScreenOrientation.OrientationLock.PORTRAIT_UP;
     orientationQueue = orientationQueue.then(async () => {
       previous = await ScreenOrientation.getOrientationLockAsync();
@@ -36,7 +37,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
         previous === ScreenOrientation.OrientationLock.UNKNOWN ? ScreenOrientation.OrientationLock.PORTRAIT_UP : previous,
       )).catch(() => {});
     };
-  }, [fullscreen, portrait, showRotateHint]);
+  }, [fullscreen, portrait]);
   const current = useRef(initialTime), lastSaved = useRef(0), resumed = useRef(false), resumeTime = useRef(initialTime),
     shouldPlay = useRef(true), progressCallback = useRef(onProgress), endCallback = useRef(onEnd);
   progressCallback.current = onProgress; endCallback.current = onEnd;
@@ -77,7 +78,9 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
   };
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
-    : tracks.map((track, index) => ({ key: "t:" + index, label: Math.min(track.size.width, track.size.height) + "p" })) )];
+    : tracks.length ? tracks.map((track, index) => ({ key: "t:" + index, label: originalQuality(track.size.width, track.size.height) }))
+      : [{ key: "original", label: "Orijinal" }] )];
+  const mediaPortrait = tracks[0]?.size.width ? tracks[0].size.height > tracks[0].size.width : portrait;
   const selectQuality = (key: string) => {
     setQuality(choices.find((choice) => choice.key === key)?.label || "Otomatik");
     if (key.startsWith("r:")) { void replace(source.qualities![Number(key.slice(2))].url); }
@@ -87,11 +90,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
   const render = (expanded: boolean) => <View style={{ flex: expanded ? 1 : undefined, backgroundColor: "#05020a", overflow: "hidden",
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
-      contentFit={videoFit(expanded, portrait, width > height)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
+      contentFit={videoFit(expanded, portrait, width > height, mediaPortrait, fit)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
     <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, portrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
-      fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality}
+      fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality} fit={fit} onFit={setFit}
       onSeek={(value) => { player.currentTime = value; current.current = value; setTime(value); }}
       onPlay={() => { shouldPlay.current = !player.playing; if (player.playing) { player.pause(); onProgress(current.current); } else player.play(); }}
       onMute={() => { player.muted = !muted; setMuted(!muted); }} onFullscreen={() => setFullscreen(!fullscreen)}
@@ -108,7 +111,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, show
         captions.select(key.startsWith("embedded:") ? "off" : key);
         player.subtitleTrack = key.startsWith("embedded:") ? player.availableSubtitleTracks[Number(key.slice(9))] : null;
       }} />
-    <RotateHint fullscreen={expanded} presentationOpen={showRotateHint} landscapeVideo={!portrait} landscapeScreen={width > height} />
+    <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
   return <View>
     {fullscreen ? <View style={{ aspectRatio: 9 / 16, maxHeight: 720, justifyContent: "center", alignItems: "center" }}><Text style={{ color: colors.muted }}>Tam ekran oynatılıyor</Text></View> : render(false)}

@@ -1,6 +1,6 @@
-# DraBornSeries v0.7.1 · Google Play hazırlığı
+# DraBornSeries v0.7.2 · Google Play hazırlığı
 
-Uygulama kimliği: `com.draborneagle.drabornseries`. Sürüm: `0.7.1`, Android versionCode: `1`. Geliştirici ve gizlilik iletişimi: **DraBornEagle**, **support@draborneagle.com**. Bu belgede v0.7.1’nın mevcut veri kullanımı açıklanır; Play Console’a gönderim yapılmış veya Google onayı alınmış değildir.
+Uygulama kimliği: `com.draborneagle.drabornseries`. Sürüm: `0.7.2`, Android versionCode: `1`. Geliştirici ve gizlilik iletişimi: **DraBornEagle**, **support@draborneagle.com**. Bu belgede v0.7.2’nın mevcut veri kullanımı açıklanır; Play Console’a gönderim yapılmış veya Google onayı alınmış değildir.
 
 ## Console’a girilecek bağlantılar
 
@@ -28,21 +28,23 @@ Google formundaki son cevaplar uygulamanın gönderilecek AAB’si ve sağlayıc
 | App activity · In-app search history | Kullanıcının kaydettiği aramalar | Aramayı kolaylaştırma; geçmiş ayrı temizlenebilir |
 | App activity · Other user-generated content | Yorumlar ve destek/şikayet metinleri | İsteğe bağlı; moderasyon ve destek; onaylanan yorumlar görüntülenebilir |
 | Device or other IDs | Uygulamanın ürettiği rastgele cihaz kimliği, oturum kimliği | Güvenlik, cihaz/oturum yönetimi; donanım/reklam kimliği değil |
+| Financial info · Purchase history | Play VIP sipariş/token hash/abonelik durumu | Satın alma doğrulama, erişim ve iade; Google Play ödeme ekranı kart bilgisini yönetir |
+| AdMob SDK · Device or other IDs / App interactions / Diagnostics | SDK cihaz/uygulama ve reklam etkileşim verileri, IP bağlantı bilgisi | Test reklamlarında da sağlayıcı veri kullanımı; gerçek reklamlarda consent; AD_ID kapalı |
 | Sunucu teknik kayıtları | IP, istemci bilgisi, erişim ve teknik hata kayıtları | Sağlayıcıların işletim/güvenlik kayıtları; formda diagnostics ve sağlayıcıların saklaması ayrıca doğrulanmalı |
 
 Supabase hesap/veritabanı/depolama hizmet sağlayıcısıdır. Test medyası CloudFront üzerinden sunulur; Yeni yüklemeler Cloudflare R2 Worker üzerinden sunulur. Otomatik Türkçe altyazı için yayıncı videoları GitHub Actions üzerinde Whisper ve çeviri modeliyle işlenir. İzleyici mikrofonu kaydedilmez. Mevcut Stream bağlantıları desteklenir. Hizmet sağlayıcıya aktarım ile Google’ın “sharing” tanımı aynı değildir; sağlayıcının işlemesi geliştirici adına olduğunda formdaki istisna uygulanabilir. Kullanıcının yayımladığı yorum/profil görselinin ve dış bağlantı/paylaşımın beyanı ayrıca değerlendirilmelidir. “Veri toplanmıyor” yanıtı bu uygulama için doğru değildir.
 
-v0.7.1’da Play Billing, AdMob ve push etkin değildir; ödeme bilgisi veya reklam kimliği toplanması varmış gibi beyan edilmez. Bu hizmetler açıldığında SDK envanteri, politika, consent akışları ve Data safety birlikte güncellenir.
+v0.7.2 özel Android derlemesinde AdMob test SDK’sı ve Google Play VIP Billing istemcisi vardır. AdMob bağlantı/cihaz bilgisi ve reklam etkileşimlerini işleyebilir; AD_ID izni kapalıdır ve kişiselleştirilmiş reklam istenmez. Gerçek reklamlarda Google UMP consent uygulanır. Play ürünleri/hizmet hesabı harici olarak bağlandığında satın alma token hash’i, sipariş ve abonelik durumu sunucuda doğrulanır; kart bilgisi uygulamaya verilmez. Push henüz etkin değildir. [V072_KURULUM.md](V072_KURULUM.md) ürün ve callback ayarlarını içerir.
 
 ## Android ve içerik hazırlığı
 
-- Yerel yapılandırma doğrulaması `android.compileSdkVersion=36`, `android.targetSdkVersion=36` ve versionCode 1 üretir. Native manifest modunda yalnızca INTERNET izni kalır; kamera, mikrofon, geniş fotoğraf/video erişimi, harici depolama, reklam kimliği, overlay ve titreşim izinleri kaldırılır. Profil görseli Android sistem seçicisinden seçilir. Expo Go’nun kendi manifesti uygulama izinlerinin kanıtı değildir.
+- Yerel yapılandırma doğrulaması `android.compileSdkVersion=37`, `android.targetSdkVersion=36` ve versionCode 1 üretir. Birleşik native manifestte INTERNET, ağ durumu ve Google Play BILLING gibi SDK işlev izinleri bulunur; kamera, mikrofon, geniş fotoğraf/video erişimi, harici depolama, reklam kimliği, overlay ve titreşim izinleri kaldırılır. Profil görseli Android sistem seçicisinden seçilir. Expo Go’nun kendi manifesti uygulama izinlerinin kanıtı değildir.
 - `eas.json` üretim profili Android App Bundle için hazırlanmıştır; versionCode otomatik artırılmaz. Bu görevde APK/AAB oluşturulmadı. İmzalı AAB’de birleşik manifest, target SDK, 16 KB sayfa boyutu desteği ve bağlı native SDK’lar son kez denetlenmelidir.
-- Yorum öncesi topluluk kuralları kabulü, bekleyen moderasyon, içerik şikayeti, kullanıcı engelleme ve Ayarlar’dan engeli kaldırma vardır. Engelleme hesabın tercihleriyle Android/web arasında eşitlenir. Kayıtta kullanım koşulları açıkça kabul edilir.
+- Yorum öncesi topluluk kuralları kabulü, varsayılan onaylı yorum ve sonradan moderasyon, içerik şikayeti, kullanıcı engelleme ve Ayarlar’dan engeli kaldırma vardır. Engelleme hesabın tercihleriyle Android/web arasında eşitlenir. Kayıtta kullanım koşulları açıkça kabul edilir.
 - Film kaynakları, gerçek lisans sürümleri ve uyarlamalar detay ekranında korunur. `docs/blender-film-catalog.json`, `docs/vertical-film-catalog.json` ve `assets/subtitles/README.md` kaynak envanteridir. Mağaza metni bu açık filmleri DraBornSeries’in özgün yapımı olarak tanıtmamalıdır.
 - Guest katalog/ücretsiz filmler inceleme için erişilebilir. Hesapla çalışan özellikler için Play Console **App access** alanına gerçek, çalışır inceleme hesabı sağlanmalıdır; bu depoda şifre saklanmaz.
 
-Yayın için Play Console uygulama kaydı, imzalama/EAS proje bağlantısı, imzalı AAB, gerçek Android cihaz testi, IARC içerik derecelendirmesi, hedef yaş grubu, Data safety cevapları, mağaza görselleri ve gerekiyorsa kapalı test tamamlanmalıdır. Destek posta kutusunun takibi ve sağlayıcı yedek/teknik kayıt saklama sürelerinin doğrulanması geliştiricide kalır. Dijital satış açılacaksa Play Billing doğrulama/iade akışı önce bağlanmalıdır. Bu hazırlık belgeleri Google inceleme sonucunun yerine geçmez.
+Yayın için Play Console uygulama kaydı, imzalama/EAS proje bağlantısı, imzalı AAB, gerçek Android cihaz testi, IARC içerik derecelendirmesi, hedef yaş grubu, Data safety cevapları, mağaza görselleri ve gerekiyorsa kapalı test tamamlanmalıdır. Destek posta kutusunun takibi ve sağlayıcı yedek/teknik kayıt saklama sürelerinin doğrulanması geliştiricide kalır. VIP satışı için Play Console ürünleri, hizmet hesabı ve RTDN bağlantısı tamamlanmalıdır. Bu hazırlık belgeleri Google inceleme sonucunun yerine geçmez.
 
 ## Resmî kaynaklar · 30 Eylül 2026 kontrolü
 

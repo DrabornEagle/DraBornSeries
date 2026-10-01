@@ -1,3 +1,15 @@
+# v0.7.2 teslim kontrol noktası · 1 Ekim 2026
+
+Sürüm 0.7.2, Android Kod 1. Google kullanıcı adları e-postanın @ öncesi; manuel ad/fotoğraf korunur. Gerçek izlenme/beğeni sayaçları, varsayılan onaylı yorumlar, takvimli yayın tarihi, web aşağı çekerek yenileme, orijinal çözünürlük seçimi, tam ekranla sınırlı fragman döndürme ipucu ve manuel video yerleşimi hazır.
+
+Tears of Steel: mevcut beş bölüm ID’si ve dikey demo URL/kaliteleri korunur. Yeni landscape_renditions aynı kesim/zamanlarda 1728×720 H.264/AAC tam kadraj kopyaları içerir; dizi yatay ayarında kullanılır. Manifest ve lisans: landscape-film-variants.json. Canlı sayımlar 28 dizi / 38 bölüm / 38 video / 9 altyazı; yayında 20 dizi / 30 bölüm. Test2 sahibin yeni içeriğidir; değiştirilmez.
+
+Doğrulama: TypeScript/lint, 37 JS testi ve Python kuyruk testi, web/Android JavaScript export, dört Edge Deno tip kontrolü geçti. Canlı rollback SQL varsayılan onaylı yorum, tekrar yorumu engelleme, kullanıcıların VIP/ödül yazamaması, abonelik tekrar/stale/replaced-token/hold/refund davranışları, ödül replay ve günlük sınırı doğruladı; test verisi kalmadı. Native prebuild Billing/AdMob plugin’leriyle doğrulandı; birleşik APK ve uzaktaki tüm migration testleri yayın CI’sinde kontrol edilir.
+
+Dağıtılan sunucular: dbs-api 29, dbs-play-verify 5, dbs-play-rtdn 1, dbs-ad-verify 1. VIP ürün kataloğundaki üç ürün aktif; coin paketleri inactive. Google Play hizmet hesabı/ürün/RTDN ve gerçek AdMob ID/UMP/SSV ayarları harici kurulumdur. Native test reklamları gerçek ödül kazandırmaz. Üretim kurulum değerleri: [V072_KURULUM.md](V072_KURULUM.md).
+
+Altyazı: ilk başarısız indirme diğer videoları durdurmaz; Stüdyo kuyruk durumunu periyodik yeniler. R2 Test/Test2 indirmeleri Cloudflare 403/1010 erişim engeli nedeniyle gerçek konuşma işlemine ulaşamaz. Cloudflare hesabı dağıtım token’ı yok ve panel doğrulama engeli sürüyor; çözülmüş olarak raporlanmaz. Mevcut Worker modülü ve yetkili runner erişimi hesapta düzeltildikten sonra tekrar deneme gerekir. Google OAuth dış Branding doğrulaması önceki sürümden harici adım olarak devam eder.
+
 # v0.7.1 teslim kontrol noktası · 1 Ekim 2026
 
 Sürüm `0.7.1`, Android versionCode `1`. Uygulama commit'i `d7eeb114cdc34f634b200ee31f4c4416fdf6c282`. Tüm katalogda Stüdyo araması ve tam ad önceliği, Kayıp Rota örneği, önizleme düğmesinde tek kaydırma, yatay fragman döndürme animasyonu, ekranla aynı yönde oranı koruyarak tam ekran doldurma, Türkçe aktif kullanıcı başlıkları ve elle BornCoins/VIP günü/ikisi birlikte promosyon yönetimi tamamlandı. Destek/gizlilik/yardım iletişimi support@draborneagle.com; yönetici kimliği korunur.

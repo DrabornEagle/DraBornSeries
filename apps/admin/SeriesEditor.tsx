@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { AppState, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { api } from "../../packages/api/client";
 import { videoDuration } from "../../packages/api/media-probe";
@@ -7,6 +7,7 @@ import { r2EpisodeTitle, r2Folder, r2Key, seriesSlug } from "../../packages/shar
 import { readableError } from "../../packages/shared/domain";
 import { Button, Chip, Field, Icon, Loading, colors, styles } from "../../packages/ui/theme";
 import InlineVideo from "../../packages/ui/InlineVideo";
+import PublishCalendar from "../../packages/ui/PublishCalendar";
 import StudioMediaPicker from "./StudioMediaPicker";
 import R2MediaPicker from "./R2MediaPicker";
 import type { StudioRow } from "./StudioForms";
@@ -42,6 +43,24 @@ export default function SeriesEditor({ initial, onSaved, close, remove, onPrevie
     }).catch((err) => { if (live) setError(readableError(err)); }).finally(() => { if (live) setLoading(false); });
     return () => { live = false; };
   }, [initial.id, initial.video_orientation]);
+  useEffect(() => {
+    if (!initial.id || tab !== "episodes") return;
+    let live = true;
+    const refresh = async () => {
+      if (AppState.currentState !== "active") return;
+      try {
+        const result = await api<{ episodes: StudioRow[] }>("admin-series-editor", { series: initial.id });
+        if (live) setEpisodes(current => current.map(item => {
+          const saved = result.episodes.find(episode => episode.id === item.id && episode.r2_key === item.r2_key);
+          return saved ? { ...item, caption: saved.caption } : item;
+        }));
+      } catch { /* Retain unsaved edits and last known status if offline. */ }
+    };
+    const timer = setInterval(() => void refresh(), 10000);
+    const listener = AppState.addEventListener("change", state => { if (state === "active") void refresh(); });
+    void refresh();
+    return () => { live = false; clearInterval(timer); listener.remove(); };
+  }, [initial.id, tab]);
   const scan = async (more = false) => {
     setScanning(true); setError(""); setMessage("");
     try {
@@ -81,7 +100,7 @@ export default function SeriesEditor({ initial, onSaved, close, remove, onPrevie
       if (episodes.some((item) => !Number.isInteger(Number(item.number)) || Number(item.number) < 1 || !String(item.title || "").trim())) throw Error("Her bölüm için bir ad ve pozitif bölüm numarası gerekli.");
       if (new Set(episodes.map((item) => Number(item.number))).size !== episodes.length) throw Error("Bölüm numaraları birbirinden farklı olmalı.");
       if (episodes.some((item) => ["coins", "vip_or_coins"].includes(item.access_type) && Number(item.coin_price) < 1)) throw Error("BornCoins ile açılan bölümlere bir fiyat yaz.");
-      if ((form.release_at && Number.isNaN(Date.parse(form.release_at))) || episodes.some((item) => item.publish_at && Number.isNaN(Date.parse(item.publish_at)))) throw Error("Yayın tarihini 2026-10-01T21:00:00+03:00 biçiminde gir.");
+      if ((form.release_at && Number.isNaN(Date.parse(form.release_at))) || episodes.some((item) => item.publish_at && Number.isNaN(Date.parse(item.publish_at)))) throw Error("Takvimden geçerli bir yayın tarihi seç.");
       const changed = episodes.filter((item) => item.dirty);
       // Read metadata before persisting the episode duration. Sequential reads release each decoder.
       for (const item of changed) {
@@ -201,7 +220,7 @@ export default function SeriesEditor({ initial, onSaved, close, remove, onPrevie
             {["coins", "vip_or_coins"].includes(item.access_type) && <Field label="BornCoins fiyatı" value={String(item.coin_price)} keyboardType="numeric" onChangeText={(value) => changeEpisode(item.localKey, "coin_price", value)} />}
             <View style={styles.wrap}><Text style={styles.label}>VIP üyeliğine dahil</Text><Chip label="Evet" active={!!item.vip_included} onPress={() => changeEpisode(item.localKey, "vip_included", true)} /><Chip label="Hayır" active={!item.vip_included} onPress={() => changeEpisode(item.localKey, "vip_included", false)} /></View>
             <Text style={styles.label}>Bölüm durumu</Text><View style={styles.wrap}>{[["draft", "Taslak"], ["published", "Yayında"], ["scheduled", "Planlı"], ["hidden", "Gizli"]].map(([key, label]) => <Chip key={key} label={label} active={item.status === key} onPress={() => changeEpisode(item.localKey, "status", key)} />)}</View>
-            <Field label="Yayın tarihi" value={item.publish_at} onChangeText={(value) => changeEpisode(item.localKey, "publish_at", value)} />
+            <PublishCalendar label="Yayın tarihi" value={item.publish_at} onChange={(value) => changeEpisode(item.localKey, "publish_at", value)} />
             {item.r2_key && <Text style={[styles.body, { color: colors.mint }]}>{item.r2_key}</Text>}
             <View style={styles.wrap}>{item.r2_key && <Button secondary small icon="play-outline" onPress={() => void showPreview(item)}>Videoyu izle / süreyi oku</Button>}
               {!item.id && <Button secondary small icon="close" onPress={() => setEpisodes((current) => current.filter((episode) => episode.localKey !== item.localKey))}>Eklemeyi kaldır</Button>}</View>
@@ -212,7 +231,7 @@ export default function SeriesEditor({ initial, onSaved, close, remove, onPrevie
         <Text style={styles.h2}>Ne zaman, nasıl görünsün?</Text>
         <Text style={styles.label}>Dizi durumu</Text><View style={styles.wrap}>{[["draft", "Taslak"], ["published", "Yayında"], ["scheduled", "Planlı"], ["hidden", "Gizli"], ["coming_soon", "Yakında"], ["archived", "Arşiv"]].map(([key, label]) => <Chip key={key} label={label} active={form.status === key} onPress={() => update("status", key)} />)}</View>
         <Text style={styles.body}>Dizi ve bölümün “Yayında” olması videoyu izlemeye açar. Kaydetmeden önce önizlemeyi kontrol edebilirsin.</Text>
-        <Field label="Dizi yayın tarihi · isteğe bağlı" value={form.release_at || ""} placeholder="2026-10-01T21:00:00+03:00" onChangeText={(value) => update("release_at", value)} />
+        <PublishCalendar label="Dizi yayın tarihi · isteğe bağlı" value={form.release_at || ""} optional onChange={(value) => update("release_at", value)} />
         <Button secondary small icon="checkmark-circle-outline" onPress={() => setEpisodes((current) => current.map((item) => ({ ...item,
           status: ["published", "scheduled", "hidden", "archived"].includes(form.status) ? form.status : "draft",
           publish_at: form.status === "scheduled" && form.release_at ? form.release_at : item.publish_at, dirty: true })))}>Dizinin durumunu tüm bölümlere uygula</Button>

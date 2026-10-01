@@ -179,7 +179,8 @@ def run():
     torch.set_num_threads(2)
     model = WhisperModel("small", device="cpu", compute_type="int8", cpu_threads=2, num_workers=1)
     # Claim the next job only after finishing the first, so its lease remains fresh.
-    for index in range(3):
+    failures = 0
+    for index in range(6):
         job = json.loads(JOB_FILE.read_text(encoding="utf-8"))
         if not job:
             break
@@ -189,9 +190,11 @@ def run():
         except Exception as error:
             print("Caption generation failed (" + type(error).__name__ + ").")
             finish(job, "failed", **({"cause": "R2_DOWNLOAD_BLOCKED"} if isinstance(error, MediaAccessBlocked) else {}))
-            raise RuntimeError("Caption generation failed") from None
-        if index < 2:
+            failures += 1
+        if index < 5:
             claim()
+    if failures:
+        raise RuntimeError(str(failures) + " caption job(s) failed after processing the queue") from None
 
 
 def selftest():

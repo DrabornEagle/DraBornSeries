@@ -13,7 +13,7 @@ select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting(
 set local role authenticated;
 select drabornseries.dbs_bootstrap('r2-test','R2 transaction test','test');
 do $$ begin
-  if not exists(select 1 from drabornseries.dbs_profiles where user_id=auth.uid() and username='dbs-r2-long-google-address-'||auth.uid()||'@example.invalid' and avatar_url='https://lh3.googleusercontent.com/a/fixture' and full_name='Google fixture') then raise exception 'Google profile was not initialized'; end if;
+  if not exists(select 1 from drabornseries.dbs_profiles where user_id=auth.uid() and username='dbs-r2-long-google-address-'||auth.uid() and avatar_url='https://lh3.googleusercontent.com/a/fixture' and full_name='Google fixture') then raise exception 'Google profile was not initialized'; end if;
   update drabornseries.dbs_profiles set username='custom_'||replace(auth.uid()::text,'-',''),avatar_url=null where user_id=auth.uid();
   perform drabornseries.dbs_bootstrap('r2-test','R2 transaction test','test');
   if not exists(select 1 from drabornseries.dbs_profiles where user_id=auth.uid() and username like 'custom_%' and avatar_url is null) then raise exception 'Google import overwrote user edits'; end if;

@@ -3,7 +3,7 @@
     "name": "DraBornSeries",
     "slug": "drabornseries",
     "scheme": "drabornseries",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "orientation": "default",
     "userInterfaceStyle": "dark",
     "icon": "./assets/icons/icon.png",
@@ -15,7 +15,6 @@
     "android": {
       "package": "com.draborneagle.drabornseries",
       "versionCode": 1,
-      "edgeToEdgeEnabled": true,
       "intentFilters": [
         {
           "action": "VIEW",
@@ -69,10 +68,22 @@
           "microphonePermission": false
         }
       ],
+      "expo-iap",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "delayAppMeasurementInit": true
+        }
+      ],
       "./plugins/with-play-android.cjs"
     ],
     "experiments": {
       "baseUrl": "/DraBornSeries"
+    },
+    "extra": {
+      "admobTestMode": true
     }
   }
 }

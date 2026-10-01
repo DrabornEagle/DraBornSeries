@@ -128,9 +128,11 @@ export default function SeriesDetail({
             {series.title}
           </Text>
           <View style={styles.wrap}>
-            <InfoBadge label={String(series.production_year)} icon="calendar-outline" color={colors.orange} />
+            {!!series.production_year && <InfoBadge label={String(series.production_year)} icon="calendar-outline" color={colors.orange} />}
             <InfoBadge label={series.age_rating} icon="shield-checkmark-outline" color={colors.mint} />
             <InfoBadge label={`${episodes.length} bölüm`} icon="albums-outline" color={colors.purple} />
+            <InfoBadge label={`${(series.view_count || 0).toLocaleString("tr-TR")} izlenme`} icon="eye-outline" color={colors.purple} />
+            <InfoBadge label={`${(series.like_count || 0).toLocaleString("tr-TR")} beğeni`} icon="heart-outline" color={colors.pink} />
           </View>
           {resume && <View style={{ width: "100%", maxWidth: 440 }}><DetailAction primary icon="play" onPress={() => onEpisode(resume)}
             label={progress ? `${t.continue} · ${formatTime(progress.position_seconds)}` : t.play} /></View>}
@@ -161,8 +163,7 @@ export default function SeriesDetail({
               <Button secondary small icon="close" onPress={() => setTrailer(false)}>Kapat</Button></View>
             <ScrollView contentContainerStyle={{ paddingBottom: 12 }}>
               {trailerSource ? <VideoPlayer key={series.id + "-trailer"} source={trailerSource}
-                title={series.title + " · Fragman"} portrait={trailerSource.orientation !== "landscape"}
-                showRotateHint={trailer} initialTime={0} onProgress={() => {}} onEnd={() => {}} />
+                title={series.title + " · Fragman"} portrait={trailerSource.orientation !== "landscape"} initialTime={0} onProgress={() => {}} onEnd={() => {}} />
                 : <Text style={[styles.body, { padding: 24 }]}>{trailerError || "Fragman hazırlanıyor…"}</Text>}
               {!!trailerError && <Button secondary onPress={() => { setTrailer(false); }}>Kapat</Button>}
             </ScrollView>
@@ -381,13 +382,13 @@ export default function SeriesDetail({
                     setComments((rows) => [created, ...rows]);
                     setComment("");
                     await store.refreshAccount();
-                  }, "Yorumun incelemeye gönderildi.")
+                  }, "Yorumun yayınlandı.")
                 }
               >
                 Yorumu gönder
               </Button>
               <Text style={[styles.body, { fontSize: 12 }]}>
-                Yorumlar yayınlanmadan önce moderasyon incelemesinden geçer.
+                Yorumun hemen yayınlanır. Topluluk kurallarına uymayan yorumlar bildirim üzerine incelenebilir ve gizlenebilir.
               </Text>
             </View>
           ) : (

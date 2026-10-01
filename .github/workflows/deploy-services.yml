@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'supabase/functions/dbs-api/**'
+      - 'supabase/functions/dbs-play-verify/**'
+      - 'supabase/functions/dbs-play-rtdn/**'
+      - 'supabase/functions/dbs-ad-verify/**'
       - 'scripts/configure-r2.mjs'
       - 'cloudflare/r2-worker.js'
       - '.github/workflows/deploy-services.yml'
@@ -41,8 +44,12 @@ jobs:
         run: npm ci
       - if: steps.access.outputs.configured == 'true'
         run: npm run check
-      - name: Deploy the authenticated R2 API (legacy media retained)
+      - name: Deploy authenticated media, Play and signed ad services
         if: steps.access.outputs.configured == 'true'
-        run: npx --yes supabase@2.118.0 functions deploy dbs-api --project-ref xpdiwyxnnrmyvpcqwuyb
+        run: |
+          npx --yes supabase@2.118.0 functions deploy dbs-api --project-ref xpdiwyxnnrmyvpcqwuyb
+          npx --yes supabase@2.118.0 functions deploy dbs-play-verify --project-ref xpdiwyxnnrmyvpcqwuyb
+          npx --yes supabase@2.118.0 functions deploy dbs-play-rtdn --project-ref xpdiwyxnnrmyvpcqwuyb
+          npx --yes supabase@2.118.0 functions deploy dbs-ad-verify --project-ref xpdiwyxnnrmyvpcqwuyb
       - name: Deploy R2 Worker while retaining its existing bucket and secrets
         run: node scripts/configure-r2.mjs

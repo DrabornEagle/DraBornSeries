@@ -1,0 +1,75 @@
+-- Temporary Auth, comments and payments only. All fixtures roll back.
+begin;
+set local statement_timeout='30s';
+select set_config('dbs.test_user',gen_random_uuid()::text,true);
+select set_config('dbs.test_session',gen_random_uuid()::text,true);
+select set_config('dbs.test_series',gen_random_uuid()::text,true);
+select set_config('dbs.test_episode',gen_random_uuid()::text,true);
+insert into auth.users(id,aud,role,email,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at)
+values(current_setting('dbs.test_user')::uuid,'authenticated','authenticated','v072-'||current_setting('dbs.test_user')||'@example.invalid',now(),'{"provider":"email","providers":["email"]}','{}',now(),now());
+insert into auth.sessions(id,user_id,created_at,updated_at) values(current_setting('dbs.test_session')::uuid,current_setting('dbs.test_user')::uuid,now(),now());
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('dbs.test_user'),'role','authenticated','session_id',current_setting('dbs.test_session'))::text,true);
+set local role authenticated;
+select drabornseries.dbs_bootstrap('v072-test','Payment fixture','test');
+reset role;
+insert into drabornseries.dbs_series(id,slug,title,status) values(current_setting('dbs.test_series')::uuid,'fixture-'||current_setting('dbs.test_series'),'V072 fixture','published');
+insert into drabornseries.dbs_episodes(id,series_id,number,title,access_type,status) values(current_setting('dbs.test_episode')::uuid,current_setting('dbs.test_series')::uuid,1,'Ad fixture','ad','published');
+set local role authenticated;
+insert into drabornseries.dbs_comments(user_id,series_id,body) values(auth.uid(),current_setting('dbs.test_series')::uuid,'Approved by default fixture');
+do $$ declare denied boolean; begin
+ if not exists(select 1 from drabornseries.dbs_comments where user_id=auth.uid() and status='published') then raise exception 'New comment not immediately approved'; end if;
+ denied:=false; begin update drabornseries.dbs_comments set status='hidden' where user_id=auth.uid(); exception when insufficient_privilege then denied:=true; end;
+ if not denied then raise exception 'Client changed moderation status'; end if;
+ denied:=false; begin insert into drabornseries.dbs_comments(user_id,series_id,body) values(auth.uid(),current_setting('dbs.test_series')::uuid,'Approved by default fixture'); exception when others then if sqlerrm='DUPLICATE_COMMENT' then denied:=true; else raise; end if; end;
+ if not denied then raise exception 'Duplicate protection removed'; end if;
+ denied:=false; begin perform drabornseries.dbs_complete_ad(gen_random_uuid(),auth.uid(),'forged_reward','1234567890',now()); exception when insufficient_privilege then denied:=true; end;
+ if not denied then raise exception 'Client minted an ad reward'; end if;
+ denied:=false; begin perform drabornseries.dbs_sync_play_subscription(auth.uid(),'dbs_vip_monthly',repeat('a',64),null,'active',now()+interval '1 month',true,'{}',now()); exception when insufficient_privilege then denied:=true; end;
+ if not denied then raise exception 'Client minted VIP'; end if;
+ denied:=false; begin perform 1 from drabornseries.dbs_ad_tickets; exception when insufficient_privilege then denied:=true; end;
+ if not denied then raise exception 'Client read private reward tickets'; end if;
+end $$;
+reset role;
+select set_config('request.jwt.claims','{"role":"service_role"}',true);
+set local role service_role;
+do $$ declare result jsonb; account uuid:=current_setting('dbs.test_user')::uuid; first_hash text:=encode(sha256(gen_random_uuid()::text::bytea),'hex'); second_hash text:=encode(sha256(gen_random_uuid()::text::bytea),'hex'); begin
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_monthly',first_hash,'fixture-order','active',now()+interval '1 month',true,'{}',now());
+ if not (result->>'entitled')::boolean then raise exception 'Active subscription did not grant access'; end if;
+ perform drabornseries.dbs_sync_play_subscription(account,'dbs_vip_monthly',first_hash,'fixture-order','active',now()+interval '1 month',true,'{}',now());
+ if (select count(*) from drabornseries.dbs_purchases where user_id=account)<>1 or (select count(*) from drabornseries.dbs_vip_subscriptions where user_id=account)<>1 then raise exception 'Duplicate receipt granted twice'; end if;
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_monthly',first_hash,'fixture-order','on_hold',now()+interval '1 month',false,'{}',now()+interval '1 second');
+ if (result->>'entitled')::boolean then raise exception 'Held subscription retained access'; end if;
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_monthly',first_hash,'fixture-order','active',now()+interval '1 month',true,'{}',now());
+ if not (result->>'stale')::boolean or (result->>'entitled')::boolean then raise exception 'Old callback restored held subscription'; end if;
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_yearly',second_hash,'fixture-new-order','active',now()+interval '1 year',true,'{}',now()+interval '2 seconds',first_hash);
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_monthly',first_hash,'fixture-order','active',now()+interval '1 month',true,'{}',now()+interval '3 seconds');
+ if (result->>'entitled')::boolean or not (result->>'stale')::boolean then raise exception 'Replaced token restored access'; end if;
+ result:=drabornseries.dbs_sync_play_subscription(account,'dbs_vip_yearly',second_hash,'fixture-new-order','revoked',now()-interval '1 second',false,'{}',now()+interval '4 seconds');
+ if (result->>'entitled')::boolean or not exists(select 1 from drabornseries.dbs_purchases where token_hash=second_hash and status='refunded') then raise exception 'Refund did not revoke subscription'; end if;
+end $$;
+do $$ declare account uuid:=current_setting('dbs.test_user')::uuid; ticket uuid:=gen_random_uuid(); another uuid:=gen_random_uuid(); result jsonb; before_balance bigint; denied boolean; i integer; begin
+ select balance into before_balance from drabornseries.dbs_borncoins_wallet where user_id=account;
+ insert into drabornseries.dbs_ad_tickets(id,user_id,coins,ad_unit) values(ticket,account,3,'1234567890');
+ denied:=false; begin perform drabornseries.dbs_complete_ad(ticket,account,'fixture_wrong_unit','different',now()); exception when others then if sqlerrm='INVALID_AD_TICKET' then denied:=true; else raise; end if; end;
+ if not denied then raise exception 'Wrong ad unit credited'; end if;
+ result:=drabornseries.dbs_complete_ad(ticket,account,'fixture_valid_'||ticket,'1234567890',now());
+ if (result->>'coins')::integer<>3 then raise exception 'Incorrect reward'; end if;
+ result:=drabornseries.dbs_complete_ad(ticket,account,'fixture_valid_'||ticket,'1234567890',now());
+ if not (result->>'duplicate')::boolean or (select balance from drabornseries.dbs_borncoins_wallet where user_id=account)<>before_balance+3 then raise exception 'Callback replay changed balance'; end if;
+ denied:=false; begin perform drabornseries.dbs_complete_ad(ticket,account,'fixture_changed_'||ticket,'1234567890',now()); exception when others then if sqlerrm='AD_TICKET_ALREADY_USED' then denied:=true; else raise; end if; end;
+ if not denied then raise exception 'Ticket reused for another transaction'; end if;
+ insert into drabornseries.dbs_ad_tickets(id,user_id,episode_id,coins,ad_unit) values(another,account,current_setting('dbs.test_episode')::uuid,0,'1234567890');
+ result:=drabornseries.dbs_complete_ad(another,account,'fixture_unlock_'||another,'1234567890',now());
+ if not (result->>'unlocked')::boolean or not exists(select 1 from drabornseries.dbs_episode_unlocks where user_id=account and episode_id=current_setting('dbs.test_episode')::uuid and source='ad') then raise exception 'Verified ad did not unlock episode'; end if;
+ if (select balance from drabornseries.dbs_borncoins_wallet where user_id=account)<>before_balance+3 then raise exception 'Episode ad minted extra currency'; end if;
+ for i in 3..5 loop
+  ticket:=gen_random_uuid(); insert into drabornseries.dbs_ad_tickets(id,user_id,coins,ad_unit) values(ticket,account,3,'1234567890');
+  perform drabornseries.dbs_complete_ad(ticket,account,'fixture_limit_'||ticket,'1234567890',now());
+ end loop;
+ ticket:=gen_random_uuid(); insert into drabornseries.dbs_ad_tickets(id,user_id,coins,ad_unit) values(ticket,account,3,'1234567890');
+ denied:=false; begin perform drabornseries.dbs_complete_ad(ticket,account,'fixture_sixth_'||ticket,'1234567890',now()); exception when others then if sqlerrm='AD_DAILY_LIMIT' then denied:=true; else raise; end if; end;
+ if not denied then raise exception 'Daily limit bypassed'; end if;
+end $$;
+reset role;
+rollback;
+select 'v072 comments, verified Play lifecycle, SSV rewards, replay and daily-limit tests passed; fixtures rolled back' as result;

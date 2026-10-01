@@ -1,6 +1,6 @@
 # Production integrations
 
-These source adapters do **not** mean the production services are connected. The Expo Go release keeps store products inactive. Never enable products until RTDN/refund lifecycle tests, native Billing and Play Console setup pass.
+These source adapters do **not** mean the production services are connected. v0.7.2 implements native VIP Billing, authenticated RTDN and AdMob test ads. Real Google Play products and service-account credentials remain external account configuration. See [V072_KURULUM.md](V072_KURULUM.md).
 
 ## Cloudflare R2 · v0.7.1
 
@@ -26,17 +26,17 @@ New R2 assets queue real speech recognition with Whisper small on GitHub Actions
 
 Server verifier: `dbs-play-verify`. Secret `DBS_GOOGLE_SERVICE_ACCOUNT` must contain a Play-authorized service account JSON. Native Billing must set `obfuscatedAccountId = SHA256(Supabase user UUID)`. The verifier checks the authoritative product, purchase state, owning account, quantity and expiry. Atomic ledger operations prevent duplicate credit. Consumables are consumed after credit; subscriptions are acknowledged after grant. Pending purchases never grant entitlement.
 
-Products: `dbs_coins_50`, `dbs_coins_100`, `dbs_coins_250`, `dbs_coins_500`, `dbs_coins_1000`, `dbs_coins_2500`, `dbs_vip_weekly`, `dbs_vip_monthly`, `dbs_vip_yearly`. The six coin cards show base plus proposed bonus amounts; the verified server catalog credits the configured total, once. No currency amount is hardcoded in the checkout; prices must come from Play Billing product details. All nine products are inactive until native Billing and lifecycle reconciliation work.
+Products: `dbs_coins_50`, `dbs_coins_100`, `dbs_coins_250`, `dbs_coins_500`, `dbs_coins_1000`, `dbs_coins_2500`, `dbs_vip_weekly`, `dbs_vip_monthly`, `dbs_vip_yearly`. The six coin cards show base plus proposed bonus amounts; the verified server catalog credits the configured total, once. No currency amount is hardcoded in the checkout; prices must come from Play Billing product details. The three VIP catalog products are active; the six coin packages remain inactive. Store pricing and product availability come from Google Play.
 
-**Not yet connected:** native Billing (Expo Go cannot load it), Play products, Google service account, Pub/Sub RTDN with authenticated push, renewal and refund/chargeback reconciliation. The verifier must remain disabled until the lifecycle is complete; an initial verified purchase alone is not a complete billing system. No real checkout is exposed in this release.
+**Implemented:** expo-iap native Billing, restore/acknowledgement, account pinning, subscriptionsv2 verification, Google-signed OIDC Pub/Sub RTDN, expiry/grace/cancellation/hold/refund states and stale/replaced-token protection. **External configuration:** Play Console products, authorized service account and authenticated Pub/Sub push. The client checks backend configuration before starting a payment. Web/Expo Go never launch a Play payment.
 
 ## Rewarded ads
 
-No client callback can add coins or unlock an ad episode. Before enabling ads, configure AdMob, add the native SDK in a development build, validate Google ECDSA SSV callbacks over the original signed query bytes, validate key id and timestamp, whitelist ad unit/reward type, map one-time server-issued nonces, and apply daily limits atomically. An ad completion simulation is intentionally not used. SSV and native ad integration are pending.
+No client callback can add coins or unlock an ad episode. Before enabling ads, configure AdMob, add the native SDK in a development build, validate Google ECDSA SSV callbacks over the original signed query bytes, validate key id and timestamp, whitelist ad unit/reward type, map one-time server-issued nonces, and apply daily limits atomically. An ad completion simulation is intentionally not used. v0.7.2 implements the native Google Mobile Ads SDK using official test IDs and a deployed DER/ECDSA SSV verifier, one-time server tickets and atomic rewards. Test ads never credit the wallet or unlock content. Production IDs, UMP message and AdMob callback configuration remain external; exact values are documented in [V072_KURULUM.md](V072_KURULUM.md).
 
 ## Auth, push, links
 
-Email Auth is active; the owner has connected Google OAuth. The first Google bootstrap imports the full email as username, full name and a validated Google avatar. Existing generated usernames are repaired on the next login; manual changes are retained. Shared Auth redirects, confirmations and SMTP are preserved. Google-generated account-access emails use the connected OAuth client's Google Auth Platform Branding configuration. Setting DraBornSeries and verifying/publishing that branding is an external account action, not a Supabase project-name or email-template change. See [R2_SETUP.md](R2_SETUP.md).
+Email Auth is active; the owner has connected Google OAuth. The first Google bootstrap imports the email local part as username, full name and a validated Google avatar. Existing generated usernames are repaired on the next login; manual changes are retained. Shared Auth redirects, confirmations and SMTP are preserved. Google-generated account-access emails use the connected OAuth client's Google Auth Platform Branding configuration. Setting DraBornSeries and verifying/publishing that branding is an external account action, not a Supabase project-name or email-template change. See [R2_SETUP.md](R2_SETUP.md).
 
 Remote push and native billing/ads require a development build, not Expo Go. Push token registration, delivery worker and notification retry queue are pending. In-app notifications work.
 

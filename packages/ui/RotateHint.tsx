@@ -3,11 +3,11 @@ import { AccessibilityInfo, Animated, Text, View } from "react-native";
 import { Icon } from "./theme";
 
 /** A fresh hint on every fullscreen entry for a landscape episode. */
-export default function RotateHint({ fullscreen, presentationOpen = false, landscapeVideo, landscapeScreen }: {
-  fullscreen: boolean; presentationOpen?: boolean; landscapeVideo: boolean; landscapeScreen: boolean;
+export default function RotateHint({ fullscreen, landscapeVideo, landscapeScreen }: {
+  fullscreen: boolean; landscapeVideo: boolean; landscapeScreen: boolean;
 }) {
   const [visible, setVisible] = useState(false), [reduced, setReduced] = useState(false);
-  const previousFullscreen = useRef(false), previousPresentation = useRef(false), previousVideo = useRef(false);
+  const previousFullscreen = useRef(false), previousVideo = useRef(false);
   const rotation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduced);
@@ -16,14 +16,12 @@ export default function RotateHint({ fullscreen, presentationOpen = false, lands
   }, []);
   useEffect(() => {
     const entered = fullscreen && !previousFullscreen.current;
-    const opened = presentationOpen && !previousPresentation.current;
     const loaded = landscapeVideo && !previousVideo.current;
     previousFullscreen.current = fullscreen;
-    previousPresentation.current = presentationOpen;
     previousVideo.current = landscapeVideo;
-    if ((!fullscreen && !presentationOpen) || !landscapeVideo || landscapeScreen) setVisible(false);
-    else if (entered || opened || loaded) setVisible(true);
-  }, [fullscreen, presentationOpen, landscapeVideo, landscapeScreen]);
+    if (!fullscreen || !landscapeVideo || landscapeScreen) setVisible(false);
+    else if (entered || loaded) setVisible(true);
+  }, [fullscreen, landscapeVideo, landscapeScreen]);
   useEffect(() => {
     if (!visible) return;
     rotation.setValue(0);

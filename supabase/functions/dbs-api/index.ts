@@ -84,13 +84,14 @@ Deno.serve(async (req) => {
     if (["caption-jobs", "caption-complete"].includes(body.action)) {
       try { await verifyCaptionRunner(authorization); } catch { return send(req, { error: "INVALID_RUNNER" }, 401); }
       if (body.action === "caption-jobs") {
+        for (let attempt = 0; attempt < 6; attempt++) {
         const job = await checked(admin.rpc("dbs_claim_caption"));
         if (!job) return send(req, { job: null });
         try {
           const asset = await checked(admin.from("dbs_video_assets").select("r2_key").eq("episode_id", job.episode_id).eq("provider", "r2").maybeSingle());
           if (asset?.r2_key !== job.source_key) {
             await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "no_speech", language: "" }));
-            return send(req, { job: null });
+            continue;
           }
           const episode = await checked(admin.from("dbs_episodes").select("duration_seconds,status,publish_at,access_type,dbs_series!inner(status)").eq("id", job.episode_id).single());
           const capabilities = await workerCapabilities(r2Base());
@@ -106,8 +107,10 @@ Deno.serve(async (req) => {
           return send(req, { job: { id: job.id, lease: job.lease_id, episode: job.episode_id, url: probe.url, duration: episode.duration_seconds } });
         } catch (error) {
           await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: job.lease_id, outcome: "failed", language: "", cause: error instanceof Error && error.message === "R2_BACKEND_PROBE_UPDATE_REQUIRED" ? "R2_WORKER_UPDATE_REQUIRED" : "Video bağlantısı hazırlanamadı." }));
-          return send(req, { error: "CAPTION_SOURCE_FAILED" }, 503);
+          continue;
         }
+        }
+        return send(req, { job: null });
       }
       if (!["completed", "no_speech", "failed"].includes(body.outcome) || !/^[a-f0-9-]{36}$/.test(body.id || "") || !/^[a-f0-9-]{36}$/.test(body.lease || "")) return send(req, { error: "INVALID_CAPTION" }, 400);
       const job = await checked(admin.from("dbs_auto_subtitle_jobs").select("*").eq("id", body.id).single());
@@ -141,7 +144,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.1",
+        version: "0.7.2",
         versionCode: 1,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
@@ -150,8 +153,39 @@ Deno.serve(async (req) => {
         video_provider: "r2",
         r2_worker: r2Base(),
         billing: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"),
-        ads: !!env("DBS_ADMOB_AD_UNIT"),
+        ads: true,
+        ads_mode: env("DBS_ADMOB_MODE") === "production" && !!env("DBS_ADMOB_AD_UNIT") ? "production" : "test",
+        billing_integration: "google_play",
       });
+    if (body.action === "ads-config") return send(req, { mode: env("DBS_ADMOB_MODE") === "production" && !!env("DBS_ADMOB_AD_UNIT") ? "production" : "test", rewardedUnit: env("DBS_ADMOB_AD_UNIT") || null });
+    if (["billing-account", "ad-ticket", "ad-status"].includes(body.action)) {
+      if (!user) return send(req, { error: "AUTH_REQUIRED" }, 401);
+      const profile = await checked(client.from("dbs_profiles").select("user_id,status").eq("user_id", user.id).maybeSingle());
+      if (!profile || profile.status !== "active") return send(req, { error: "ACCOUNT_UNAVAILABLE" }, 403);
+      if (body.action === "billing-account") {
+        const accountId = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(user.id)))].map(byte => byte.toString(16).padStart(2, "0")).join("");
+        return send(req, { accountId, configured: !!env("DBS_GOOGLE_SERVICE_ACCOUNT"), package: "com.draborneagle.drabornseries" });
+      }
+      if (body.action === "ad-status") {
+        if (!/^[a-f0-9-]{36}$/.test(body.id || "")) return send(req, { error: "INVALID_AD_TICKET" }, 400);
+        const ticket = await checked(admin.from("dbs_ad_tickets").select("status,coins,episode_id").eq("id", body.id).eq("user_id", user.id).single());
+        return send(req, { status: ticket.status, coins: ticket.status === "completed" ? ticket.coins : 0, unlocked: ticket.status === "completed" && !!ticket.episode_id });
+      }
+      if (env("DBS_ADMOB_MODE") !== "production" || !/^ca-app-pub-\d+\/\d+$/.test(env("DBS_ADMOB_AD_UNIT"))) return send(req, { error: "ADS_TEST_MODE" }, 409);
+      if (body.episode) {
+        if (!/^[a-f0-9-]{36}$/.test(body.episode)) return send(req, { error: "INVALID_EPISODE" }, 400);
+        const episode = await checked(admin.from("dbs_episodes").select("access_type,status,publish_at,dbs_series!inner(status)").eq("id", body.episode).single());
+        if (episode.access_type !== "ad" || episode.status !== "published" || episode.dbs_series.status !== "published" || new Date(episode.publish_at).getTime() > Date.now()) return send(req, { error: "EPISODE_UNAVAILABLE" }, 409);
+        if (await checked(client.rpc("dbs_episode_access", { episode: body.episode }))) return send(req, { error: "ALREADY_UNLOCKED" }, 409);
+      }
+      const pending = await checked(admin.from("dbs_ad_tickets").select("id").eq("user_id",user.id).eq("status","pending").gte("created_at",new Date(Date.now()-300000).toISOString()).limit(3));
+      if (pending.length>=3) return send(req,{error:"AD_RATE_LIMIT"},429);
+      const date = new Date(Date.now()+10800000).toISOString().slice(0,10);
+      const earned = await checked(admin.from("dbs_ad_events").select("transaction_id").eq("user_id",user.id).eq("reward_date",date).limit(5));
+      if (earned.length>=5) return send(req,{error:"AD_DAILY_LIMIT"},409);
+      const ticket = await checked(admin.from("dbs_ad_tickets").insert({user_id:user.id,episode_id:body.episode||null,coins:body.episode?0:3,ad_unit:env("DBS_ADMOB_AD_UNIT").split("/").at(-1)}).select("id").single());
+      return send(req,ticket);
+    }
     if (body.action === "trailer") {
       if (typeof body.series !== "string") return send(req, { error: "INVALID_SERIES" }, 400);
       const series = await checked(admin.from("dbs_series").select("id,status,is_demo,trailer_url,source_credit,video_orientation,r2_trailer_key").eq("id", body.series).single());
@@ -159,7 +193,7 @@ Deno.serve(async (req) => {
         return send(req, { error: "TRAILER_UNAVAILABLE" }, 404);
       const episodes = await checked(admin.from("dbs_episodes").select("id,orientation,number").eq("series_id", series.id)
         .eq("status", "published").lte("publish_at", new Date().toISOString()).order("number"));
-      const allAssets = episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,demo_url,renditions,r2_key,provider")
+      const allAssets = episodes.length ? await checked(admin.from("dbs_video_assets").select("episode_id,demo_url,renditions,landscape_renditions,r2_key,provider")
         .in("episode_id", episodes.map((episode: any) => episode.id)).eq("ready", true)) : [];
       const assets = allAssets.map((asset: any) => ({ ...asset, demo_url: asset.provider === "r2" ? mediaUrl(asset.r2_key, r2Base()) : asset.demo_url }));
       const resolved = resolveTrailer(series.trailer_url, episodes, assets, series.video_orientation || series.source_credit?.trailer_orientation);
@@ -168,6 +202,8 @@ Deno.serve(async (req) => {
       // A separate edit has a different clock and must never inherit those cues.
       const subtitles = resolved.matchedEpisodeId ? await subtitleTracks(resolved.matchedEpisodeId) : [];
       let trailerUrl = series.trailer_url;
+      const landscapeAsset = allAssets.find((asset: any) => asset.episode_id === resolved.matchedEpisodeId);
+      if (series.video_orientation === "landscape" && landscapeAsset?.landscape_renditions?.length) trailerUrl = landscapeAsset.landscape_renditions.at(-1).url;
       const isR2 = new URL(trailerUrl).origin === new URL(r2Base()).origin;
       if (isR2 && (await workerCapabilities(r2Base())).privateMedia) {
         const response = await fetch(r2Base() + "/trailer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series: series.id }), signal: AbortSignal.timeout(15000) });
@@ -176,7 +212,7 @@ Deno.serve(async (req) => {
         trailerUrl = result.url;
       }
       return send(req, { url: trailerUrl, provider: isR2 ? "r2" : series.is_demo ? "demo" : "cloudflare", subtitles,
-        qualities: resolved.qualities, orientation: resolved.orientation });
+        qualities: series.video_orientation === "landscape" && landscapeAsset?.landscape_renditions?.length ? landscapeAsset.landscape_renditions : resolved.qualities, orientation: resolved.orientation });
     }
     if (body.action === "playback") {
       if (typeof body.episode !== "string")
@@ -218,9 +254,10 @@ Deno.serve(async (req) => {
       if (!asset.ready) return send(req, { error: "VIDEO_NOT_READY" }, 409);
       const subtitles = await subtitleTracks(body.episode);
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
+        const landscape = episode.orientation === "landscape" && asset.landscape_renditions?.length ? asset.landscape_renditions : null;
         return send(req, {
-          url: asset.demo_url,
-          qualities: asset.renditions || [],
+          url: landscape ? landscape.at(-1).url : asset.demo_url,
+          qualities: landscape || asset.renditions || [],
           provider: "demo",
           subtitles,
         });

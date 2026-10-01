@@ -118,6 +118,8 @@ export function useStore() {
           db
             .from("dbs_vip_subscriptions")
             .select("expires_at")
+            .in("status", ["active", "grace", "cancelled"])
+            .gt("expires_at", new Date().toISOString())
             .order("expires_at", { ascending: false })
             .limit(1),
         ),
@@ -135,6 +137,7 @@ export function useStore() {
       setStreak(results[8]);
       setNotifications(results[9]);
       setVipEnd(results[10][0]?.expires_at || null);
+      setError("");
     } catch (err) {
       if (userRef.current === uid)
         setError(err instanceof Error ? err.message : "Hesap yüklenemedi");

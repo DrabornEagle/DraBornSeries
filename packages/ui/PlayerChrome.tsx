@@ -12,6 +12,7 @@ type Props = {
   audio?: QualityChoice[]; onAudio?: (key: string) => void;
   onPiP?: () => void; subtitles?: QualityChoice[]; onSubtitle?: (key: string) => void;
   onControlsVisibilityChange?: (visible: boolean) => void; safeTop?: number; safeBottom?: number;
+  fit?: "auto" | "contain" | "cover"; onFit?: (fit: "auto" | "contain" | "cover") => void;
 };
 export default function PlayerChrome(props: Props) {
   const [visible, setVisible] = useState(true), [settings, setSettings] = useState(false), [barWidth, setBarWidth] = useState(1);
@@ -94,6 +95,7 @@ export default function PlayerChrome(props: Props) {
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><Text style={{ color: "white", fontWeight: "800" }}>Görüntü kalitesi</Text>
         {control("close", "Kalite menüsünü kapat", () => setSettings(false), 18)}</View>
       <ScrollView contentContainerStyle={{ gap: 5 }}>
+        {props.onFit && <View style={{ gap: 5, paddingBottom: 12 }}><Text style={{ color: "#c6a5d5", fontSize: 12 }}>Ekrana yerleşim</Text>{([["auto", "Akıllı sığdır"], ["contain", "Görüntünün tamamı"], ["cover", "Ekranı doldur"]] as const).map(([key, label]) => <Pressable key={key} accessibilityRole="radio" accessibilityState={{ selected: props.fit === key }} onPress={() => { props.onFit?.(key); wake(); }} style={{ padding: 9, borderRadius: 9, backgroundColor: props.fit === key ? "#613265" : "transparent" }}><Text style={{ color: "white", fontSize: 12 }}>{label}</Text></Pressable>)}</View>}
         {props.choices.map((item) => <Pressable key={item.key} accessibilityRole="button" onPress={() => { wake(); props.onQuality(item.key); setSettings(false); }}
           style={{ padding: 12, borderRadius: 10, backgroundColor: props.quality === item.label ? "#6c265f" : "#ffffff07", flexDirection: "row", justifyContent: "space-between" }}>
           <Text style={{ color: "white", fontSize: 12 }}>{item.label}</Text>{props.quality === item.label && <Icon name="checkmark" color={colors.pink} size={16} />}

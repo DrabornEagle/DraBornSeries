@@ -419,3 +419,9 @@ verify_jwt = false
 
 [functions.dbs-play-verify]
 verify_jwt = false
+
+[functions.dbs-play-rtdn]
+verify_jwt = false
+
+[functions.dbs-ad-verify]
+verify_jwt = false

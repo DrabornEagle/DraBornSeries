@@ -12,3 +12,6 @@ artifacts/
 
 __pycache__/
 .caption-models/
+
+android/
+ios/

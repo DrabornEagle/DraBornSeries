@@ -5,6 +5,12 @@ export function subtitleBottom(fullscreen: boolean, controlsVisible = false, saf
 export const discoverSubtitleBottom = 270;
 
 /** Fill the display in the video's orientation while preserving its aspect ratio. */
-export function videoFit(fullscreen: boolean, portrait: boolean, landscapeScreen: boolean): "cover" | "contain" {
-  return fullscreen && portrait === landscapeScreen ? "contain" : "cover";
+export function videoFit(fullscreen: boolean, portrait: boolean, landscapeScreen: boolean, mediaPortrait = portrait, fit: "auto" | "contain" | "cover" = "auto"): "cover" | "contain" {
+  if (fit !== "auto") return fit;
+  return fullscreen && (mediaPortrait !== portrait ? mediaPortrait === landscapeScreen : portrait === landscapeScreen) ? "contain" : "cover";
+}
+
+export function originalQuality(width: number, height: number) {
+  const resolution = Math.round(Math.min(width, height));
+  return resolution > 0 ? `${resolution}p · Orijinal` : "Orijinal";
 }

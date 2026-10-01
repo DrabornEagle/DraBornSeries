@@ -10,6 +10,7 @@ import {
   readableError,
 } from "../../packages/shared/domain";
 import VideoPlayer from "../../packages/ui/VideoPlayer";
+import AdRewardButton from "../../packages/ui/AdRewardButton";
 import {
   Button,
   Icon,
@@ -116,9 +117,7 @@ export default function Player({
                 </Text>
               )}
               {episode.access_type === "ad" && (
-                <Text style={styles.body}>
-                  Ödüllü reklamlar Expo Go test sürümünde kullanılamaz.
-                </Text>
+                <AdRewardButton store={store} run={run} onLogin={onLogin} episode={episode.id} onDone={() => setRetry(value => value + 1)} />
               )}
             </View>
           )}
