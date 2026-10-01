@@ -47,14 +47,15 @@ export function useStore() {
             .limit(200),
         ),
         requireData(
-          db.from("dbs_episodes").select("*").order("number").limit(500),
+          db.from("dbs_episodes").select("*,dbs_seasons(number)").order("number").limit(500),
         ),
       ]);
       setSeries(shows);
-      setEpisodes(eps);
+      const resolved = eps.map((ep: any) => ({ ...ep, season_number: ep.dbs_seasons?.number || 1 }));
+      setEpisodes(resolved);
       await AsyncStorage.setItem(
         "dbs-catalog-v04",
-        JSON.stringify({ series: shows, episodes: eps }),
+        JSON.stringify({ series: shows, episodes: resolved }),
       );
       setError("");
     } catch (err) {

@@ -18,8 +18,8 @@ test("R2 keys preserve folders and Unicode while signed URLs are never persisted
   }
 });
 test("portrait fullscreen subtitles move upward without changing Discover or landscape", () => {
-  assert.equal(subtitleBottom(true, false, 0, true), 82);
-  assert.equal(subtitleBottom(true, true, 24, true), 148);
+  assert.equal(subtitleBottom(true, false, 0, true), 106);
+  assert.equal(subtitleBottom(true, true, 24, true), 172);
   assert.equal(subtitleBottom(true, false, 0, false), 36);
   assert.equal(subtitleBottom(false, true, 24, true), 128);
   assert.equal(discoverSubtitleBottom, 270);

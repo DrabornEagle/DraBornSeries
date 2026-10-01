@@ -14,6 +14,7 @@ import { usePreviewSource } from "../../packages/api/preview";
 import InlineVideo from "../../packages/ui/InlineVideo";
 import { Artwork } from "../../packages/ui/Catalog";
 import { Button, Icon, colors, Empty } from "../../packages/ui/theme";
+import { seriesPath } from "../../packages/shared/routes";
 import { config } from "../../packages/shared/config";
 import { buildDiscoverEntries } from "../../packages/shared/discover";
 import { compactCount } from "../../packages/shared/domain";
@@ -181,7 +182,7 @@ function Scene({
             accessibilityLabel="Diziyi paylaş"
             onPress={() =>
               Share.share({
-                message: config.webUrl + "?series=" + item.series.slug,
+                message: new URL(seriesPath(item.series.slug), config.webUrl).href,
               })
             }
           >

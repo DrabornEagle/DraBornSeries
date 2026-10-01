@@ -3,6 +3,7 @@ import {
   Modal,
   ScrollView,
   Share,
+  Platform,
   Linking,
   Text,
   View,
@@ -31,6 +32,7 @@ import {
   formatTime,
 } from "../../packages/shared/domain";
 import { translations } from "../../packages/shared/i18n";
+import { seriesPath } from "../../packages/shared/routes";
 import { config } from "../../packages/shared/config";
 import { legalContact } from "../../packages/shared/legal";
 export default function SeriesDetail({
@@ -111,6 +113,10 @@ export default function SeriesDetail({
           locations={[0, 0.38, 1]}
           style={{ position: "absolute", inset: 0 }}
         />
+        <View style={{ position: "absolute", top: 18, right: 18, left: 18, flexDirection: "row", justifyContent: "flex-end", flexWrap: "wrap", gap: 8 }}>
+          <InfoBadge label={`${episodes.length} bölüm`} icon="albums-outline" color="#ffc56f" />
+          <InfoBadge label={`${(series.view_count || 0).toLocaleString("tr-TR")} izlenme`} icon="eye-outline" color="#7aeadb" />
+        </View>
         <View
           style={{
             paddingHorizontal: compact ? 22 : 36,
@@ -130,8 +136,6 @@ export default function SeriesDetail({
           <View style={styles.wrap}>
             {!!series.production_year && <InfoBadge label={String(series.production_year)} icon="calendar-outline" color={colors.orange} />}
             <InfoBadge label={series.age_rating} icon="shield-checkmark-outline" color={colors.mint} />
-            <InfoBadge label={`${episodes.length} bölüm`} icon="albums-outline" color={colors.purple} />
-            <InfoBadge label={`${(series.view_count || 0).toLocaleString("tr-TR")} izlenme`} icon="eye-outline" color={colors.purple} />
             <InfoBadge label={`${(series.like_count || 0).toLocaleString("tr-TR")} beğeni`} icon="heart-outline" color={colors.pink} />
           </View>
           {resume && <View style={{ width: "100%", maxWidth: 440 }}><DetailAction primary icon="play" onPress={() => onEpisode(resume)}
@@ -148,7 +152,7 @@ export default function SeriesDetail({
               onPress={() =>
                 run(() =>
                   Share.share({
-                    message: `${series.title} — DraBornSeries\n${config.webUrl}?series=${series.slug}`,
+                    message: `${series.title} — DraBornSeries\n${new URL(seriesPath(series.slug), config.webUrl).href}`,
                   }),
                 )
               }
@@ -248,7 +252,7 @@ export default function SeriesDetail({
                     <Text style={styles.h3}>{ep.title}</Text>
                     <Text style={styles.body}>
                       {formatTime(ep.duration_seconds)} ·{" "}
-                      {accessLabel(ep, store.language)}
+                      {accessLabel(ep, store.language, Platform.OS === "android")}
                       {watched?.completed ? "  ✓" : ""}
                     </Text>
                     {watched && (

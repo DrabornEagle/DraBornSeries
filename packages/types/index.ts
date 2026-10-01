@@ -58,6 +58,8 @@ export interface Series {
   created_at: string;
 }
 export interface Episode {
+  season_number?: number;
+  season_id?: string | null;
   id: string;
   series_id: string;
   number: number;

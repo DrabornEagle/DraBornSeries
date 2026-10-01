@@ -1,25 +1,19 @@
-name: DraBornSeries native Android
+name: DraBornSeries signed Android release
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - 'apps/**'
-      - 'packages/**'
-      - 'plugins/**'
-      - 'app.json'
-      - 'app.config.cjs'
-      - 'package*.json'
-      - '.github/workflows/android.yml'
+    paths: ['apps/**', 'packages/**', 'plugins/**', 'scripts/prepare-release-signing.py', 'scripts/android-smoke.sh', 'app.json', 'app.config.cjs', 'package*.json', '.github/workflows/android.yml']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: dbs-native-android-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,17 +26,59 @@ jobs:
           java-version: 21
       - uses: android-actions/setup-android@v3
         with:
-          packages: platform-tools
+          packages: "platform-tools build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
+      - name: Restore or create the persistent private signing key
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/prepare-release-signing.py
+      - name: Back up signing key privately before compilation
+        uses: actions/upload-artifact@v4
+        with:
+          name: DraBornSeries-release-signing
+          path: artifacts/signing/
+          retention-days: 90
       - run: npm ci
-      - name: Generate native Android project with Billing and AdMob
+      - name: Validate TypeScript
+        run: npm run typecheck
+      - name: Generate native Android with real splash, Billing, AdMob and release signing
         run: |
-          npm pack expo-template-bare-minimum@58.0.10 --pack-destination /tmp --silent
-          npx expo prebuild --platform android --no-install --template /tmp/expo-template-bare-minimum-58.0.10.tgz
-      - name: Compile installable Android test build
+          npm pack expo-template-bare-minimum@58.0.10 --pack-destination "$RUNNER_TEMP" --silent
+          npx expo prebuild --platform android --no-install --template "$RUNNER_TEMP/expo-template-bare-minimum-58.0.10.tgz"
+      - name: Compile signed APK and AAB with embedded JavaScript
         working-directory: android
-        run: ./gradlew :app:assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
+        run: ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,x86_64 --max-workers=2
+      - name: Prepare and verify installable release files
+        run: |
+          mkdir -p artifacts/release
+          cp android/app/build/outputs/apk/release/app-release.apk artifacts/release/DraBornSeries-v0.7.3-release.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.3-release.aab
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/release/DraBornSeries-v0.7.3-release.apk > artifacts/release/APK-signature.txt
+          jarsigner -verify artifacts/release/DraBornSeries-v0.7.3-release.aab > artifacts/release/AAB-signature.txt
+          sha256sum artifacts/release/*.apk artifacts/release/*.aab > artifacts/release/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.2-test-APK
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: DraBornSeries-v0.7.3-signed-release
+          path: artifacts/release/
+          retention-days: 90
+      - name: Enable accelerated Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and cold-start the exact release APK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: bash scripts/android-smoke.sh
+      - name: Save Android startup evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DraBornSeries-v0.7.3-Android-startup
+          path: artifacts/smoke/

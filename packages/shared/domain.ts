@@ -39,13 +39,13 @@ export function filterSeries(
       (filter !== "upcoming" || s.status === "coming_soon"),
   );
 }
-export function accessLabel(ep: Episode, lang = "tr") {
+export function accessLabel(ep: Episode, lang = "tr", androidAds = true) {
   const tr = lang === "tr";
   return {
     free: tr ? "Ücretsiz" : "Free",
     coins: `${ep.coin_price} BornCoins`,
     vip: "VIP",
-    ad: tr ? "Reklamla aç" : "Watch an ad",
+    ad: androidAds ? tr ? "Reklamla aç" : "Watch an ad" : tr ? "Android erişimi" : "Android access",
     vip_or_coins: `VIP / ${ep.coin_price} BornCoins`,
     promotion: tr ? "Kampanya" : "Promotion",
   }[ep.access_type];

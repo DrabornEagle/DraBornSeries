@@ -1,13 +1,12 @@
 /** Shared caption positions for Android and web; keep the normal player unchanged. */
 export function subtitleBottom(fullscreen: boolean, controlsVisible = false, safeBottom = 0, portrait = false) {
-  return fullscreen ? (controlsVisible ? (portrait ? 124 : 104) : (portrait ? 82 : 36)) + Math.max(0, safeBottom) : 128;
+  return fullscreen ? (controlsVisible ? (portrait ? 148 : 104) : (portrait ? 106 : 36)) + Math.max(0, safeBottom) : 128;
 }
 export const discoverSubtitleBottom = 270;
 
 /** Fill the display in the video's orientation while preserving its aspect ratio. */
-export function videoFit(fullscreen: boolean, portrait: boolean, landscapeScreen: boolean, mediaPortrait = portrait, fit: "auto" | "contain" | "cover" = "auto"): "cover" | "contain" {
-  if (fit !== "auto") return fit;
-  return fullscreen && (mediaPortrait !== portrait ? mediaPortrait === landscapeScreen : portrait === landscapeScreen) ? "contain" : "cover";
+export function videoFit(_fullscreen: boolean, _portrait: boolean, _landscapeScreen: boolean, _mediaPortrait = _portrait, fit: "contain" | "cover" = "cover"): "cover" | "contain" {
+  return fit;
 }
 
 export function originalQuality(width: number, height: number) {

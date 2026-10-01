@@ -35,26 +35,32 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
       finally { processing.delete(purchase.purchaseToken); if (live) setBusy(false); }
     };
     const restore = async () => { for (const purchase of await sdk.current!.getAvailablePurchases()) await process(purchase); };
+    let initialized = false, initializing = false;
     const initialize = async () => {
+      if (initializing || !live) return;
+      initializing = true;
       try {
         const module = await import("expo-iap"); if (!live) return; sdk.current = module;
-        update = module.purchaseUpdatedListener(purchase => void process(purchase));
-        failure = module.purchaseErrorListener(error => { if (!live) return; setBusy(false); setMessage(error.code === module.ErrorCode.UserCancelled ? "Satın alma iptal edildi." : "Google Play satın alımı tamamlanamadı. Daha sonra tekrar deneyebilirsin."); });
-        if (!(await module.initConnection()) || !live) return;
+        if (!initialized) update = module.purchaseUpdatedListener(purchase => void process(purchase));
+        if (!initialized) failure = module.purchaseErrorListener(error => { if (!live) return; setBusy(false); setMessage(error.code === module.ErrorCode.UserCancelled ? "Satın alma iptal edildi." : "Google Play satın alımı tamamlanamadı. Daha sonra tekrar deneyebilirsin."); });
+        if (!initialized && !(await module.initConnection()) || !live) return;
+        initialized = true;
         const loaded = await module.fetchProducts({ skus: Object.keys(playPlans), type: "subs" });
         if (!live) return; products.current = loaded || [];
         const available = Object.fromEntries(products.current.map(product => {
           const plan = playPlans[product.id as keyof typeof playPlans];
-          const offer = (product as ProductSubscription).subscriptionOffers?.find(item => item.basePlanIdAndroid === plan && !item.id && item.offerTokenAndroid);
+          const offer = (product as ProductSubscription).subscriptionOffers?.find(item => item.basePlanIdAndroid === plan && !item.id && item.offerTokenAndroid) || (product as ProductSubscription).subscriptionOffers?.find(item => !item.id && item.offerTokenAndroid);
           return [product.id, offer?.pricingPhasesAndroid?.pricingPhaseList.at(-1)?.formattedPrice || offer?.displayPrice || product.displayPrice];
         }));
         setPrices(available); setReady(products.current.length > 0); setMessage(products.current.length ? "Fiyatlar Google Play’den alındı. Ödeme Google Play onayıyla tamamlanır." : "VIP ürünleri Play Console’da etkinleştirildiğinde fiyatlar burada görünecek.");
         await restore();
       } catch { if (live) { setReady(false); setMessage("Google Play mağazasına bağlanılamadı. Uygulamayı Google Play test kanalından kurup tekrar dene."); } }
+      finally { initializing = false; }
     };
     void initialize();
-    const resume = AppState.addEventListener("change", state => { if (state === "active" && sdk.current) void restore().catch(() => {}); });
-    return () => { live = false; update?.remove(); failure?.remove(); resume.remove(); void sdk.current?.endConnection().catch(() => {}); sdk.current = null; };
+    const resume = AppState.addEventListener("change", state => { if (state === "active") void initialize(); });
+    const retryProducts = setInterval(() => { if (AppState.currentState === "active" && !products.current.length) void initialize(); }, 60000);
+    return () => { clearInterval(retryProducts); live = false; update?.remove(); failure?.remove(); resume.remove(); void sdk.current?.endConnection().catch(() => {}); sdk.current = null; };
   }, [supported, user]);
   const restore = async () => {
     if (!sdk.current || !user) return;
@@ -72,7 +78,7 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
   const buy = async (id: string) => {
     if (!ready || !user || !sdk.current || busy) return;
     const product = products.current.find(item => item.id === id) as ProductSubscription | undefined;
-    const offer = product?.subscriptionOffers?.find(item => item.basePlanIdAndroid === playPlans[id as keyof typeof playPlans] && !item.id && item.offerTokenAndroid);
+    const offer = product?.subscriptionOffers?.find(item => item.basePlanIdAndroid === playPlans[id as keyof typeof playPlans] && !item.id && item.offerTokenAndroid) || product?.subscriptionOffers?.find(item => !item.id && item.offerTokenAndroid);
     if (!offer?.offerTokenAndroid) { setMessage("Bu VIP planı Google Play’de henüz satışa hazır değil."); return; }
     const owned = await sdk.current.getAvailablePurchases();
     if (owned.some(item => Object.hasOwn(playPlans, item.productId) && item.purchaseState !== "pending")) {

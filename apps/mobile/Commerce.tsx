@@ -3,12 +3,13 @@ import {
   Image,
   Modal,
   Pressable,
-  Switch,
+  Platform,
   ScrollView,
   Text,
   View,
   Linking,
 } from "react-native";
+import RewardPopup, { type PromoReward } from "../../packages/ui/RewardPopup";
 import AnimatedCTA from "../../packages/ui/AnimatedCTA";
 import { LinearGradient } from "expo-linear-gradient";
 import type { Store } from "../../packages/api/store";
@@ -121,6 +122,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     [checkout, setCheckout] = useState<Product | null>(null),
     [checkoutVisible, setCheckoutVisible] = useState(false),
     [reward, setReward] = useState<number | null>(null),
+    [promoReward, setPromoReward] = useState<PromoReward | null>(null),
     [filter, setFilter] = useState("all"),
     [promo, setPromo] = useState(""),
     [tasks, setTasks] = useState<any[]>([]),
@@ -561,7 +563,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             <Button
               onPress={() =>
                 needLogin(async () => {
-                  await rpc("dbs_redeem_reward", { code: promo });
+                  const prize = await rpc<PromoReward>("dbs_redeem_reward", { code: promo.trim() });
+                  setPromoReward(prize);
                   await store.refreshAccount();
                   setPromo("");
                 })
@@ -573,35 +576,6 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
           <Text style={{ color: colors.muted, fontSize: 11 }}>
             Koduna tanımlı BornCoins ve VIP günleri hesabına eklenir. Her kod bir kez kullanılabilir.
           </Text>
-        </View>
-        <View style={[panel, styles.row]}>
-          <View style={{ flex: 1, gap: 7 }}>
-            <Text style={styles.h3}>Sonraki bölümü otomatik aç</Text>
-            <Text style={{ color: colors.muted, fontSize: 12, lineHeight: 19 }}>
-              Coin gerektiren bölümün fiyatını bakiyenden kullanır. Dilediğinde
-              kapatabilirsin.
-            </Text>
-          </View>
-          <Switch
-            value={store.profile?.preferences?.auto_unlock === true}
-            trackColor={{ true: colors.pink }}
-            onValueChange={(value) =>
-              needLogin(async () => {
-                await requireData(
-                  db
-                    .from("dbs_profiles")
-                    .update({
-                      preferences: {
-                        ...store.profile?.preferences,
-                        auto_unlock: value,
-                      },
-                    })
-                    .eq("user_id", store.session!.user.id),
-                );
-                await store.refreshAccount();
-              })
-            }
-          />
         </View>
         <Text style={styles.h2}>İşlem geçmişi</Text>
         <View style={styles.wrap}>
@@ -813,7 +787,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </Button>
             </View>
           ))}
-          <View style={[styles.row, { paddingTop: 20 }]}>
+          {Platform.OS === "android" && <View style={{ paddingTop: 20, gap: 14 }}>
             <Icon name="play-circle" color={colors.orange} size={30} />
             <View style={{ flex: 1, gap: 5 }}>
               <Text style={styles.label}>Reklam izle, bonus kazan</Text>
@@ -822,7 +796,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </Text>
             </View>
             <AdRewardButton store={store} run={run} onLogin={() => go("auth")} onReward={setReward} />
-          </View>
+          </View>}
         </View>
         <Pressable onPress={() => go("wallet")}>
           <Text
@@ -1132,6 +1106,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
           </ScrollView>
         </View>
       </Modal>
+      <RewardPopup reward={promoReward} onClose={() => setPromoReward(null)} />
       <Modal
         visible={reward !== null}
         transparent

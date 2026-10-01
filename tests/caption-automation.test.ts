@@ -34,6 +34,6 @@ test("generated captions must contain correctly ordered cues within the actual v
 test("fullscreen fills a matching orientation and keeps the full image before rotation", () => {
   assert.equal(videoFit(true, true, false), "cover");
   assert.equal(videoFit(true, false, true), "cover");
-  assert.equal(videoFit(true, false, false), "contain");
-  assert.equal(videoFit(true, true, true), "contain");
+  assert.equal(videoFit(true, false, false), "cover");
+  assert.equal(videoFit(true, true, true), "cover");
 });

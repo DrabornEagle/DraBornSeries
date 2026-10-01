@@ -16,6 +16,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Linking from "expo-linking";
 import * as ScreenOrientation from "expo-screen-orientation";
+import * as NativeSplash from "expo-splash-screen";
 import { useStore } from "../../packages/api/store";
 import { db, requireData } from "../../packages/api/client";
 import { translations } from "../../packages/shared/i18n";
@@ -45,6 +46,7 @@ import ErrorPopup from "../../packages/ui/ErrorPopup";
 import { config } from "../../packages/shared/config";
 import RefreshScrollView from "../../packages/ui/RefreshScrollView";
 import { useBilling } from "../../packages/api/billing";
+import { parseRoute, routePath, type Route } from "../../packages/shared/routes";
 const navItems: [Page, React.ComponentProps<typeof Icon>["name"]][] = [
   ["home", "home-outline"],
   ["feed", "play-circle-outline"],
@@ -52,46 +54,7 @@ const navItems: [Page, React.ComponentProps<typeof Icon>["name"]][] = [
   ["rewards", "gift-outline"],
   ["profile", "person-circle-outline"],
 ];
-type Route = { page: Page; series?: string; episode?: string };
-function parseRoute(url: string): Route {
-  try {
-    const parsed = new URL(url);
-    if (parsed.searchParams.get("episode"))
-      return { page: "player", episode: parsed.searchParams.get("episode")! };
-    if (parsed.searchParams.get("series"))
-      return { page: "detail", series: parsed.searchParams.get("series")! };
-    const page = parsed.searchParams.get("page");
-    const allowed = [
-      "home",
-      "feed",
-      "store",
-      "browse",
-      "search",
-      "library",
-      "wallet",
-      "vip",
-      "rewards",
-      "profile",
-      "settings",
-      "notifications",
-      "auth",
-      "admin",
-      "help",
-      "privacy",
-      "terms",
-      "delete-account",
-    ];
-    return {
-      page: allowed.includes(page || "")
-        ? (page as Page)
-        : parsed.searchParams.has("reset")
-          ? "auth"
-          : "home",
-    };
-  } catch {
-    return { page: "home" };
-  }
-}
+if (Platform.OS !== "web") void NativeSplash.preventAutoHideAsync().catch(() => {});
 function Main() {
   useEffect(() => {
     if (Platform.OS !== "web") void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
@@ -121,6 +84,8 @@ function Main() {
     history = useRef<Route[]>([]),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
     fade = useRef(new Animated.Value(0)).current;
+  const catalog = useRef({ series: store.series, episodes: store.episodes });
+  catalog.current = { series: store.series, episodes: store.episodes };
   const go = useCallback((page: Page, extra: Partial<Route> = {}) => {
     setPreviewRegion("hero");
     setRoute((current) => {
@@ -129,15 +94,7 @@ function Main() {
     });
     scroll.current?.scrollTo({ y: 0, animated: false });
     if (Platform.OS === "web" && typeof window !== "undefined") {
-      const params = new URLSearchParams();
-      if (extra.episode) params.set("episode", extra.episode);
-      else if (extra.series) params.set("series", extra.series);
-      else if (page !== "home") params.set("page", page);
-      window.history.pushState(
-        {},
-        "",
-        `${window.location.pathname}${params.toString() ? "?" + params : ""}`,
-      );
+      window.history.pushState({}, "", routePath({ page, ...extra }, catalog.current.series, catalog.current.episodes));
     }
   }, []);
   const run = useCallback(
@@ -224,7 +181,13 @@ function Main() {
   const activeSeries = store.series.find(
       (s) => s.slug === route.series || s.id === route.series,
     ),
-    activeEpisode = store.episodes.find((e) => e.id === route.episode);
+    activeEpisode = store.episodes.find((e) => route.episode ? e.id === route.episode : e.series_id === activeSeries?.id && e.number === route.episodeNumber && (e.season_number || 1) === route.season);
+  useEffect(() => {
+    if (Platform.OS === "web" && (activeEpisode || activeSeries) && (route.episode || route.page === "detail" || window.location.search.includes("dbs_route="))) {
+      const path = routePath(route, store.series, store.episodes);
+      if (decodeURI(window.location.pathname) !== decodeURI(path)) window.history.replaceState({}, "", path);
+    }
+  }, [route, activeEpisode, activeSeries, store.series, store.episodes]);
   const selectedGenre = genre;
   const results = filterSeries(store.series, query, selectedGenre, filter);
   function browse(reset = true) {
@@ -276,6 +239,8 @@ function Main() {
           onLogin={() => go("auth")}
           run={run}
           onReport={() => go("help")}
+          onVIP={() => go("vip")}
+          onWallet={() => go("wallet")}
         />
       ) : (
         <Empty title="Bölüm bulunamadı" />
@@ -485,6 +450,7 @@ function Main() {
   );
   return (
     <SafeAreaView
+      onLayout={() => { if (Platform.OS !== "web") void NativeSplash.hideAsync().catch(() => {}); }}
       style={{ flex: 1, backgroundColor: colors.bg }}
       edges={["top", "left", "right"]}
     >
@@ -621,6 +587,7 @@ function Main() {
                 >
                   <Icon name="bag-handle-outline" />
                 </Pressable>
+                {store.vip && <Pressable accessibilityLabel="VIP üyeliğin aktif" onPress={() => go("vip")} style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 12, backgroundColor: "#ffd58c20", borderWidth: 1, borderColor: "#ffd58c70" }}><Icon name="diamond" color="#ffd58c" size={14} /><Text style={{ fontSize: 12, color: "#ffd58c", fontWeight: "900" }}>VIP</Text></Pressable>}
                 <Pressable
                   accessibilityLabel={store.session ? t.profile : t.login}
                   onPress={() => go(store.session ? "profile" : "auth")}

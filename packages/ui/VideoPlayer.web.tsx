@@ -18,7 +18,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const mount = useRef<React.ElementRef<typeof View>>(null);
   const captions = useSubtitleSelection(source.subtitles, source.url);
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 }), [fit, setFit] = useState<"auto" | "contain" | "cover">("auto");
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 }), [fit, setFit] = useState<"contain" | "cover">("cover");
   const video = useRef<HTMLVideoElement>(null), container = useRef<React.ElementRef<typeof View>>(null), hls = useRef<Hls | null>(null),
     [fullscreen, setFullscreen] = useState(false), [viewportFullscreen, setViewportFullscreen] = useState(false), [levels, setLevels] = useState<{ width: number; height: number }[]>([]),
     [quality, setQuality] = useState("Otomatik"), [error, setError] = useState(""), [buffering, setBuffering] = useState(true),
@@ -92,9 +92,9 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       style={{ width: "100%", height: "100%", objectFit: videoFit(expanded, portrait, width > height, mediaPortrait, fit), objectPosition: "center", background: "#05020a" }}
       onLoadedMetadata={() => { if (video.current) { setDuration(video.current.duration); setDimensions({ width: video.current.videoWidth, height: video.current.videoHeight }); } }}
       onTimeUpdate={() => { if (!video.current) return; setTime(video.current.currentTime);
-        if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
+        if (Date.now() - lastSaved.current > 5000) { lastSaved.current = Date.now(); onProgress(video.current.currentTime); } }}
       onPause={() => { setPlaying(false); if (video.current) onProgress(video.current.currentTime); }} onPlay={() => setPlaying(true)}
-      onEnded={onEnd} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
+      onEnded={() => { if (video.current) onProgress(video.current.duration); onEnd(); }} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
       onError={() => { setBuffering(false); setError("Video bağlantısı açılamadı. Tekrar dene."); }}>
     </video>
     <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, 0, portrait)} />

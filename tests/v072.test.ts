@@ -23,7 +23,7 @@ test("actual resolution and rotated media preserve the full landscape frame", ()
   assert.equal(originalQuality(1080, 1920), "1080p · Orijinal");
   assert.equal(originalQuality(1728, 720), "720p · Orijinal");
   assert.equal(videoFit(true, false, true, false), "cover");
-  assert.equal(videoFit(true, false, true, true), "contain");
+  assert.equal(videoFit(true, false, true, true), "cover");
   assert.equal(videoFit(true, true, false, true, "contain"), "contain");
   assert.equal(videoFit(false, false, false, false, "cover"), "cover");
 });

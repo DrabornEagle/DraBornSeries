@@ -1,2 +1,1 @@
-# Web
-Android ve web `apps/mobile/App.tsx` ile aynı uygulamayı ve Supabase şemasını kullanır. Platforma özel oynatıcı `packages/ui/VideoPlayer.web.tsx` içindedir. `npm run build:web` çıktısı `/DraBornSeries/` alt yoluna hazırlanır. Deep linkler GitHub Pages ile uyumlu `?series=slug` ve `?episode=uuid` biçimindedir.
+Android ve web aynı Expo kaynaklarını ve DraBornSeries veritabanını kullanır. Webde reklam gösterilmez. Okunabilir yollar: /DraBornSeries/DiziAdı=hero/Sezonbilgisi=season2/Bölümbilgisi=episode7/. Katalogda mevcut yollar statik index.html olarak derlenir; yeni içerikler için şirket 404 sayfası yalnız DraBornSeries yollarına uygulama kabuğunu yükler. Eski ?series ve ?episode bağlantıları çalışır ve okunabilir yola çevrilir.

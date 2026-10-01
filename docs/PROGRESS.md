@@ -1,3 +1,11 @@
+# v0.7.3 uygulama ve release derleme kontrol noktası · 2 Ekim 2026
+
+Sürüm 0.7.3 / Kod 2. Web reklam alanları kaldırıldı; Android resmi test reklamları korunur. BornCoins tüm girişlerde açık onay ister; eski auto_unlock tercihi artık para harcamaz. Promosyon sonucu BornCoins ve VIP günlerini animasyonlu Tebrikler penceresinde gösterir. VIP başlık rozeti, renkli kilit ekranları, detay üst sayaçları, varsayılan cover yerleşimi ve yalnız dikey tam ekranda 24px daha yüksek altyazı eklendi. İzleme kayıtları 5 saniye ve video sonu/kapatma olaylarında yazılır; sunucudaki sayaçlar ardından yenilenir.
+
+Okunabilir dizi/sezon/bölüm yolları ve önceki UUID bağlantılarından geçiş eklendi. Public katalogdan statik derin sayfalar oluşturulur. Google Play ürünleri yeniden ön plana dönüşte ve eksikse 60 saniye aralıkla tekrar sorgulanır. Canlı backend sağlık bilgisi billing=true; gerçek Play satın alma testi henüz yapılmadı.
+
+Native splash plugin logo ve koyu arka planı Android başlangıcına uygular; JS animasyonlu yükleme perdesi korunur. Yeni workflow debug imzayı reddeder; ilk kalıcı RSA4096 release keystore'unu özel Actions çıktısına kaydeder ve sonraki derlemelerde aynı anahtarı geri alır. Aynı kaynak/anahtarla APK ve AAB; exact APK için API36 emülatör açılış testi hazırlanmıştır. Derleme/ci/web yayın sonuçları tamamlandığında bu kayıt güncellenecek. Henüz yeni APK çalışıyor veya tüm cihazlarda doğrulandı denmez.
+
 # v0.7.2 teslim kontrol noktası · 1 Ekim 2026
 
 Sürüm 0.7.2, Android Kod 1. Google kullanıcı adları e-postanın @ öncesi; manuel ad/fotoğraf korunur. Gerçek izlenme/beğeni sayaçları, varsayılan onaylı yorumlar, takvimli yayın tarihi, web aşağı çekerek yenileme, orijinal çözünürlük seçimi, tam ekranla sınırlı fragman döndürme ipucu ve manuel video yerleşimi hazır.

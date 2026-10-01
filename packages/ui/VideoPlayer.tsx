@@ -21,7 +21,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const videoView = useRef<VideoView>(null);
   const insets = useSafeAreaInsets();
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [fit, setFit] = useState<"auto" | "contain" | "cover">("auto");
+  const [fit, setFit] = useState<"contain" | "cover">("cover");
   const foreground = useRef(AppState.currentState === "active");
   const captions = useSubtitleSelection(source.subtitles, source.url), manualSubtitles = useRef(false);
   const { width, height } = useWindowDimensions();
@@ -59,7 +59,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     const playingSub = player.addListener("playingChange", (event) => setPlaying(event.isPlaying));
     const timeSub = player.addListener("timeUpdate", (event) => {
       current.current = event.currentTime; setTime(event.currentTime);
-      if (Date.now() - lastSaved.current > 15000) { lastSaved.current = Date.now(); progressCallback.current(event.currentTime); }
+      if (Date.now() - lastSaved.current > 5000) { lastSaved.current = Date.now(); progressCallback.current(event.currentTime); }
     });
     const endSub = player.addListener("playToEnd", () => { progressCallback.current(current.current); endCallback.current(); });
     ready();
