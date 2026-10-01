@@ -30,5 +30,5 @@ if (!bindings.some((binding) => binding.type === 'secret_text' && supportedSecre
   await cloudflare('/secrets', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'SIGNING_SECRET', type: 'secret_text', text: randomBytes(32).toString('hex') }) });
 const response = await fetch('https://drabornseries.draborneagle.workers.dev/health', { signal: AbortSignal.timeout(15000) });
 const health = await response.json();
-if (!health.ok || !health.privateMedia || !health.listing) throw Error('R2 Worker health verification failed');
-console.log('R2 Worker deployed: signed playback, byte ranges and authenticated folder listing verified.');
+if (!health.ok || !health.privateMedia || !health.listing || health.version !== '0.7.1' || !health.serviceProbe) throw Error('R2 Worker health verification failed');
+console.log('R2 Worker deployed: signed playback, byte ranges, folder listing and server API-key probe verified.');

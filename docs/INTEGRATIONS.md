@@ -2,7 +2,7 @@
 
 These source adapters do **not** mean the production services are connected. The Expo Go release keeps store products inactive. Never enable products until RTDN/refund lifecycle tests, native Billing and Play Console setup pass.
 
-## Cloudflare R2 · v0.7
+## Cloudflare R2 · v0.7.1
 
 New media uses the owner's existing R2 Worker at `https://drabornseries.draborneagle.workers.dev`. R2 account: `073b0f4e7f33bf2ce56fe8f60dbe6067`. The S3 API is for authenticated bucket uploads, not a browser/Android playback URL. No R2 access key belongs in the application.
 
@@ -12,7 +12,7 @@ Upload video files into a series folder in R2. Studio accepts a key such as `Diz
 
 `scripts/configure-r2.mjs` in the service workflow uses `CLOUDFLARE_API_TOKEN` with Workers Scripts Edit on the owner's account and optional `CLOUDFLARE_ACCOUNT_ID` (defaults to the supplied account). It preserves the existing bucket binding and secret bindings; a missing signing secret is generated inside the deployment process. `SUPABASE_ACCESS_TOKEN` separately enables API deploy through Actions. Without the account token the Worker step reports a pending deployment, rather than pretending the connection is complete. No videos are copied to Stream.
 
-At implementation time the existing Worker serves the supplied MP4 and Range 206, but `/health` is plain text and no authenticated folder API is available. Manual file-key integration works for free videos; folder listing and protected playback become available after deploying the new module. Cloudflare's panel challenged this cloud browser, so its settings could not be changed through that panel. See [R2_SETUP.md](R2_SETUP.md) for the exact remaining account setup and usage.
+The live Worker now reports v0.7.0 with authenticated listing and signed private media. The v0.7.1 module adds a server API-key probe for automatic captions, correctly forwarding opaque Supabase `sb_secret_` keys as API keys rather than JWTs. Cloudflare's panel challenged this cloud browser and no deployment token is configured, so this final Worker update remains an account action. Published free videos can already be captioned through signed public entitlement; owner previews bridge private uploads while their two-hour URLs remain valid. See [R2_SETUP.md](R2_SETUP.md).
 
 ## Turkish captions
 
@@ -20,7 +20,7 @@ The five current films with intelligible speech have licensed Turkish sidecars: 
 
 The isolated `drabornseries.dbs_subtitles` table stores one HTTPS track per episode/language. `dbs-api` resolves these only after episode-access checks. Native and web playback automatically select Turkish, keep captions synchronized through seeking/quality changes/fullscreen, and allow switching them off. Discover uses the same sidecars without recording preview progress as full-episode progress. Private R2 object keys are never exposed as caption URLs.
 
-Speech recognition for future uploaded videos requires an actual transcription service; this release does not claim one is connected. Sound effects, grunts and Glass Half's fictional speech are not given invented translations.
+New R2 assets queue real speech recognition with Whisper small on GitHub Actions, using its signed OIDC identity; foreign speech is translated to Turkish through the documented English/Marian path. No paid ASR API or stored runner secret is needed. Private generated VTT is served only after playback entitlement checks. Manual Turkish tracks are retained. Sound-only clips do not receive invented translations. Queue, failure/retry and Worker transition details: [AUTO_SUBTITLES.md](AUTO_SUBTITLES.md).
 
 ## Google Play
 
