@@ -32,21 +32,20 @@ jobs:
         id: jobs
         run: python scripts/auto-subtitles.py claim
       - uses: actions/cache@v4
-        if: steps.jobs.outputs.pending == 'true'
+        if: steps.jobs.outputs.pending == 'true' || github.event_name == 'push'
         with:
           path: .caption-models
           key: dbs-subtitle-small-opus-en-tr-v1
       - name: Install speech and translation tools
-        if: steps.jobs.outputs.pending == 'true'
+        if: steps.jobs.outputs.pending == 'true' || github.event_name == 'push'
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.8.0
           python -m pip install -r scripts/subtitles-requirements.txt
       - name: Verify real speech recognition and Turkish translation
-        if: steps.jobs.outputs.pending == 'true' && github.event_name == 'push'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq espeak-ng
-          python scripts/auto-subtitles.py selftest
+        if: github.event_name == 'push'
+        run: python scripts/auto-subtitles.py selftest
       - name: Generate and save Turkish captions
         if: steps.jobs.outputs.pending == 'true'
         run: python scripts/auto-subtitles.py run

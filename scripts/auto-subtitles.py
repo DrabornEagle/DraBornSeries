@@ -4,6 +4,7 @@ import base64
 import html
 import json
 import os
+import re
 import subprocess
 import tempfile
 import urllib.error
@@ -16,6 +17,10 @@ AUDIENCE = "drabornseries-subtitles"
 MODEL_TR = "Helsinki-NLP/opus-mt-tc-big-en-tr"
 WORKER = "https://drabornseries.draborneagle.workers.dev"
 JOB_FILE = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())) / "dbs-caption-job.json"
+
+
+class MediaAccessBlocked(RuntimeError):
+    pass
 
 
 def oidc_token():
@@ -122,6 +127,8 @@ def process(job, model):
             download(job["url"], video)
         except urllib.error.HTTPError as error:
             print("Video download HTTP " + str(error.code) + ".", flush=True)
+            if error.code == 403 and re.search(rb"error code:\s*1010\b", error.read(500)):
+                raise MediaAccessBlocked("R2_DOWNLOAD_BLOCKED") from None
             raise
         print("Reading video duration and audio.", flush=True)
         probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type:format=duration", "-of", "json", str(video)], capture_output=True, check=True, timeout=60)
@@ -181,7 +188,7 @@ def run():
             finish(job, "completed" if vtt else "no_speech", language=language, duration=duration, **({"vtt": vtt} if vtt else {}))
         except Exception as error:
             print("Caption generation failed (" + type(error).__name__ + ").")
-            finish(job, "failed")
+            finish(job, "failed", **({"cause": "R2_DOWNLOAD_BLOCKED"} if isinstance(error, MediaAccessBlocked) else {}))
             raise RuntimeError("Caption generation failed") from None
         if index < 2:
             claim()

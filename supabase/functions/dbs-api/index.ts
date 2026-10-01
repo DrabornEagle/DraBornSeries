@@ -122,8 +122,10 @@ Deno.serve(async (req) => {
         const result = await admin.storage.from("dbs-auto-subtitles").upload(objectKey, new TextEncoder().encode(vtt), { contentType: "text/vtt", upsert: true });
         if (result.error) throw Error("CAPTION_UPLOAD_FAILED");
       }
+      const mediaBlocked = body.outcome === "failed" && body.cause === "R2_DOWNLOAD_BLOCKED";
       const result = await checked(admin.rpc("dbs_finish_caption", { job_id: job.id, lease: body.lease, outcome: body.outcome,
-        language: typeof body.language === "string" ? body.language.slice(0, 20) : "", actual_duration: Number(body.duration) > 0 && Number(body.duration) <= 7200 ? Math.ceil(Number(body.duration)) : null, cause: body.outcome === "failed" ? "Otomatik altyazı hazırlanamadı. Stüdyo’dan yeniden deneyebilirsin." : null }));
+        language: typeof body.language === "string" ? body.language.slice(0, 20) : "", actual_duration: Number(body.duration) > 0 && Number(body.duration) <= 7200 ? Math.ceil(Number(body.duration)) : null, cause: mediaBlocked ? "R2_DOWNLOAD_BLOCKED" : body.outcome === "failed" ? "Otomatik altyazı hazırlanamadı. Stüdyo’dan yeniden deneyebilirsin." : null }));
+      if (mediaBlocked) await checked(admin.from("dbs_auto_subtitle_jobs").update({ attempts: 3 }).eq("id", job.id).eq("status", "failed"));
       if (["completed", "no_speech", "manual", "superseded"].includes(result.status)) await checked(admin.from("dbs_auto_subtitle_jobs").update({ preview_url: null, preview_until: null }).eq("id", job.id));
       if (objectKey && result.status !== "completed") await admin.storage.from("dbs-auto-subtitles").remove([objectKey]);
       return send(req, result);
