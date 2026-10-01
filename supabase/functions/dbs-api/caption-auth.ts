@@ -1,5 +1,10 @@
 const issuer = "https://token.actions.githubusercontent.com";
 const repository = "DrabornEagle/DraBornSeries";
+const ownerId = "209698513", repositoryId = "1393825232";
+const approvedSubjects = [
+  `repo:${repository}:ref:refs/heads/main`,
+  `repo:DrabornEagle@${ownerId}/DraBornSeries@${repositoryId}:ref:refs/heads/main`,
+];
 export const captionAudience = "drabornseries-subtitles";
 let cached: { until: number; keys: JsonWebKey[] } | undefined;
 function decode(value: string) {
@@ -7,8 +12,8 @@ function decode(value: string) {
   return Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (char) => char.charCodeAt(0));
 }
 export function assertCaptionClaims(claims: Record<string, any>, now = Math.floor(Date.now() / 1000)) {
-  if (claims.iss !== issuer || claims.aud !== captionAudience || claims.repository !== repository || claims.repository_id !== "1393825232"
-    || claims.ref !== "refs/heads/main" || claims.sub !== `repo:${repository}:ref:refs/heads/main`
+  if (claims.iss !== issuer || claims.aud !== captionAudience || claims.repository !== repository || claims.repository_id !== repositoryId || claims.repository_owner_id !== ownerId
+    || claims.ref !== "refs/heads/main" || !approvedSubjects.includes(claims.sub)
     || claims.workflow_ref !== `${repository}/.github/workflows/subtitles.yml@refs/heads/main`
     || !["schedule", "workflow_dispatch", "push"].includes(claims.event_name)
     || !Number.isInteger(claims.exp) || !Number.isInteger(claims.iat) || !Number.isInteger(claims.nbf)

@@ -5,13 +5,14 @@ import { validateAutoVtt } from "../supabase/functions/dbs-api/captions";
 import { videoFit } from "../packages/shared/player-layout";
 const now = 1800000000;
 const claims = { iss: "https://token.actions.githubusercontent.com", aud: captionAudience,
-  repository: "DrabornEagle/DraBornSeries", repository_id: "1393825232", ref: "refs/heads/main",
+  repository: "DrabornEagle/DraBornSeries", repository_id: "1393825232", repository_owner_id: "209698513", ref: "refs/heads/main",
   sub: "repo:DrabornEagle/DraBornSeries:ref:refs/heads/main", workflow_ref: "DrabornEagle/DraBornSeries/.github/workflows/subtitles.yml@refs/heads/main",
   event_name: "push", exp: now + 300, iat: now, nbf: now - 5 };
 const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
 test("only the main branch caption workflow can access private R2 jobs", async () => {
   assert.doesNotThrow(() => assertCaptionClaims(claims, now));
-  for (const change of [{ repository_id: "1" }, { aud: "another-app" }, { ref: "refs/pull/1/merge" },
+  assert.doesNotThrow(() => assertCaptionClaims({ ...claims, sub: "repo:DrabornEagle@209698513/DraBornSeries@1393825232:ref:refs/heads/main" }, now));
+  for (const change of [{ repository_id: "1" }, { repository_owner_id: "1" }, { sub: "repo:DrabornEagle@1/DraBornSeries@1393825232:ref:refs/heads/main" }, { aud: "another-app" }, { ref: "refs/pull/1/merge" },
     { workflow_ref: claims.workflow_ref.replace("subtitles.yml", "validate.yml") }, { event_name: "pull_request_target" }, { exp: now - 1 }]) {
     assert.throws(() => assertCaptionClaims({ ...claims, ...change }, now), /INVALID_RUNNER/);
   }
