@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { View, useWindowDimensions } from "react-native";
 import RotateHint from "./RotateHint";
@@ -11,6 +11,11 @@ import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layo
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
 export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
+  // Keep one portal target and one media element. Changing a portal target
+  // remounts its children and can interrupt playback when native fullscreen
+  // is unavailable (including mobile browsers and embedded previews).
+  const [portalHost] = useState(() => typeof document === "undefined" ? null : document.createElement("div"));
+  const mount = useRef<React.ElementRef<typeof View>>(null);
   const captions = useSubtitleSelection(source.subtitles, source.url);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 }), [fit, setFit] = useState<"auto" | "contain" | "cover">("auto");
@@ -22,6 +27,18 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const lastSaved = useRef(0), progressCallback = useRef(onProgress), currentUrl = useRef(source.url);
   const resumeAt = useRef(initialTime), resumePlaying = useRef(true), selectedQuality = useRef("auto"), loadedBase = useRef(source.url);
   progressCallback.current = onProgress;
+  useLayoutEffect(() => {
+    if (!portalHost) return;
+    const parent = viewportFullscreen ? document.body : mount.current as unknown as HTMLElement;
+    if (parent && portalHost.parentNode !== parent) {
+      const el = video.current, resume = el && !el.paused;
+      parent.appendChild(portalHost);
+      // Some browsers pause a media node when its DOM parent changes.
+      // Resume the same node without reloading or losing its playback time.
+      if (resume && el) void el.play().catch(() => setPlaying(false));
+    }
+  }, [portalHost, viewportFullscreen]);
+  useEffect(() => () => { portalHost?.remove(); }, [portalHost]);
   useEffect(() => {
     const el = video.current; if (!el) return;
     if (loadedBase.current !== source.url) { loadedBase.current = source.url; currentUrl.current = source.url; resumeAt.current = initialTime; selectedQuality.current = "auto"; }
@@ -38,7 +55,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     } else { el.src = mediaUrl; }
     return () => { if (el.readyState >= 1) { resumeAt.current = el.currentTime; resumePlaying.current = !el.paused; }
       progressCallback.current(resumeAt.current); el.pause(); el.removeEventListener("loadedmetadata", ready); hls.current?.destroy(); hls.current = null; el.removeAttribute("src"); el.load(); };
-  }, [source.url, initialTime, viewportFullscreen]);
+  }, [source.url, initialTime]);
   useEffect(() => {
     const changed = () => setFullscreen(document.fullscreenElement === (container.current as unknown as HTMLElement));
     document.addEventListener("fullscreenchange", changed); return () => document.removeEventListener("fullscreenchange", changed);
@@ -106,5 +123,5 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onSubtitle={captions.select} />
     <RotateHint fullscreen={expanded} landscapeVideo={!portrait} landscapeScreen={width > height} />
   </View>;
-  return viewportFullscreen ? createPortal(playerView, document.body) : playerView;
+  return <><View ref={mount} style={{ width: "100%", alignSelf: "center", maxWidth: 420, maxHeight: 760, aspectRatio: 9 / 16 }} />{portalHost ? createPortal(playerView, portalHost) : playerView}</>;
 }
