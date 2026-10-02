@@ -41,3 +41,9 @@ APK'da resmi Google AdMob test modu açıktır. Android Ödüller ekranından **
 - VIP üyelerine altın rozet ve renkli, animasyonlu bölüm erişim kartları.
 - İzleme ilerlemesi 5 saniyede ve video bitişi/kapatmada kaydedilir; ilk sayılan izlenme sonrası katalog yenilenir. Sunucu bir hesap/bölüm için tek izlenme sayar; tekrar oynatma yeni izlenme üretmez.
 - Okunabilir dizi/sezon/bölüm yolları. Eski UUID bağlantıları korunur ve yeni yola geçer. Doğrudan açılış ve sayfa yenileme desteklenir.
+
+## Doğrulanan teslim
+
+Bu APK API36 Google APIs / x86_64 Pixel 6 emülatörüne kurulup soğuk başlangıçta katalog ve gezinmeyi gösterdi; resmi AdMob test reklamı yüklenip açıldı. Native derleme ve emülatör testi: https://github.com/DrabornEagle/DraBornSeries/actions/runs/36947390884 . Fiziksel cihaz kurulumu ve gerçek Google Play ödemesi bu çalışmada denenmedi.
+
+APK/AAB imzaları aynı teslim edilen keystore sertifikasıyla eşleşir. 36 native kütüphanenin ELF ve APK konumları 16 KB hizalıdır. AAB Google bundletool ile doğrulandı. Uygulama/SQL güvenlik CI geçti. Ayrıntılar ve dosya SHA256 değerleri ZIP içindeki DraBornSeries-v0.7.3-verification.json dosyasındadır.
