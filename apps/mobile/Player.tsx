@@ -136,12 +136,12 @@ export default function Player({
           portrait={episode.orientation !== "landscape"}
           onProgress={(seconds) => {
             if (seconds <= 0) return;
-            void saveProgress(episode.id, seconds).then(async () => {
+            void saveProgress(episode.id, seconds).then(async (synced) => {
               // The server counts one view once this episode's threshold is crossed.
               // Refresh that result promptly without downloading the catalog every 5s.
-              if (store.session && !countedViewRefreshed.current && seconds >= Math.min(5, episode.duration_seconds / 2)) {
+              if (synced && store.session && !countedViewRefreshed.current && seconds >= Math.min(5, episode.duration_seconds / 2)) {
                 countedViewRefreshed.current = true;
-                try { await store.refreshCatalog(); }
+                try { countedViewRefreshed.current = await store.refreshCatalog(); }
                 catch { countedViewRefreshed.current = false; }
               }
             }).catch(() => {});

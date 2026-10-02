@@ -107,7 +107,7 @@ export default function Account({ page, store, go, run }: Props) {
         </LinearGradient>
         <View style={styles.wrap}>
           {[
-            ["eye-off-outline", "Reklamsız izleme"],
+            ...(Platform.OS === "android" ? [["eye-off-outline", "Reklamsız izleme"]] : []),
             ["diamond-outline", "VIP dizi ve bölümler"],
             ["flash-outline", "Yeni bölümlere erken erişim"],
             ["gift-outline", "Aylık BornCoins bonusu"],
@@ -130,11 +130,11 @@ export default function Account({ page, store, go, run }: Props) {
         <View style={styles.card}>
           <Text style={styles.h3}>DraBornSeries · v{config.version} · Kod {config.versionCode}</Text>
           <Text style={styles.body}>
-            Bu sürüm Expo Go ve web üzerinde erken erişim testidir. Bu
-            sürümde {store.series.filter((series) => series.status === "published").length} lisanslı filmi ve {store.episodes.length} bölümü keşfedebilirsin.
-            Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. BornCoins satın alma, VIP satışı, ödüllü
-            reklamlar ve push bildirimleri üretim bağlantıları açıldığında
-            etkinleşir.
+            {store.series.filter((series) => series.status === "published").length} yayındaki hikâyeyi ve {store.episodes.length} bölümü keşfedebilirsin.
+            Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır.
+            VIP aboneliklerini Android’de Google Play üzerinden satın alıp aynı hesabınla her iki platformda kullanabilirsin.
+            {Platform.OS === "android" ? " Bu APK'da resmi AdMob test reklamları hazır. Test reklamları gerçek BornCoins kazandırmaz." : ""}
+            BornCoins paket satışı ve push bildirimleri henüz etkin değildir.
           </Text>
           <Button
             secondary
@@ -448,10 +448,10 @@ export default function Account({ page, store, go, run }: Props) {
           })}
         </View>
         <View style={styles.card}>
-          <Text style={styles.h3}>Reklam ve görev ödülleri</Text>
+          <Text style={styles.h3}>{Platform.OS === "android" ? "Reklam ve görev ödülleri" : "Görev ödülleri"}</Text>
           <Text style={styles.body}>
-            Günlük giriş ve promosyon ödülleri aktif. Reklam ve izleme görevi
-            BornCoins ödülleri, sunucu doğrulaması tamamlanana kadar kapalıdır.
+            Günlük giriş ve promosyon ödülleri aktif.
+            {Platform.OS === "android" ? " Ödüller ekranından AdMob test reklamlarını deneyebilirsin; örnek reklamlar gerçek BornCoins eklemez." : ""}
           </Text>
         </View>
       </View>

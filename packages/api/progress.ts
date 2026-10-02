@@ -2,9 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db, deviceId, rpc } from "./client";
 type Pending = { episode: string; seconds: number; observed_at: string };
 let queue: Promise<void> = Promise.resolve();
-function serialized(work: () => Promise<void>) {
-  queue = queue.catch(() => {}).then(work);
-  return queue;
+function serialized<T>(work: () => Promise<T>) {
+  const result = queue.catch(() => {}).then(work);
+  queue = result.then(() => {}, () => {});
+  return result;
 }
 async function flushFor(userId: string) {
   const key = `dbs-progress-${userId}`;
@@ -24,6 +25,7 @@ async function flushFor(userId: string) {
     }
   }
   await AsyncStorage.setItem(key, JSON.stringify(pending));
+  return Object.keys(pending).length === 0;
 }
 export function saveProgress(episode: string, seconds: number) {
   const observed_at = new Date().toISOString();
@@ -32,14 +34,14 @@ export function saveProgress(episode: string, seconds: number) {
     const {
       data: { session },
     } = await currentSession;
-    if (!session) return;
+    if (!session) return false;
     const key = `dbs-progress-${session.user.id}`;
     const pending: Record<string, Pending> = JSON.parse(
       (await AsyncStorage.getItem(key)) || "{}",
     );
     pending[episode] = { episode, seconds, observed_at };
     await AsyncStorage.setItem(key, JSON.stringify(pending));
-    await flushFor(session.user.id);
+    return flushFor(session.user.id);
   });
 }
 export function flushProgress() {

@@ -202,7 +202,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         <View style={{ flexDirection: "row", gap: 18, marginTop: 4 }}>
           {[
             ["diamond-outline", "Özel bölümler"],
-            ["eye-off-outline", "Reklamsız"],
+            ...(Platform.OS === "android" ? [["eye-off-outline", "Reklamsız"]] : [["ribbon-outline", "VIP rozeti"]]),
             ["flash-outline", "Erken erişim"],
           ].map(([icon, label]) => (
             <View key={label} style={{ alignItems: "center", gap: 7, flex: 1 }}>
@@ -500,7 +500,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         <View style={panel}>
           {[
             ["play-circle-outline", "VIP içerik koleksiyonları"],
-            ["eye-off-outline", "Reklamsız izleme deneyimi"],
+            ...(Platform.OS === "android" ? [["eye-off-outline", "Reklamsız izleme deneyimi"]] : []),
             ["flash-outline", "Uygun içeriklerde erken erişim"],
             ["ribbon-outline", "VIP profil rozeti"],
             ["phone-portrait-outline", "Android ve web senkronizasyonu"],
@@ -1061,7 +1061,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             {checkout?.kind === "vip" && <View style={{ gap: 12, backgroundColor: "#332040", borderRadius: 18, padding: 18 }}>
               {[["videocam-outline", "1080p FULL HD", "İçeriğin sunduğu en yüksek kalite"],
                 ["infinite", "Sınırsız İzleme", "VIP kapsamındaki tüm diziler ve bölümler"],
-                ["shield-checkmark-outline", "Reklamsız", "VIP hesabında kesintisiz izleme"],
+                ...(Platform.OS === "android" ? [["shield-checkmark-outline", "Reklamsız", "VIP hesabında kesintisiz izleme"]] : []),
                 ["sync-outline", "Android + Web", "Aynı hesapta eş zamanlı VIP erişimi"]].map(([icon, title, detail]) =>
                 <View key={title} style={[styles.row, { gap: 12 }]}>
                   <Icon name={icon as any} color={colors.orange} size={24} />

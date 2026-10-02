@@ -7,9 +7,15 @@ adb shell am start -W -n com.draborneagle.drabornseries/.MainActivity
 for attempt in $(seq 1 8); do
   sleep 5
   adb logcat -d > artifacts/smoke/logcat.txt
-  if rg 'FATAL EXCEPTION|Fatal signal|Unable to load script|JavascriptException|Invariant Violation|TurboModuleRegistry.*could not be found' artifacts/smoke/logcat.txt; then
-    exit 1
-  fi
+  python3 - <<'PY'
+from pathlib import Path
+import re
+logs = Path('artifacts/smoke/logcat.txt').read_text()
+failure = re.search(r'FATAL EXCEPTION|Fatal signal|Unable to load script|JavascriptException|Invariant Violation|TurboModuleRegistry.*could not be found', logs)
+if failure:
+    print(logs[max(0, failure.start()-500):failure.start()+5000])
+    raise SystemExit('Release APK crashed; see logcat.')
+PY
   adb shell pidof com.draborneagle.drabornseries
 done
 adb shell uiautomator dump /sdcard/dbs-ui.xml

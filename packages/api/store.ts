@@ -58,8 +58,10 @@ export function useStore() {
         JSON.stringify({ series: shows, episodes: resolved }),
       );
       setError("");
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Bağlantı kurulamadı");
+      return false;
     } finally {
       setLoading(false);
     }
