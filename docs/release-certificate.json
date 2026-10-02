@@ -1,6 +1,9 @@
 {
-  "privateBootstrap": true,
+  "alias": "drabornseries-release",
+  "sha256": "ad35ced92a96551d972e2c44d4e9c34985a76528631c75a520981cc0f88f8ead",
+  "algorithm": "RSA",
+  "keySize": 4096,
+  "createdForVersion": "0.7.3",
   "retiredCertificateSha256": "fb9208a8099d459d685994973cc3f34fd4f075f6c94539d91c193231071e4ec1",
-  "backupFormat": "CMS AES256; owner-held RSA4096 recipient key",
-  "createdForVersion": "0.7.3"
+  "backupFormat": "CMS AES256; owner-held RSA4096 recipient key"
 }

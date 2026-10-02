@@ -8,7 +8,7 @@ Paket: `com.draborneagle.drabornseries`. Sürüm: **0.7.3**, versionCode: **2**.
 
 `DraBornSeries-v0.7.3-keystore.zip` içindeki `DraBornSeries-release.jks` imza anahtarıdır. Alias ve iki şifre `signing.json` içindedir. İmzalama için bu dosyaları birlikte kullan. Anahtarı, şifreleri ve ZIP'i gizli sakla; kaynak depoya veya web sitesine yükleme. Play App Signing kullanıldığında bu dosya upload key olarak kullanılabilir. Play Console'da daha önce tanımlanmış başka bir upload key varsa Console'un anahtar sıfırlama süreci gerekir.
 
-Güncel release sertifikası `release-certificate.json` dosyasında sabitlenir. İlk derlemedeki anahtar emekliye ayrılmıştır; teslim edilen APK/AAB yeni anahtarı kullanır.
+Sertifika SHA256: `ad35ced92a96551d972e2c44d4e9c34985a76528631c75a520981cc0f88f8ead`. Bu sertifika `release-certificate.json` dosyasında sabitlenir. İlk derlemedeki anahtar emekliye ayrılmıştır; teslim edilen APK/AAB yeni anahtarı kullanır.
 
 Kaynak depo herkese açıktır. Actions yalnız AES256 CMS ile sahibin RSA4096 alıcı sertifikasına şifrelenmiş yedeği saklar; eski açık keystore çıktıları silinir. Teslim edilen ZIP'in `signing.json` ve keystore dosyaları yalnız kullanıcıya özel teslim edilir.
 
