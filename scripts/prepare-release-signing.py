@@ -46,6 +46,11 @@ if encoded or metadata:
     print("Restored release signing material from encrypted repository Secrets.")
 else:
     if not checkpoint.get("privateBootstrap"):
+        if os.environ.get("DBS_ALLOW_UNSIGNED_CI") == "1" and os.environ.get("CI") == "true":
+            with open(os.environ["GITHUB_ENV"], "a") as env:
+                env.write("DBS_UNSIGNED_RELEASE=1\n")
+            print("No signing Secrets: build unsigned deliverables for private owner signing. The release certificate is unchanged.")
+            raise SystemExit(0)
         raise SystemExit("Restore the owner's keystore through encrypted signing Secrets. Refusing to generate a replacement key.")
     password = secrets.token_urlsafe(36)
     print("::add-mask::" + password, flush=True)

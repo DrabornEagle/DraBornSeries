@@ -11,6 +11,9 @@ if (System.getenv("DBS_RELEASE_STORE_FILE")) {
         keyPassword System.getenv("DBS_RELEASE_KEY_PASSWORD")
     }
     android.buildTypes.release.signingConfig = android.signingConfigs.drabornRelease
+} else if (System.getenv("DBS_UNSIGNED_RELEASE") == "1" && System.getenv("CI") == "true") {
+    // CI exports unsigned packages; only the owner's private key may sign delivery files.
+    android.buildTypes.release.signingConfig = null
 } else if (gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }) {
     throw new GradleException("DraBornSeries release keystore is required; debug signing is forbidden.")
 }

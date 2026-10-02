@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p artifacts/smoke
-adb install -r artifacts/release/DraBornSeries-v0.7.4-release.apk
+adb install -r "${DBS_SMOKE_APK:-artifacts/release/DraBornSeries-v0.7.4-release.apk}"
 adb logcat -c
 adb shell am start -W -n com.draborneagle.drabornseries/.MainActivity
 for attempt in $(seq 1 8); do
@@ -28,7 +28,7 @@ root = ET.fromstring(Path('artifacts/smoke/ui.xml').read_text())
 texts = ' '.join((node.get('text','')+' '+node.get('content-desc','')) for node in root.iter())
 assert 'DraBorn' in texts, texts
 assert any(word in texts for word in ['Ana Sayfa', 'Keşfet', 'İlk hikâyeni', 'Hemen izle']), texts
-print('Signed release remains running and renders the real catalog/navigation.')
+print('Release build remains running and renders the real catalog/navigation.')
 PY
 python3 - <<'PY'
 from pathlib import Path
@@ -47,7 +47,7 @@ for _ in range(18):
 else:
     raise AssertionError('R2 did not render a frame and advance playback; see sanitized logcat.')
 Path('artifacts/smoke/r2-playback.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
-print('Real R2 MP4 rendered a video frame and advanced playback in the signed release APK.')
+print('Real R2 MP4 rendered a video frame and advanced playback in the release APK.')
 adb('shell', 'am', 'force-stop', 'com.draborneagle.drabornseries')
 adb('shell', 'am', 'start', '-W', '-n', 'com.draborneagle.drabornseries/.MainActivity')
 time.sleep(8)
@@ -94,5 +94,5 @@ else:
     raise AssertionError('Official AdMob test ad did not open; see logcat.')
 Path('artifacts/smoke/test-ad.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
 Path('artifacts/smoke/test-ad-ui.xml').write_text(adb('shell', 'cat', '/sdcard/dbs-ui.xml'))
-print('Official AdMob rewarded test ad loaded and opened in the signed release APK.')
+print('Official AdMob rewarded test ad loaded and opened in the release APK.')
 PY
