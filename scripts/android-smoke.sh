@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p artifacts/smoke
-adb install -r artifacts/release/DraBornSeries-v0.7.3-release.apk
+adb install -r artifacts/release/DraBornSeries-v0.7.4-release.apk
 adb logcat -c
 adb shell am start -W -n com.draborneagle.drabornseries/.MainActivity
 for attempt in $(seq 1 8); do
   sleep 5
-  adb logcat -d > artifacts/smoke/logcat.txt
+  adb logcat -d | python3 -c 'import re,sys; print(re.sub(r"https?://[^\s]+", "[media]", sys.stdin.read()))' > artifacts/smoke/logcat.txt
   python3 - <<'PY'
 from pathlib import Path
 import re
@@ -29,6 +29,28 @@ texts = ' '.join((node.get('text','')+' '+node.get('content-desc','')) for node 
 assert 'DraBorn' in texts, texts
 assert any(word in texts for word in ['Ana Sayfa', 'Keşfet', 'İlk hikâyeni', 'Hemen izle']), texts
 print('Signed release remains running and renders the real catalog/navigation.')
+PY
+python3 - <<'PY'
+from pathlib import Path
+import re, subprocess, time
+
+def adb(*args): return subprocess.check_output(['adb', *args], text=True)
+adb('logcat', '-c')
+adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'drabornseries://open?episode=aa930f3f-db90-4bc6-917a-e9284f84a4b1', 'com.draborneagle.drabornseries')
+for _ in range(18):
+    time.sleep(5)
+    logs = re.sub(r'https?://[^\s]+', '[media]', adb('logcat', '-d'))
+    Path('artifacts/smoke/r2-playback-logcat.txt').write_text(logs)
+    assert not re.search(r'FATAL EXCEPTION|Fatal signal|JavascriptException', logs), 'Release crashed during R2 playback.'
+    if 'DraBornSeries: video frame rendered' in logs and 'DraBornSeries: video playback advanced' in logs:
+        break
+else:
+    raise AssertionError('R2 did not render a frame and advance playback; see sanitized logcat.')
+Path('artifacts/smoke/r2-playback.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
+print('Real R2 MP4 rendered a video frame and advanced playback in the signed release APK.')
+adb('shell', 'am', 'force-stop', 'com.draborneagle.drabornseries')
+adb('shell', 'am', 'start', '-W', '-n', 'com.draborneagle.drabornseries/.MainActivity')
+time.sleep(8)
 PY
 python3 - <<'PY'
 from pathlib import Path
@@ -64,7 +86,7 @@ for attempt in range(5):
 for _ in range(12):
     time.sleep(5)
     logs = adb('logcat', '-d')
-    Path('artifacts/smoke/logcat.txt').write_text(logs)
+    Path('artifacts/smoke/logcat.txt').write_text(re.sub(r'https?://[^\s]+', '[media]', logs))
     assert not re.search(r'FATAL EXCEPTION|Fatal signal|JavascriptException', logs), 'Release crashed during test ad.'
     if 'DraBornSeries: AdMob test ad opened' in logs:
         break

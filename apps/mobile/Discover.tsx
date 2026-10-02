@@ -40,10 +40,10 @@ function Scene({
   muted: boolean;
   onMute: () => void;
 }) {
-  const source = usePreviewSource(item.episode.id, active), url = source?.url,
-    [paused, setPaused] = useState(false),
+  const [paused, setPaused] = useState(false),
     [ready, setReady] = useState(false),
-    [failed, setFailed] = useState(false), [retry, setRetry] = useState(0);
+    [failed, setFailed] = useState(false), [retry, setRetry] = useState(0), [metadataHeight, setMetadataHeight] = useState(175);
+  const source = usePreviewSource(item.episode.id, active, retry), url = source?.url;
   useEffect(() => {
     if (active) { setReady(false); setFailed(false); setPaused(false); }
   }, [active, url]);
@@ -66,6 +66,7 @@ function Scene({
             active={!paused}
             muted={muted}
             startFromMiddle
+            subtitleBottom={metadataHeight + 39}
             subtitles={source?.subtitles}
             poster={item.series.poster_url}
             onReady={() => {
@@ -190,6 +191,7 @@ function Scene({
           </Pressable>
         </View>
         <View
+          onLayout={(event) => setMetadataHeight(event.nativeEvent.layout.height)}
           style={{
             position: "absolute",
             bottom: 25,

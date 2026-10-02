@@ -9,7 +9,7 @@ import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
 import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layout";
 /* eslint-disable import/no-named-as-default-member -- hls.js documents static class methods. */
-export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, onRefreshSource, onProgress, onEnd }: VideoProps) {
   const { width, height } = useWindowDimensions();
   // Keep one portal target and one media element. Changing a portal target
   // remounts its children and can interrupt playback when native fullscreen
@@ -69,12 +69,17 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
     return () => { document.body.style.overflow = overflow; document.removeEventListener("keydown", escape); };
   }, [viewportFullscreen]);
   const expanded = fullscreen || viewportFullscreen;
-  const replace = (url: string) => {
+  const replace = (url: string, forcePlay = false) => {
     const el = video.current; if (!el) return;
-    const position = el.currentTime, resume = !el.paused; setError(""); setBuffering(true);
-    if (url.includes(".m3u8") && hls.current) { hls.current.recoverMediaError(); hls.current.startLoad(); return; }
+    const position = el.currentTime, resume = forcePlay || !el.paused; setError(""); setBuffering(true);
+    if (url.includes(".m3u8") && hls.current) { if (url === currentUrl.current) hls.current.recoverMediaError(); else hls.current.loadSource(url); currentUrl.current = url; hls.current.startLoad(position); if (resume) void el.play().catch(() => {}); return; }
     el.addEventListener("loadedmetadata", () => { el.currentTime = position; if (resume) el.play().catch(() => {}); else setBuffering(false); }, { once: true });
     currentUrl.current = url; el.src = url; el.load();
+  };
+  const retry = async () => {
+    setError(""); setBuffering(true);
+    try { const fresh = onRefreshSource ? await onRefreshSource() : source; setQuality("Otomatik"); selectedQuality.current = "auto"; if (hls.current) hls.current.currentLevel = -1; replace(fresh.url, true); }
+    catch { setBuffering(false); setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene."); }
   };
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
@@ -97,7 +102,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       onEnded={() => { if (video.current) onProgress(video.current.duration); onEnd(); }} onWaiting={() => setBuffering(true)} onPlaying={() => setBuffering(false)} onCanPlay={() => setBuffering(false)}
       onError={() => { setBuffering(false); setError("Video bağlantısı açılamadı. Tekrar dene."); }}>
     </video>
-    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, 0, portrait)} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, 0, mediaPortrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={buffering}
       onControlsVisibilityChange={setControlsVisible}
       quality={quality} choices={choices} fullscreen={expanded} error={error} fit={fit} onFit={setFit}
@@ -117,7 +122,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
         if (key.startsWith("h:") && hls.current) hls.current.currentLevel = Number(key.slice(2));
         else if (key.startsWith("r:")) replace(source.qualities![Number(key.slice(2))].url);
         else { if (hls.current) hls.current.currentLevel = -1; else if (currentUrl.current !== source.url) replace(source.url); } }}
-      onRetry={() => replace(currentUrl.current)}
+      onRetry={() => { void retry(); }}
       onPiP={typeof document !== "undefined" && document.pictureInPictureEnabled ? () => { video.current?.requestPictureInPicture?.().catch(() => {}); } : undefined}
       subtitles={captions.choices.length ? captions.choices : undefined}
       onSubtitle={captions.select} />

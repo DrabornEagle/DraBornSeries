@@ -6,11 +6,19 @@ test("readable paths resolve season and episode, including shared percent-encode
   const show = { id: "hero-id", slug: "hero" } as Series;
   const ep = { id: "episode-id", series_id: show.id, number: 7, season_number: 2 } as Episode;
   const url = "https://www.draborneagle.com" + episodePath(show, ep);
-  assert.equal(url, "https://www.draborneagle.com/DraBornSeries/DiziAdı=hero/Sezonbilgisi=season2/Bölümbilgisi=episode7/");
+  assert.equal(url, "https://www.draborneagle.com/DraBornSeries/hero=season-2/episode-7");
   assert.deepEqual(parseRoute(new URL(url).href), { page: "player", series: "hero", season: 2, episodeNumber: 7 });
   assert.equal(routePath({ page: "player", episode: ep.id }, [show], [ep]), episodePath(show, ep));
   assert.deepEqual(parseRoute("https://www.draborneagle.com" + seriesPath(show.slug)), { page: "detail", series: "hero" });
   assert.deepEqual(parseRoute("https://www.draborneagle.com/DraBornSeries/?episode=legacy-id"), { page: "player", episode: "legacy-id" });
   assert.equal(routePath({ page: "rewards" }, [show], [ep]), "/DraBornSeries/?page=rewards");
-  assert.equal(episodePath(show, { number: 1 }), "/DraBornSeries/DiziAdı=hero/Sezonbilgisi=season1/Bölümbilgisi=episode1/");
+  assert.equal(episodePath(show, { number: 1 }), "/DraBornSeries/hero=season-1/episode-1");
+});
+
+test("canonical routes preserve legacy links and reject invalid episode numbers", () => {
+  assert.deepEqual(parseRoute("https://www.draborneagle.com/DraBornSeries/DiziAd%C4%B1=hero/Sezonbilgisi=season2/B%C3%B6l%C3%BCmbilgisi=episode7/"), { page: "player", series: "hero", season: 2, episodeNumber: 7 });
+  assert.deepEqual(parseRoute("https://www.draborneagle.com/DraBornSeries/hero=season-2/episode-7/"), { page: "player", series: "hero", season: 2, episodeNumber: 7 });
+  assert.deepEqual(parseRoute("https://www.draborneagle.com/DraBornSeries/index.html"), { page: "home" });
+  assert.deepEqual(parseRoute("drabornseries://open?episode=id"), { page: "player", episode: "id" });
+  assert.deepEqual(parseRoute("https://www.draborneagle.com/DraBornSeries/hero=season-2/episode-0"), { page: "home" });
 });

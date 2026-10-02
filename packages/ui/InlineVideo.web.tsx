@@ -14,6 +14,7 @@ export default function InlineVideo({
   poster,
   preview = false,
   startFromMiddle = false,
+  subtitleBottom = discoverSubtitleBottom,
   subtitles = [],
   onTime,
   onReady,
@@ -108,7 +109,7 @@ export default function InlineVideo({
         pointerEvents: "none",
       }}
     />
-      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? discoverSubtitleBottom : 110} />}
+      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? subtitleBottom : 110} />}
     </>
   );
 }

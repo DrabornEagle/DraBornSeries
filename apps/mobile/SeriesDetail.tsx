@@ -166,7 +166,7 @@ export default function SeriesDetail({
             <View style={[styles.row, { justifyContent: "space-between" }]}><Text style={[styles.h3, { flex: 1 }]}>{series.title} · Fragman</Text>
               <Button secondary small icon="close" onPress={() => setTrailer(false)}>Kapat</Button></View>
             <ScrollView contentContainerStyle={{ paddingBottom: 12 }}>
-              {trailerSource ? <VideoPlayer key={series.id + "-trailer"} source={trailerSource}
+              {trailerSource ? <VideoPlayer key={series.id + "-trailer"} source={trailerSource} onRefreshSource={() => api<Playback>("trailer", { series: series.id })}
                 title={series.title + " · Fragman"} portrait={trailerSource.orientation !== "landscape"} initialTime={0} onProgress={() => {}} onEnd={() => {}} />
                 : <Text style={[styles.body, { padding: 24 }]}>{trailerError || "Fragman hazırlanıyor…"}</Text>}
               {!!trailerError && <Button secondary onPress={() => { setTrailer(false); }}>Kapat</Button>}

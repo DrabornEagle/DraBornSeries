@@ -102,7 +102,7 @@ export default function Splash({ ready }: { ready: boolean }) {
         }}
       >
         <Image
-          source={require("../../assets/icons/icon.png")}
+          source={require("../../assets/icons/logo-transparent.png")}
           style={{ width: 132, height: 132, borderRadius: 36 }}
         />
       </Animated.View>

@@ -166,7 +166,7 @@ export default function Auth({
           />
           <View style={{ position: "absolute", bottom: 18, left: 24, gap: 12 }}>
             <Image
-              source={require("../../assets/icons/icon.png")}
+              source={require("../../assets/icons/logo-transparent.png")}
               style={{ width: 62, height: 62, borderRadius: 19 }}
             />
             <Text

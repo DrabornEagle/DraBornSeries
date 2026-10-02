@@ -53,10 +53,10 @@ jobs:
       - name: Prepare and verify installable release files
         run: |
           mkdir -p artifacts/release
-          cp android/app/build/outputs/apk/release/app-release.apk artifacts/release/DraBornSeries-v0.7.3-release.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.3-release.aab
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/release/DraBornSeries-v0.7.3-release.apk > artifacts/release/APK-signature.txt
-          jarsigner -verify artifacts/release/DraBornSeries-v0.7.3-release.aab > artifacts/release/AAB-signature.txt
+          cp android/app/build/outputs/apk/release/app-release.apk artifacts/release/DraBornSeries-v0.7.4-release.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.4-release.aab
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/release/DraBornSeries-v0.7.4-release.apk > artifacts/release/APK-signature.txt
+          jarsigner -verify artifacts/release/DraBornSeries-v0.7.4-release.aab > artifacts/release/AAB-signature.txt
           sha256sum artifacts/release/*.apk artifacts/release/*.aab > artifacts/release/SHA256SUMS.txt
       - name: Save native dependency and release diagnostics
         if: always()
@@ -71,11 +71,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: DraBornSeries-v0.7.3-native-diagnostics
+          name: DraBornSeries-v0.7.4-native-diagnostics
           path: artifacts/diagnostics/
       - uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.3-signed-release
+          name: DraBornSeries-v0.7.4-signed-release
           path: artifacts/release/
           retention-days: 90
       - name: Enable accelerated Android emulator
@@ -97,5 +97,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.3-Android-startup
+          name: DraBornSeries-v0.7.4-Android-startup
           path: artifacts/smoke/

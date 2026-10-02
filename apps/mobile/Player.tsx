@@ -131,6 +131,7 @@ export default function Player({
         <VideoPlayer
           key={`${episode.id}-${retry}`}
           source={source}
+          onRefreshSource={() => api<Playback>("playback", { episode: episode.id })}
           title={episode.title}
           initialTime={initialTime}
           portrait={episode.orientation !== "landscape"}

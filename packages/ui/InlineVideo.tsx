@@ -6,6 +6,7 @@ import { getDiscoverStart, getPreviewWindow } from "../shared/preview-window";
 import SubtitleOverlay from "./SubtitleOverlay";
 import { preferredSubtitle } from "../shared/subtitles";
 import { discoverSubtitleBottom } from "../shared/player-layout";
+import { nativeVideoSource, safeVideoError } from "../shared/native-video-source";
 export default function InlineVideo({
   url,
   active,
@@ -13,6 +14,7 @@ export default function InlineVideo({
   poster,
   preview = false,
   startFromMiddle = false,
+  subtitleBottom = discoverSubtitleBottom,
   subtitles = [],
   onTime,
   onReady,
@@ -24,7 +26,7 @@ export default function InlineVideo({
   callbacks.current = { onTime, onReady, onError };
   const positioned = useRef(false), seeking = useRef(false), foreground = useRef(AppState.currentState === "active");
   const enabled = useRef(active); enabled.current = active;
-  const source = useMemo(() => ({ uri: url, contentType: url.includes(".m3u8") ? "hls" as const : "auto" as const }), [url]);
+  const source = useMemo(() => nativeVideoSource(url), [url]);
   const player = useVideoPlayer(source, (p) => {
     p.loop = !startFromMiddle;
     p.muted = muted;
@@ -66,7 +68,7 @@ export default function InlineVideo({
     });
     const ready = player.addListener("statusChange", (e) => {
       if (e.status === "readyToPlay") positionPreview();
-      if (e.status === "error") { setFrameReady(false); callbacks.current.onError?.(); }
+      if (e.status === "error") { console.warn("DraBornSeries: preview video error", safeVideoError(e.error)); setFrameReady(false); callbacks.current.onError?.(); }
     });
     const loaded = player.addListener("sourceLoad", positionPreview);
     const ended = player.addListener("playToEnd", () => {
@@ -75,6 +77,7 @@ export default function InlineVideo({
       if (enabled.current && foreground.current) player.play();
     });
     if (player.status === "readyToPlay") positionPreview();
+    if (player.status === "error") { setFrameReady(false); callbacks.current.onError?.(); }
     return () => {
       time.remove();
       ready.remove();
@@ -93,7 +96,7 @@ export default function InlineVideo({
         style={{ width: "100%", height: "100%" }}
       />
       {!frameReady && poster && <Image source={{ uri: poster }} resizeMode="cover" style={{ position: "absolute", inset: 0 }} />}
-      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? discoverSubtitleBottom : 110} />}
+      {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? subtitleBottom : 110} />}
     </View>
   );
 }

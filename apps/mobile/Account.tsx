@@ -214,7 +214,7 @@ export default function Account({ page, store, go, run }: Props) {
       <View style={{ gap: 20, maxWidth: 960, width: "100%", alignSelf: "center" }}>
         <LinearGradient colors={["#412247", "#251937", "#141221"]} style={[styles.card, { padding: 28, gap: 20, overflow: "hidden" }]}>
           <View style={[styles.row, { justifyContent: "space-between", flexWrap: "wrap" }]}>
-            <Image source={require("../../assets/icons/icon.png")} style={{ width: 68, height: 68, borderRadius: 21 }} />
+            <Image source={require("../../assets/icons/logo-transparent.png")} style={{ width: 68, height: 68, borderRadius: 21 }} />
             <Chip label="HİKÂYEN SENİNLE" active />
           </View>
           <Text style={styles.eyebrow}>DRABORNSERIES HESABIN</Text>

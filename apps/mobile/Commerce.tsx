@@ -26,6 +26,7 @@ import {
 import { rewardDays } from "../../packages/shared/domain";
 import { examplePrice } from "../../packages/shared/pricing";
 import type { Billing } from "../../packages/api/billing-types";
+import { adTestMode } from "../../packages/api/ads";
 import AdRewardButton from "../../packages/ui/AdRewardButton";
 type Props = {
   billing: Billing;
@@ -549,34 +550,18 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             BornCoins yükle
           </Button>
         </LinearGradient>
-        <View style={panel}>
-          <Text style={styles.h3}>Promosyon kodun var mı?</Text>
-          <View style={[styles.row, { alignItems: "stretch" }]}>
-            <View style={{ flex: 1 }}>
-              <Field
-                placeholder="Örn. DBS2026"
-                value={promo}
-                onChangeText={setPromo}
-                autoCapitalize="characters"
-              />
-            </View>
-            <Button
-              onPress={() =>
-                needLogin(async () => {
-                  const prize = await rpc<PromoReward>("dbs_redeem_reward", { code: promo.trim() });
-                  setPromoReward(prize);
-                  await store.refreshAccount();
-                  setPromo("");
-                })
-              }
-            >
-              Kullan
-            </Button>
+        <LinearGradient colors={["#254044", "#29203f", "#171222"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 24, borderRadius: 26, borderWidth: 1, borderColor: "#9ce9d535", gap: 18 }}>
+          <View style={styles.row}>
+            <LinearGradient colors={["#9ce9d5", "#7c79e8"]} style={{ width: 54, height: 54, borderRadius: 18, alignItems: "center", justifyContent: "center" }}><Icon name="ticket" color="#182438" size={29} /></LinearGradient>
+            <View style={{ flex: 1, gap: 6 }}><Text style={{ color: "#a6eada", fontSize: 10, fontWeight: "900", letterSpacing: 2 }}>SANA ÖZEL HEDİYELER</Text><Text style={{ color: "#fff", fontSize: 21, fontWeight: "900" }}>Promosyon kodunu kullan</Text></View>
           </View>
-          <Text style={{ color: colors.muted, fontSize: 11 }}>
-            Koduna tanımlı BornCoins ve VIP günleri hesabına eklenir. Her kod bir kez kullanılabilir.
-          </Text>
-        </View>
+          <Field label="Promosyon kodu" placeholder="Örn. DBS2026" value={promo} onChangeText={setPromo} autoCapitalize="characters" autoCorrect={false} maxLength={64} />
+          <Button icon="sparkles" disabled={!promo.trim()} onPress={() => needLogin(async () => {
+            const prize = await rpc<PromoReward>("dbs_redeem_reward", { code: promo.trim() });
+            setPromoReward(prize); await store.refreshAccount(); setPromo("");
+          })}>Kodu uygula</Button>
+          <Text style={{ color: "#c2d0de", fontSize: 14, lineHeight: 21 }}>Koduna tanımlı BornCoins ve VIP günleri hesabına eklenir. Her kod bir kez kullanılabilir.</Text>
+        </LinearGradient>
         <Text style={styles.h2}>İşlem geçmişi</Text>
         <View style={styles.wrap}>
           {[
@@ -787,27 +772,22 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </Button>
             </View>
           ))}
-          {Platform.OS === "android" && <View style={{ paddingTop: 20, gap: 14 }}>
-            <Icon name="play-circle" color={colors.orange} size={30} />
-            <View style={{ flex: 1, gap: 5 }}>
-              <Text style={styles.label}>Reklam izle, bonus kazan</Text>
-              <Text style={{ color: colors.muted, fontSize: 11 }}>
-                Android uygulamasında örnek AdMob reklamını izleyebilirsin
-              </Text>
-            </View>
-            <AdRewardButton store={store} run={run} onLogin={() => go("auth")} onReward={setReward} />
-          </View>}
         </View>
-        <Pressable onPress={() => go("wallet")}>
-          <Text
-            style={{
-              color: colors.purple,
-              textAlign: "center",
-              fontWeight: "700",
-            }}
-          >
-            Promosyon kodunu kullan →
-          </Text>
+        {Platform.OS === "android" && <LinearGradient colors={["#793047", "#412251", "#201732"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 24, borderRadius: 26, gap: 18, borderWidth: 1, borderColor: "#ffb27a45" }}>
+          <View style={[styles.row, { justifyContent: "space-between" }]}>
+            <LinearGradient colors={["#ffc16c", "#ff639f"]} style={{ width: 58, height: 58, borderRadius: 20, alignItems: "center", justifyContent: "center" }}><Icon name="play" size={30} color="#382039" /></LinearGradient>
+            <Text style={{ color: "#ffe0ae", fontSize: 10, fontWeight: "900", letterSpacing: 1.3, backgroundColor: "#ffffff12", borderRadius: 20, padding: 10 }}>{adTestMode ? "TEST REKLAMI" : "BORNCOINS BONUSU"}</Text>
+          </View>
+          <Text style={{ color: "#fff", fontSize: 23, fontWeight: "900" }}>Reklam izle, bonus kazan</Text>
+          <Text style={{ color: "#f0d2e2", fontSize: 14, lineHeight: 21 }}>{adTestMode ? "Örnek reklamı izle ve deneyimi keşfet. Test reklamları BornCoins veya bölüm erişimi vermez." : "Reklamı tamamla, hikâyene yeni bir bonus ekle."}</Text>
+          <AdRewardButton store={store} run={run} onLogin={() => go("auth")} onReward={setReward} />
+        </LinearGradient>}
+        <Pressable accessibilityRole="button" onPress={() => go("wallet")}>
+          <LinearGradient colors={["#403758", "#243c44", "#172329"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 22, borderRadius: 24, borderWidth: 1, borderColor: "#a7e9da30", flexDirection: "row", alignItems: "center", gap: 14 }}>
+            <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: "#9ce9d520", alignItems: "center", justifyContent: "center" }}><Icon name="ticket-outline" color="#9ce9d5" size={27} /></View>
+            <View style={{ flex: 1, gap: 6 }}><Text style={{ color: "#fff", fontSize: 18, fontWeight: "900" }}>Promosyon kodunu kullan</Text><Text style={{ color: "#c4d1df", fontSize: 14 }}>Kodunu gir, hediyelerini keşfet.</Text></View>
+            <Icon name="arrow-forward" color="#9ce9d5" />
+          </LinearGradient>
         </Pressable>
         {vipBanner}
       </View>

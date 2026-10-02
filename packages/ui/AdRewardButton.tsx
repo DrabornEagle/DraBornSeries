@@ -6,7 +6,7 @@ import { Button, styles } from "./theme";
 export default function AdRewardButton({ store, run, onLogin, episode, onReward, onDone }: { store: Store; run: (fn: () => Promise<unknown>, success?: string) => Promise<void>; onLogin: () => void; episode?: string; onReward?: (coins: number) => void; onDone?: () => void }) {
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   if (Platform.OS !== "android") return null;
-  return <View style={{ gap: 8, width: "100%", maxWidth: 360 }}><Button secondary icon="play-circle-outline" disabled={busy || !adAvailable} onPress={() => {
+  return <View style={{ gap: 8, width: "100%", maxWidth: 420 }}><Button icon="play-circle-outline" disabled={busy || !adAvailable} onPress={() => {
     if (!store.session && !adTestMode) { onLogin(); return; }
     void run(async () => {
       setBusy(true); setMessage("");

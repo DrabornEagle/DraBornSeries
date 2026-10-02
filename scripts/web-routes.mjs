@@ -14,9 +14,13 @@ export async function writeCatalogRoutes(html, target = "dist") {
   }
   const [shows, episodes] = await Promise.all([catalog("dbs_series", "id,slug"), catalog("dbs_episodes", "series_id,number,dbs_seasons(number)")]);
   const routes = new Set(shows.map(show => seriesPath(show.slug)));
+  for (const show of shows) routes.add(`${basePath}DiziAdı=${encodeURIComponent(show.slug)}/`);
   for (const episode of episodes) {
     const show = shows.find(item => item.id === episode.series_id);
-    if (show) routes.add(episodePath(show, { ...episode, season_number: episode.dbs_seasons?.number || 1 }));
+    if (show) {
+      routes.add(episodePath(show, { ...episode, season_number: episode.dbs_seasons?.number || 1 }));
+      routes.add(`${basePath}DiziAdı=${encodeURIComponent(show.slug)}/Sezonbilgisi=season${episode.dbs_seasons?.number || 1}/Bölümbilgisi=episode${episode.number}/`);
+    }
   }
   for (const route of routes) {
     const folder = path.join(target, decodeURIComponent(route.slice(basePath.length)));

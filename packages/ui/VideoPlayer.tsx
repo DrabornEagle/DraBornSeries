@@ -11,13 +11,15 @@ import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import { isTurkish } from "../shared/subtitles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layout";
+import { nativeVideoSource, safeVideoError } from "../shared/native-video-source";
 // Serialize orientation changes so closing quickly cannot leave ALL applied.
 let orientationQueue = Promise.resolve();
-export default function VideoPlayer({ source, initialTime, portrait, title, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer({ source, initialTime, portrait, title, onRefreshSource, onProgress, onEnd }: VideoProps) {
   const [status, setStatus] = useState("loading"), [error, setError] = useState(""),
     [tracks, setTracks] = useState<VideoTrack[]>([]), [quality, setQuality] = useState("Otomatik"),
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
     [fullscreen, setFullscreen] = useState(false), [time, setTime] = useState(initialTime), [duration, setDuration] = useState(0);
+  const frameLogged = useRef(false), advancingLogged = useRef(false);
   const videoView = useRef<VideoView>(null);
   const insets = useSafeAreaInsets();
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -41,11 +43,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const current = useRef(initialTime), lastSaved = useRef(0), resumed = useRef(false), resumeTime = useRef(initialTime),
     shouldPlay = useRef(true), progressCallback = useRef(onProgress), endCallback = useRef(onEnd);
   progressCallback.current = onProgress; endCallback.current = onEnd;
-  const player = useVideoPlayer({ uri: source.url, contentType: source.url.includes(".m3u8") ? "hls" : "auto" }, (p) => { p.timeUpdateEventInterval = 0.5; });
+  const player = useVideoPlayer(nativeVideoSource(source.url), (p) => { p.timeUpdateEventInterval = 0.5; });
   useEffect(() => {
     const ready = () => {
       if (player.status !== "readyToPlay") return;
-      setStatus("readyToPlay"); setDuration(player.duration); setTracks(player.availableVideoTracks);
+      setError(""); setStatus("readyToPlay"); setDuration(player.duration); setTracks(player.availableVideoTracks);
       if (!manualSubtitles.current) player.subtitleTrack = source.subtitles.some((track) => isTurkish(track.language))
         ? null : player.availableSubtitleTracks.find((track) => isTurkish(track.language)) || null;
       if (!resumed.current) {
@@ -54,14 +56,17 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       }
     };
     const statusSub = player.addListener("statusChange", (event) => {
-      setStatus(event.status); if (event.error) setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene."); ready();
+      setStatus(event.status); if (event.error) { console.warn("DraBornSeries: video error", safeVideoError(event.error)); setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene."); } ready();
     });
     const playingSub = player.addListener("playingChange", (event) => setPlaying(event.isPlaying));
     const timeSub = player.addListener("timeUpdate", (event) => {
+      if (!advancingLogged.current && player.playing && event.currentTime > initialTime + 0.75) { advancingLogged.current = true; console.info("DraBornSeries: video playback advanced"); }
       current.current = event.currentTime; setTime(event.currentTime);
       if (Date.now() - lastSaved.current > 5000) { lastSaved.current = Date.now(); progressCallback.current(event.currentTime); }
     });
     const endSub = player.addListener("playToEnd", () => { progressCallback.current(current.current); endCallback.current(); });
+    setStatus(player.status);
+    if (player.status === "error") setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene.");
     ready();
     const stateSub = AppState.addEventListener("change", (state) => {
       if (state !== "active" && foreground.current) { shouldPlay.current = player.playing; player.pause(); }
@@ -69,12 +74,17 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
       foreground.current = state === "active";
     });
     return () => { statusSub.remove(); timeSub.remove(); endSub.remove(); playingSub.remove(); stateSub.remove(); progressCallback.current(current.current); };
-  }, [player, source.subtitles]);
+  }, [player, source.subtitles, initialTime]);
   const replace = async (url: string, forcePlay = false) => {
     resumeTime.current = current.current; shouldPlay.current = forcePlay || player.playing;
     resumed.current = false; setError(""); setStatus("loading");
-    try { await player.replaceAsync({ uri: url, contentType: url.includes(".m3u8") ? "hls" : "auto" }); }
-    catch { setError("Bu kalite yüklenemedi. Otomatik kaliteyi seç veya tekrar dene."); }
+    try { await player.replaceAsync(nativeVideoSource(url)); }
+    catch { setStatus("error"); setError("Bu kalite yüklenemedi. Otomatik kaliteyi seç veya tekrar dene."); }
+  };
+  const retry = async () => {
+    setError(""); setStatus("loading");
+    try { const fresh = onRefreshSource ? await onRefreshSource() : source; setQuality("Otomatik"); player.maxResolution = null; await replace(fresh.url, true); }
+    catch { setStatus("error"); setError("Video yüklenemedi. Bağlantını kontrol ederek tekrar dene."); }
   };
   const choices = [{ key: "auto", label: "Otomatik" }, ...(source.qualities?.length
     ? source.qualities.map((item, index) => ({ key: "r:" + index, label: item.label }))
@@ -90,15 +100,16 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onPr
   const render = (expanded: boolean) => <View style={{ flex: expanded ? 1 : undefined, backgroundColor: "#05020a", overflow: "hidden",
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
     <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
+      onFirstFrameRender={() => { if (!frameLogged.current) { frameLogged.current = true; console.info("DraBornSeries: video frame rendered"); } }}
       contentFit={videoFit(expanded, portrait, width > height, mediaPortrait, fit)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
-    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, portrait)} />
+    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, mediaPortrait)} />
     <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
       fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality} fit={fit} onFit={setFit}
       onSeek={(value) => { player.currentTime = value; current.current = value; setTime(value); }}
       onPlay={() => { shouldPlay.current = !player.playing; if (player.playing) { player.pause(); onProgress(current.current); } else player.play(); }}
       onMute={() => { player.muted = !muted; setMuted(!muted); }} onFullscreen={() => setFullscreen(!fullscreen)}
-      onRetry={() => { void replace(source.url, true); }}
+      onRetry={() => { void retry(); }}
       onPiP={isPictureInPictureSupported() ? () => { videoView.current?.startPictureInPicture().catch(() => setError("Bu cihazda küçük pencere başlatılamadı.")); } : undefined}
       audio={player.availableAudioTracks.length > 1 ? player.availableAudioTracks.map((item, index) => ({ key: String(index), label: item.label || item.language })) : undefined}
       onAudio={(key) => { player.audioTrack = player.availableAudioTracks[Number(key)]; }}

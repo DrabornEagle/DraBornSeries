@@ -1,3 +1,9 @@
+# v0.7.4 / Kod 1 yayın kontrol noktası · 3 Ekim 2026
+
+Kullanıcı kaynak ve web yayınını açıkça onayladı. R2 native oynatıcıda signed MP4 progressive tanımı, yalnız doğru Worker hostunda uygulama User-Agent ve identity başlığı, web/native yeniden denemede taze signed URL eklendi. Şeffaf logo ve Android sistem navigasyonu, modern renkli reklam/promosyon kartları, metadata üzerinde ölçülen Keşfet altyazıları ve yalnız dikey medyada daha yüksek tam ekran altyazıları tamamlandı. Yeni bağlantı `/DraBornSeries/hero=season-2/episode-7`; eski bağlantılar çalışır. Chrome geri gelen sekmelerinde sürüm kontrolü, scoped cache temizliği ve yayın cache başlıkları eklendi.
+
+Yerel TypeScript/lint, 43 JS testi ve 1 Python testi geçti. İmzalı Android iş akışı aynı APK üzerinde gerçek R2 Test2 videosunun ilk karesini ve ilerleyen oynatma zamanını şart koşar. Native sonuçlar ve yeni APK/AAB hashleri yayın sonrası aşağıya işlenecek. Google Play'e gönderim yapılmadı.
+
 # v0.7.3 uygulama ve release derleme kontrol noktası · 2 Ekim 2026
 
 Sürüm 0.7.3 / Kod 2. Web reklam alanları kaldırıldı; Android resmi test reklamları korunur. BornCoins tüm girişlerde açık onay ister; eski auto_unlock tercihi artık para harcamaz. Promosyon sonucu BornCoins ve VIP günlerini animasyonlu Tebrikler penceresinde gösterir. VIP başlık rozeti, renkli kilit ekranları, detay üst sayaçları, varsayılan cover yerleşimi ve yalnız dikey tam ekranda 24px daha yüksek altyazı eklendi. İzleme kayıtları 5 saniye ve video sonu/kapatma olaylarında yazılır; sunucudaki sayaçlar ardından yenilenir.

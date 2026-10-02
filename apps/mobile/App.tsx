@@ -428,7 +428,7 @@ function Main() {
       accessibilityLabel="DraBornSeries ana sayfa"
     >
       <Image
-        source={require("../../assets/icons/icon.png")}
+        source={require("../../assets/icons/logo-transparent.png")}
         style={{ width: 40, height: 40, borderRadius: 12 }}
       />
       <View>
