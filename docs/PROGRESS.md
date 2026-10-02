@@ -4,7 +4,9 @@ Sürüm 0.7.3 / Kod 2. Web reklam alanları kaldırıldı; Android resmi test re
 
 Okunabilir dizi/sezon/bölüm yolları ve önceki UUID bağlantılarından geçiş eklendi. Public katalogdan statik derin sayfalar oluşturulur. Google Play ürünleri yeniden ön plana dönüşte ve eksikse 60 saniye aralıkla tekrar sorgulanır. Canlı backend sağlık bilgisi billing=true; gerçek Play satın alma testi henüz yapılmadı.
 
-Native splash plugin logo ve koyu arka planı Android başlangıcına uygular; JS animasyonlu yükleme perdesi korunur. Yeni workflow debug imzayı reddeder; ilk kalıcı RSA4096 release keystore'unu özel Actions çıktısına kaydeder ve sonraki derlemelerde aynı anahtarı geri alır. Aynı kaynak/anahtarla APK ve AAB; exact APK için API36 emülatör açılış testi hazırlanmıştır. Derleme/ci/web yayın sonuçları tamamlandığında bu kayıt güncellenecek. Henüz yeni APK çalışıyor veya tüm cihazlarda doğrulandı denmez.
+Native splash plugin logo ve koyu arka planı Android başlangıcına uygular; JS animasyonlu yükleme perdesi korunur. Başlangıç çökmesi eski WorkManager 2.7.0 / Room 2.2.5 ve R8 yansıma etkileşiminden kaynaklanıyordu. WorkManager 2.11.2 ile Room 2.7.0 kullanılarak düzeltilmiştir. Kaynak fd093bd için API36 Google APIs emülatöründe gerçek release APK açılışı ve resmi AdMob test reklamının gösterilmesi geçti; uygulama/veritabanı CI ve canlı web yayını başarılı.
+
+İlk keystore yedeği yanlışlıkla herkese açık Actions çıktısına yüklenmişti. Bu anahtar emekliye ayrılıyor, eski açık keystore çıktıları siliniyor. Yeni anahtarın Actions yedeği yalnız sahibin RSA4096 sertifikasına AES256 CMS ile şifrelenir; özel alıcı anahtarı depoya girmez. Teslim edilen özel ZIP keystore ve şifreleri içerir. Gelecek CI derlemeleri encrypted repository Secrets ve sabitlenen sertifika ile aynı anahtarı kullanır; otomatik anahtar değişimi reddedilir. Yeni anahtarla APK/AAB ve aynı APK açılış/reklam testleri tamamlandığında son doğrulama eklenecek. Fiziksel cihaz ve gerçek Play satın alma testi henüz yapılmadı.
 
 # v0.7.2 teslim kontrol noktası · 1 Ekim 2026
 

@@ -6,7 +6,7 @@ on:
     paths: ['apps/**', 'packages/**', 'plugins/**', 'scripts/prepare-release-signing.py', 'scripts/android-smoke.sh', 'app.json', 'app.config.cjs', 'package*.json', '.github/workflows/android.yml']
 permissions:
   contents: read
-  actions: read
+  actions: write
 concurrency:
   group: dbs-native-android-${{ github.ref }}
   cancel-in-progress: false
@@ -28,15 +28,17 @@ jobs:
         with:
           packages: "platform-tools build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
-      - name: Restore or create the persistent private signing key
+      - name: Restore encrypted Secrets or privately create the first release key
         env:
           GH_TOKEN: ${{ github.token }}
+          DBS_RELEASE_KEYSTORE_BASE64: ${{ secrets.DBS_RELEASE_KEYSTORE_BASE64 }}
+          DBS_RELEASE_SIGNING_JSON: ${{ secrets.DBS_RELEASE_SIGNING_JSON }}
         run: python3 scripts/prepare-release-signing.py
-      - name: Back up signing key privately before compilation
+      - name: Save only the encrypted owner-only signing backup
         uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-release-signing
-          path: artifacts/signing/
+          name: DraBornSeries-release-signing-encrypted
+          path: artifacts/signing-encrypted/
           retention-days: 90
       - run: npm ci
       - name: Validate TypeScript

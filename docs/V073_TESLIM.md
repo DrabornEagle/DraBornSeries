@@ -8,9 +8,11 @@ Paket: `com.draborneagle.drabornseries`. Sürüm: **0.7.3**, versionCode: **2**.
 
 `DraBornSeries-v0.7.3-keystore.zip` içindeki `DraBornSeries-release.jks` imza anahtarıdır. Alias ve iki şifre `signing.json` içindedir. İmzalama için bu dosyaları birlikte kullan. Anahtarı, şifreleri ve ZIP'i gizli sakla; kaynak depoya veya web sitesine yükleme. Play App Signing kullanıldığında bu dosya upload key olarak kullanılabilir. Play Console'da daha önce tanımlanmış başka bir upload key varsa Console'un anahtar sıfırlama süreci gerekir.
 
-Sertifika SHA256: `fb9208a8099d459d685994973cc3f34fd4f075f6c94539d91c193231071e4ec1`.
+Güncel release sertifikası `release-certificate.json` dosyasında sabitlenir. İlk derlemedeki anahtar emekliye ayrılmıştır; teslim edilen APK/AAB yeni anahtarı kullanır.
 
-Sonraki derlemeler aynı anahtarı özel Actions yedeğinden geri alır ve sertifika kontrolü yapar. Bu Actions yedeği 90 gün saklanır; yedek sona ererse teslim edilen keystore geri yüklenmeli. Workflow farklı bir anahtar üretip güncelleme zincirini bozmayı reddeder.
+Kaynak depo herkese açıktır. Actions yalnız AES256 CMS ile sahibin RSA4096 alıcı sertifikasına şifrelenmiş yedeği saklar; eski açık keystore çıktıları silinir. Teslim edilen ZIP'in `signing.json` ve keystore dosyaları yalnız kullanıcıya özel teslim edilir.
+
+Sonraki Actions derlemeleri için GitHub Settings → Secrets and variables → Actions bölümünde iki repository secret gerekir: `DBS_RELEASE_KEYSTORE_BASE64`, JKS dosyasının satır sonu içermeyen base64 karşılığı; `DBS_RELEASE_SIGNING_JSON`, signing.json içeriği. Şifreleri değişkenlere veya kaynak dosyalara koyma. Workflow sertifika kontrolü yapar ve sabitlenen anahtar yoksa farklı bir anahtar üretmeyi reddeder. Android Studio/Gradle ile yerel derlemede teslim edilen keystore ve şifreler kullanılabilir.
 
 ## Google Play VIP
 
