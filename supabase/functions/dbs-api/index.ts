@@ -245,15 +245,14 @@ Deno.serve(async (req) => {
           { error: user ? "ACCESS_DENIED" : "AUTH_REQUIRED" },
           403,
         );
-      const asset = await checked(
+      const [asset, subtitles] = await Promise.all([checked(
         admin
           .from("dbs_video_assets")
           .select("*")
           .eq("episode_id", body.episode)
           .single(),
-      );
+      ), subtitleTracks(body.episode)]);
       if (!asset.ready) return send(req, { error: "VIDEO_NOT_READY" }, 409);
-      const subtitles = await subtitleTracks(body.episode);
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
         const landscape = episode.orientation === "landscape" && asset.landscape_renditions?.length ? asset.landscape_renditions : null;
         return send(req, {

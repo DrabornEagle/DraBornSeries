@@ -1,9 +1,17 @@
-# DraBornSeries v0.7.2 · Kod 1
+# DraBornSeries v0.7.4 · Kod 1
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.4 · Expo cihaz testi
+
+- Android R2 MP4/WebM videoları artık cihazın Chromium WebView oynatıcısını kullanır. Aynı altyazı, ilerleme, kalite, ses, ileri/geri ve tam ekran kontrolleri korunur. Diğer video sağlayıcıları Expo Video ile devam eder. WebView 14.0.1 Expo Go 58 içinde bulunur.
+- Önizleme ve tam bölüm kısa süreli aynı oynatma isteğini paylaşır. Oturum değişimi önbelleği temizler, yeniden deneme taze imzalı adres alır; Keşfet yalnız sıradaki ücretsiz videonun adresini önceden hazırlar. R2 API her açılışta gereksiz health isteğini yapmaz; medya ve altyazı sorguları paraleldir.
+- Yalnız normal bölüm altyazısı 12 px aşağı alındı. Keşfet ve tam ekran altyazı yerleşimi değiştirilmedi.
+- Kullanıcının fiziksel cihazında eski APK ile R2 hatası sürdüğü için APK/AAB üretimi durduruldu. Android release işi artık yalnız elle başlatılır. Ayrı Expo Go testi gerçek ücretsiz KAYRA videosunda Chromium ilk karesi ve ilerleyen zamanı doğrular; uygulama APK'sı üretmez.
+- Şeffaf logo/navigasyon, renkli ödül/promosyon kartları, `hero=season-2/episode-7` yolları ve eski Chrome sekmelerinin sürüm kontrolü v0.7.4'te bulunur. Sürüm 0.7.4 / Android Kod 1 olarak kalır.
 
 ## v0.7.2 güncel düzenlemeler
 
@@ -97,21 +105,23 @@ Uygulama tabloları `dbs_` ile başlar ve RLS açıktır. Ayrıcalıklı yardım
 
 ## Termux · Expo Go 58.0.0
 
+Aynı telefonda çalıştır. Ayrı klasör eski çalışma kopyasını korur; yeniden çalıştırınca güncel `main` alınır.
+
 ```bash
-pkg update -y && pkg install -y nodejs-lts git
-cd "$HOME"
-[ -d DraBornSeries/.git ] || git clone https://github.com/DrabornEagle/DraBornSeries.git
-cd DraBornSeries
-git pull --ff-only
-npm ci
-npx expo start --localhost --clear
+pkg update -y && pkg install -y nodejs-lts git &&
+cd "$HOME" &&
+{ [ -d DraBornSeries-Expo-v074/.git ] || git clone --depth 1 https://github.com/DrabornEagle/DraBornSeries.git DraBornSeries-Expo-v074; } &&
+cd DraBornSeries-Expo-v074 &&
+git pull --ff-only &&
+npm ci &&
+npm run test:phone
 ```
 
-Aynı telefondaki Expo Go'da `exp://127.0.0.1:8081` adresini aç. Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --lan --clear` kullan. Termux'ta Android uygulama derleyicileri gerekmez; APK üretilmez.
+Expo Go 58'de `exp://127.0.0.1:8081` adresini aç. Telefonunda R2 testine doğrudan gitmek için `exp://127.0.0.1:8081/--/?episode=aa930f3f-db90-4bc6-917a-e9284f84a4b1` adresi ücretsiz **Test → KAYRA** bölümünü açar. Test2 ücretli bir bölümse aynı hesabınla giriş yap ve mevcut erişimini kullan. Test amacıyla içeriklerin erişim politikaları değiştirilmez.
 
-Güncelleme: `cd "$HOME/DraBornSeries" && git pull --ff-only && npm ci && npx expo start --localhost --clear`
+Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --go --lan --clear` kullan. Güncelleme: `cd "$HOME/DraBornSeries-Expo-v074" && git pull --ff-only && npm ci && npm run test:phone`. APK üretimi veya Android derleyicisi gerekmez.
 
-Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sürümleri Expo Go 58 paket eşlemelerine göre sabitlendi. Bu hâlâ preview SDK'dır. Termux'ta React Native DevTools `arm64` kurulumu uyarısı çıksa da `Android Bundled` ve QR görünüyorsa Metro çalışıyor; gerçek uygulama hatasını Expo Go kırmızı ekranı ve bundling sonrası kayıtla belirleyin. Yerel gerçek Android cihazda dokunmatik/video testi kullanıcı tarafından Expo Go ile yapılmalıdır.
+Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sabitlidir. Expo Go'da gerçek Google Play satın alma ve AdMob reklamı çalışmaz; video testi çalışır. R2 hata ekranı artık `R2_NETWORK`, `R2_DECODE`, `R2_FORMAT` gibi güvenli bir neden kodu gösterir; imzalı adresler loglara yazılmaz.
 
 ## Test hesabı ve içerik
 
@@ -134,7 +144,7 @@ npm run sync:web
 
 `apps/mobile` ortak uygulama, `apps/web` web davranışı, `apps/admin` yönetim paneli; ortak servisler `packages/api`, bileşenler `packages/ui`. Backend migration/seed/Edge Functions `supabase`, yeni R2 gateway `cloudflare/r2-worker.js` altında. Önceki Stream adaptörleri mevcut kaynaklarla uyumluluk için tutulur; otomatik Stream katalog aktarımı çalıştırılmaz.
 
-GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Ayrı Android işi Billing/AdMob içeren native projeyi derler ve test anahtarıyla imzalı APK üretir; Play Console yayını yapmaz. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
+GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Android release işi yalnız elle başlatılır; Expo Go testi uygulama APK/AAB çıktısı üretmez. Play Console yayını yapılmaz. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
 
 ## Güvenlik
 

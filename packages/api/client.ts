@@ -1,5 +1,5 @@
 import "react-native-url-polyfill/auto";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type Session } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, Platform } from "react-native";
 import { config } from "../shared/config";
@@ -37,10 +37,9 @@ export async function rpc<T = any>(
 export async function api<T = any>(
   action: string,
   payload: Record<string, unknown> = {},
+  sessionOverride?: Session | null,
 ) {
-  const {
-    data: { session },
-  } = await db.auth.getSession();
+  const session = sessionOverride === undefined ? (await db.auth.getSession()).data.session : sessionOverride;
   const result = await fetch(`${config.supabaseUrl}/functions/v1/dbs-api`, {
     method: "POST",
     headers: {

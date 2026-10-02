@@ -3,7 +3,8 @@ import { Animated, Modal, Platform, ScrollView, Pressable, Text, View, Switch } 
 import { LinearGradient } from "expo-linear-gradient";
 import type { Store } from "../../packages/api/store";
 import type { Episode, Playback } from "../../packages/types";
-import { api, rpc } from "../../packages/api/client";
+import { rpc } from "../../packages/api/client";
+import { loadPlaybackSource } from "../../packages/api/playback";
 import { saveProgress } from "../../packages/api/progress";
 import {
   accessLabel,
@@ -76,7 +77,7 @@ export default function Player({
     setSource(null);
     setError("");
     if (allowed)
-      api<Playback>("playback", { episode: episode.id })
+      loadPlaybackSource(episode.id, retry > 0)
         .then((value) => {
           if (live) setSource(value);
         })
@@ -86,7 +87,7 @@ export default function Player({
     return () => {
       live = false;
     };
-  }, [episode.id, allowed, retry]);
+  }, [episode.id, allowed, retry, store.session?.user.id]);
   return (
     <View style={{ gap: 24 }}>
       <View>
@@ -131,7 +132,7 @@ export default function Player({
         <VideoPlayer
           key={`${episode.id}-${retry}`}
           source={source}
-          onRefreshSource={() => api<Playback>("playback", { episode: episode.id })}
+          onRefreshSource={() => loadPlaybackSource(episode.id, true)}
           title={episode.title}
           initialTime={initialTime}
           portrait={episode.orientation !== "landscape"}

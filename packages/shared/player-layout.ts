@@ -1,6 +1,6 @@
-/** Shared caption positions for Android and web; keep the normal player unchanged. */
+/** Shared caption positions for Android and web. Discover has its own layout. */
 export function subtitleBottom(fullscreen: boolean, controlsVisible = false, safeBottom = 0, portrait = false) {
-  return fullscreen ? (controlsVisible ? (portrait ? 172 : 104) : (portrait ? 130 : 36)) + Math.max(0, safeBottom) : 128;
+  return fullscreen ? (controlsVisible ? (portrait ? 172 : 104) : (portrait ? 130 : 36)) + Math.max(0, safeBottom) : 116;
 }
 export const discoverSubtitleBottom = 214;
 

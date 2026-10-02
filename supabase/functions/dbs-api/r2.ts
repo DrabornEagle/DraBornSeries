@@ -46,14 +46,16 @@ export async function probeR2(key: string, authorization: string, base = workerD
 }
 
 export async function r2Playback(episode: string, key: string, authorization: string, accessType: string, base = workerDefault) {
+  // The current Worker validates entitlement and signs in one request. Checking
+  // /health before every playback added a full network round trip to startup.
+  const response = await fetch(base + "/playback", { method: "POST", headers: { "Content-Type": "application/json", ...(authorization ? { Authorization: authorization } : {}) },
+    body: JSON.stringify({ episode }), signal: AbortSignal.timeout(15000) });
+  const data = await response.json().catch(() => null);
+  if (response.ok && data?.url) return data;
+  // Never turn an authentication, signing or network failure into a public URL.
+  if (![404, 405].includes(response.status)) throw Error(data?.error || "R2_PLAYBACK_UNAVAILABLE");
   const capabilities = await workerCapabilities(base);
-  if (capabilities.privateMedia) {
-    const response = await fetch(base + "/playback", { method: "POST", headers: { "Content-Type": "application/json", ...(authorization ? { Authorization: authorization } : {}) },
-      body: JSON.stringify({ episode }), signal: AbortSignal.timeout(15000) });
-    const data = await response.json();
-    if (!response.ok || !data.url) throw Error(data.error || "R2_PLAYBACK_UNAVAILABLE");
-    return data;
-  }
+  if (capabilities.privateMedia) throw Error(data?.error || "R2_PLAYBACK_UNAVAILABLE");
   if (accessType !== "free") throw Error("R2_PRIVATE_WORKER_REQUIRED");
   return { provider: "r2", url: mediaUrl(key, base), qualities: [] };
 }

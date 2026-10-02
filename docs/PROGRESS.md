@@ -1,8 +1,18 @@
+# v0.7.4 Expo Go düzeltmesi · 3 Ekim 2026
+
+Kullanıcı eski APK'da Test/KAYRA ve Test2 R2 hatasının sürdüğünü bildirdi; APK/AAB teslimi ve otomatik release derlemesi durduruldu. `android.yml` artık workflow_dispatch ile çalışır. Önceki 5d89cc7 release CI, API 36 emülatöründe KAYRA'nın ilk karesini ve oynatma ilerlemesini doğrulamıştı; bu fiziksel telefonun başarısı olarak yorumlanmaz.
+
+Yeni Android R2 yolu Expo Go 58'de bulunan WebView 14.0.1 ile Chromium HTML5 video kullanır. Aynı PlayerChrome/SubtitleOverlay, gerçek medya boyutları, seek, ses, ilerleme, taze URL yeniden denemesi ve tam ekran korunur. Diğer sağlayıcılar Media3'tedir; düşük başlangıç buffer eşiği eklendi. R2 imzaları yalnız bellekte ve yalnız HTTPS/exact Worker hostunda kullanılır; dış script/sayfa veya yetki atlayan media URL'si yüklenmez. Güvenli hata kodu cihazın ağ/çözme/format farkını görünür kılar.
+
+Oynatma istekleri hesap bazında tekilleşir, 90 saniye veya imzanın bitmesine 30 saniye kala sona erer. Hesap değişince bekleyen sonuçlar da geçersizdir. Önizlemeden bölüme geçiş aynı kaynağı kullanır; tekrar deneme kaynağı yeniler. Keşfet sadece sıradaki ücretsiz bölümün adresini hazırlar; video dosyaları topluca indirilmez. Sunucu R2 health çağrısını başarılı imzalama yolundan kaldırır, asset ve altyazıyı erişim kontrolünden sonra paralel okur. Eski Worker fallback'i 404/405 ile ve yalnız ücretsiz erişimle sınırlıdır; 401/403/500 public URL'ye çevrilmez.
+
+Normal bölüm altyazısı 128 → 116 px (12 px aşağı). Keşfet metadata ölçümü +39, varsayılan 214 px ve dikey/yatay tam ekran konumları değişmez. Expo Go için `npm run test:phone`; güvenli Termux kurulum/güncelleme komutu README'dedir. Yerel TypeScript/lint, 50 JS testi + 1 Python testi geçti. Web ve Android JS export da geçti. Ayrı Expo Go cihaz CI sonucu yayınla birlikte kontrol edilir; bu düzeltme için native APK/AAB üretilmez.
+
 # v0.7.4 / Kod 1 yayın kontrol noktası · 3 Ekim 2026
 
 Kullanıcı kaynak ve web yayınını açıkça onayladı. R2 native oynatıcıda signed MP4 progressive tanımı, yalnız doğru Worker hostunda uygulama User-Agent ve identity başlığı, web/native yeniden denemede taze signed URL eklendi. Şeffaf logo ve Android sistem navigasyonu, modern renkli reklam/promosyon kartları, metadata üzerinde ölçülen Keşfet altyazıları ve yalnız dikey medyada daha yüksek tam ekran altyazıları tamamlandı. Yeni bağlantı `/DraBornSeries/hero=season-2/episode-7`; eski bağlantılar çalışır. Chrome geri gelen sekmelerinde sürüm kontrolü, scoped cache temizliği ve yayın cache başlıkları eklendi.
 
-Yerel TypeScript/lint, 43 JS testi ve 1 Python testi geçti. İmzalı Android iş akışı aynı APK üzerinde gerçek R2 Test2 videosunun ilk karesini ve ilerleyen oynatma zamanını şart koşar. Native sonuçlar ve yeni APK/AAB hashleri yayın sonrası aşağıya işlenecek. Google Play'e gönderim yapılmadı.
+Yerel TypeScript/lint, 43 JS testi ve 1 Python testi geçti. İmzalı Android iş akışı aynı APK üzerinde gerçek ücretsiz Test / KAYRA videosunun ilk karesini ve ilerleyen oynatma zamanını şart koşar. Native sonuçlar ve yeni APK/AAB hashleri yayın sonrası aşağıya işlenecek. Google Play'e gönderim yapılmadı.
 
 # v0.7.3 uygulama ve release derleme kontrol noktası · 2 Ekim 2026
 

@@ -1,0 +1,51 @@
+name: DraBornSeries Expo Go playback
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['apps/**', 'packages/**', 'package*.json', 'app.json', 'app.config.cjs', 'index.ts', 'scripts/expo-go-smoke.py', '.github/workflows/expo-go.yml']
+permissions:
+  contents: read
+concurrency:
+  group: dbs-expo-go-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  expo-go:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Download the official Expo Go runtime (no application APK build)
+        run: |
+          curl --fail --location --retry 2 'https://github.com/expo/expo-go-releases/releases/download/Expo-Go-58.0.0/Expo-Go-58.0.0.apk' -o "$RUNNER_TEMP/expo-go.apk"
+          printf '%s  %s\n' 'a225efbfc446cd3c2ef024663ed6d2d4378bd206a2f2e2cf77fdb1e91b6b578a' "$RUNNER_TEMP/expo-go.apk" | sha256sum --check
+      - name: Enable accelerated emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test real R2 playback in Expo Go 58
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: python3 scripts/expo-go-smoke.py
+      - name: Save sanitized Expo Go test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DraBornSeries-Expo-Go-playback
+          path: artifacts/expo-go/

@@ -1,9 +1,7 @@
 name: DraBornSeries Android release validation
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['apps/**', 'packages/**', 'plugins/**', 'scripts/prepare-release-signing.py', 'scripts/android-smoke.sh', 'app.json', 'app.config.cjs', 'package*.json', '.github/workflows/android.yml']
+# APK/AAB builds are manual while the owner tests this revision in Expo Go.
 permissions:
   contents: read
   actions: write

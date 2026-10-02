@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import type { Store } from "../../packages/api/store";
 import type { Episode, Series } from "../../packages/types";
 import { usePreviewSource } from "../../packages/api/preview";
+import { loadPlaybackSource } from "../../packages/api/playback";
 import InlineVideo from "../../packages/ui/InlineVideo";
 import { Artwork } from "../../packages/ui/Catalog";
 import { Button, Icon, colors, Empty } from "../../packages/ui/theme";
@@ -265,6 +266,13 @@ export default function Discover({
     [index, setIndex] = useState(0), [muted, setMuted] = useState(false);
   const [seed] = useState(() => Math.floor(Math.random() * 2147483647));
   const items = useMemo(() => buildDiscoverEntries(store.series, store.episodes, seed), [store.series, store.episodes, seed]);
+  useEffect(() => {
+    const next = items[index + 1]?.episode;
+    if (!next || next.access_type !== "free") return;
+    // Warm only the next public source, not the entire catalog or video bytes.
+    const timer = setTimeout(() => { void loadPlaybackSource(next.id).catch(() => {}); }, 1200);
+    return () => clearTimeout(timer);
+  }, [items, index, store.session?.user.id]);
   if (!items.length)
     return (
       <View style={{ flex: 1, justifyContent: "center" }}>

@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
-import { api } from "./client";
+import { db } from "./client";
+import { loadPlaybackSource } from "./playback";
 import type { Playback } from "../types";
-const cache = new Map<string, { source: Playback; until: number }>();
 export function usePreviewSource(episode: string | undefined, active: boolean, retry = 0) {
   const [source, setSource] = useState<Playback>();
+  const [account, setAccount] = useState<string>();
+  useEffect(() => {
+    const { data: { subscription } } = db.auth.onAuthStateChange((_event, session) => setAccount(session?.user.id || "guest"));
+    return () => subscription.unsubscribe();
+  }, []);
   useEffect(() => {
     let live = true;
     setSource(undefined);
     if (!episode || !active) return;
-    const cached = cache.get(episode);
-    if (retry === 0 && cached && cached.until > Date.now()) {
-      setSource(cached.source);
-      return;
-    }
-    api<Playback>("playback", { episode })
+    loadPlaybackSource(episode, retry > 0)
       .then((value) => {
-        cache.set(episode, { source: value, until: Date.now() + 240000 });
         if (live) setSource(value);
       })
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, [episode, active, retry]);
+  }, [episode, active, retry, account]);
   return source;
 }
 

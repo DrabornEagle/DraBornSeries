@@ -21,6 +21,6 @@ test("portrait fullscreen subtitles move upward while Discover moves toward its 
   assert.equal(subtitleBottom(true, false, 0, true), 130);
   assert.equal(subtitleBottom(true, true, 24, true), 196);
   assert.equal(subtitleBottom(true, false, 0, false), 36);
-  assert.equal(subtitleBottom(false, true, 24, true), 128);
+  assert.equal(subtitleBottom(false, true, 24, true), 116);
   assert.equal(discoverSubtitleBottom, 214);
 });
