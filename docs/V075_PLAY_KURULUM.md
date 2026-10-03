@@ -36,6 +36,8 @@ Pub/Sub push ve Play RTDN kurulumunun güncel adresi/kimlik doğrulaması için 
 
 ## APK ve AAB imzası
 
+Bu sürümün APK ve AAB teslimi, gönderilen mevcut v0.7.3 keystore'u ile imzalandı; aynı sertifika ve iki dosyanın imza doğrulaması başarılıdır. Gelecek otomatik derlemeler için aynı anahtar GitHub repository Secrets'a tanımlanmalıdır.
+
 Otomatik derleme mevcut yayın sertifikasını korur; farklı bir anahtar üretmez. GitHub Actions repository Secrets:
 
 - `DBS_RELEASE_KEYSTORE_BASE64`: mevcut `DraBornSeries-release.jks` dosyasının tek satırlık base64 verisi.
