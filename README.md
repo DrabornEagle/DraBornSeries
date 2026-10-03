@@ -10,7 +10,7 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 - Android R2 MP4/WebM videoları artık cihazın Chromium WebView oynatıcısını kullanır. Aynı altyazı, ilerleme, kalite, ses, ileri/geri ve tam ekran kontrolleri korunur. Diğer video sağlayıcıları Expo Video ile devam eder. WebView 14.0.1 Expo Go 58 içinde bulunur.
 - Önizleme ve tam bölüm kısa süreli aynı oynatma isteğini paylaşır. Oturum değişimi önbelleği temizler, yeniden deneme taze imzalı adres alır; Keşfet yalnız sıradaki ücretsiz videonun adresini önceden hazırlar. R2 API her açılışta gereksiz health isteğini yapmaz; medya ve altyazı sorguları paraleldir.
 - Yalnız normal bölüm altyazısı 12 px aşağı alındı. Keşfet ve tam ekran altyazı yerleşimi değiştirilmedi.
-- Kullanıcının fiziksel cihazında eski APK ile R2 hatası sürdüğü için APK/AAB üretimi durduruldu. Android release işi artık yalnız elle başlatılır. Ayrı Expo Go testi gerçek ücretsiz KAYRA videosunda Chromium ilk karesi ve ilerleyen zamanı doğrular; uygulama APK'sı üretmez.
+- Kullanıcının fiziksel cihazında eski APK ile R2 hatası sürdüğü için APK/AAB üretimi durduruldu. Android release işi artık yalnız elle başlatılır. [Expo Go 58 emülatör testi](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37080615748) gerçek ücretsiz Test/KAYRA videosunda Chromium ilk karesini ve ilerleyen zamanı doğruladı; uygulama APK'sı üretmedi. Fiziksel telefonun sonucu bu testten çıkarılmaz.
 - Şeffaf logo/navigasyon, renkli ödül/promosyon kartları, `hero=season-2/episode-7` yolları ve eski Chrome sekmelerinin sürüm kontrolü v0.7.4'te bulunur. Sürüm 0.7.4 / Android Kod 1 olarak kalır.
 
 ## v0.7.2 güncel düzenlemeler
@@ -108,7 +108,7 @@ Uygulama tabloları `dbs_` ile başlar ve RLS açıktır. Ayrıcalıklı yardım
 Aynı telefonda çalıştır. Ayrı klasör eski çalışma kopyasını korur; yeniden çalıştırınca güncel `main` alınır.
 
 ```bash
-pkg update -y && pkg install -y nodejs-lts git &&
+pkg update -y && pkg install -y nodejs-lts npm git &&
 cd "$HOME" &&
 { [ -d DraBornSeries-Expo-v074/.git ] || git clone --depth 1 https://github.com/DrabornEagle/DraBornSeries.git DraBornSeries-Expo-v074; } &&
 cd DraBornSeries-Expo-v074 &&
@@ -117,7 +117,7 @@ npm ci &&
 npm run test:phone
 ```
 
-Expo Go 58'de `exp://127.0.0.1:8081` adresini aç. Telefonunda R2 testine doğrudan gitmek için `exp://127.0.0.1:8081/--/?episode=aa930f3f-db90-4bc6-917a-e9284f84a4b1` adresi ücretsiz **Test → KAYRA** bölümünü açar. Test2 ücretli bir bölümse aynı hesabınla giriş yap ve mevcut erişimini kullan. Test amacıyla içeriklerin erişim politikaları değiştirilmez.
+Expo Go 58'de `exp://127.0.0.1:8081` adresini aç. Telefonunda R2 testine doğrudan gitmek için `exp://127.0.0.1:8081/--/?episode=aa930f3f-db90-4bc6-917a-e9284f84a4b1` adresi ücretsiz **Test → KAYRA** bölümünü açar. Test2 mevcut katalogda 10 BornCoins ile açılır; aynı hesabınla giriş yap ve mevcut erişimini kullan. Test amacıyla içeriklerin erişim politikaları değiştirilmez.
 
 Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --go --lan --clear` kullan. Güncelleme: `cd "$HOME/DraBornSeries-Expo-v074" && git pull --ff-only && npm ci && npm run test:phone`. APK üretimi veya Android derleyicisi gerekmez. `test:phone` IPv4 localhost kullanır ve Termux'ta ağ arayüzüne erişemeyen Bonjour keşfini kapatır.
 
