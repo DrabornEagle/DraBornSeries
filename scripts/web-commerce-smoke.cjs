@@ -47,6 +47,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  assert.ok(await page.getByText('12 gün',{exact:true}).isVisible());
  await page.screenshot({path:root+'/vip-badge.png'});
  await page.getByRole('button',{name:/Mağazayı\ keşfet/}).click();
+ await page.getByText('Ayrıcalıkların seninle',{exact:true}).waitFor({state:'detached'});
  assert.equal(await page.getByText('Cüzdanına toplam',{exact:false}).count(),0);
  assert.equal(await page.getByRole('button',{name:/BornCoins paketi/}).count(),6);
  await page.getByRole('button',{name:/VIP\ avantajlarını\ keşfet/}).click();
@@ -55,6 +56,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.screenshot({path:root+'/vip-owned.png'});
  assert.equal(await page.getByText('Google Play ile Abone Ol',{exact:true}).count(),0);
  await page.getByRole('button',{name:/VIP\ bilgisini\ kapat/}).click();
+ await page.getByText('VIP üyeliğin zaten aktif',{exact:true}).waitFor({state:'detached'});
  await page.getByText('VIP dünyanda neler var?',{exact:true}).scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/vip-benefits.png'});
  await page.getByRole('button',{name:/Ödüller/}).click();
