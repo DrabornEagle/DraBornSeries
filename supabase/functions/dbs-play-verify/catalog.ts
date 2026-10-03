@@ -16,7 +16,7 @@ export async function playCatalog(credentials: string, active: string[]): Promis
   const promise = (async () => {
     try {
       const headers = await googleHeaders(credentials);
-      const prices = Object.fromEntries((await Promise.all(ids.map(async id => {
+      const readPrice = async (id: string): Promise<[string, string]> => {
         try {
           const path = plans[id] ? `/subscriptions/${id}` : `/oneTimeProducts/${id}`;
           const result = await fetch(root + path, { headers, signal: AbortSignal.timeout(12000) });
@@ -28,9 +28,14 @@ export async function playCatalog(credentials: string, active: string[]): Promis
           }
           return [id, price];
         } catch { return [id, ""]; }
-      }))).filter(([, price]) => Boolean(price)));
+      };
+      const entries = await Promise.all(ids.map(readPrice));
+      // A timed-out sibling must not hide an active package for the whole cache period.
+      const missing = entries.filter(([, price]) => !price).map(([id]) => id);
+      const retried = await Promise.all(missing.map(readPrice));
+      const prices = Object.fromEntries([...entries, ...retried].filter(([, price]) => Boolean(price)));
       const value = { ...empty, prices, available: Object.keys(prices), checkedAt: new Date().toISOString() };
-      cached = { key, value, until: Date.now() + (value.available.length ? 300000 : 30000) };
+      cached = { key, value, until: Date.now() + (value.available.length === ids.length ? 300000 : 30000) };
       return value;
     } catch { cached = { key, value: empty, until: Date.now() + 30000 }; return empty; }
     finally { loading = undefined; }
