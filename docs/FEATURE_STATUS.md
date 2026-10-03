@@ -1,6 +1,6 @@
 # Kapsam ve gerçek durum — 2026-10-03
 
-v0.7.4 Expo düzeltmesi: Android R2 MP4/WebM artık Chromium WebView ile oynar. [Expo Go 58 emülatöründe gerçek Test/KAYRA görüntüsü ve ilerleyen süre doğrulandı](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37080615748). Fiziksel Android ve ücretli Test2 hesabı kontrolü kullanıcı telefonunda bekler. Kaynak/istek önbelleği ve sunucu istekleri iyileştirildi; normal bölüm altyazısı 12 px aşağı, Keşfet konumu korunur. Bu düzeltmede APK/AAB üretilmez; Termux komutu README'dedir.
+v0.7.4 Expo düzeltmesi: Kullanıcı telefonda Chromium yolunun `R2_FORMAT/R2_NETWORK` verdiğini ve Fast Refresh sonrasında kapanmış native nesne hatasını bildirdi. R2 şimdi v0.7.2'deki Expo Video yolu, otomatik format tanımı ve özgün istemci başlıklarına döndü; nesne sahibi kaynak yüklemeleri ve görünüm ayrılmasını bekler. Expo Video APK içinde de çalışır. Yeni emülatör sonucu [PROGRESS.md](PROGRESS.md) içinde; fiziksel Android ve ücretli Test2 hesabı kullanıcı telefonunda doğrulanmalıdır. Kaynak/istek önbelleği iyileştirmeleri korunur. Normal bölüm altyazısı son konumundan 10 px yukarı; Keşfet konumu korunur. APK/AAB üretilmez; Termux komutu README'dedir.
 
 Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırır. Hiçbir test/demonstrasyon gerçek ticari yayın olarak kabul edilmez.
 

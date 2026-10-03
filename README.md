@@ -7,10 +7,11 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 
 ## v0.7.4 · Expo cihaz testi
 
-- Android R2 MP4/WebM videoları artık cihazın Chromium WebView oynatıcısını kullanır. Aynı altyazı, ilerleme, kalite, ses, ileri/geri ve tam ekran kontrolleri korunur. Diğer video sağlayıcıları Expo Video ile devam eder. WebView 14.0.1 Expo Go 58 içinde bulunur.
+- Android R2 videoları v0.7.2'deki gibi Expo Video ile, özgün istek başlıkları ve otomatik format tanımıyla açılır. Telefonda `R2_FORMAT/R2_NETWORK` veren zorunlu WebView yolu kaldırıldı. Expo Video hem Expo Go'da hem de sonradan üretilen APK'nın içinde çalışan yerel Android oynatıcısıdır.
+- Native oynatıcı commit sonrasında oluşturulur. Fast Refresh/ekran değişiminde kapanmış nesne tekrar gösterilmez; bekleyen kaynak yüklemeleri tamamlanıp görünüm ayrıldıktan sonra yalnız bir kez serbest bırakılır. Tam ekran aynı yaşayan nesneyi kullanır; seek, ses, altyazı ve izleme kayıtları korunur.
 - Önizleme ve tam bölüm kısa süreli aynı oynatma isteğini paylaşır. Oturum değişimi önbelleği temizler, yeniden deneme taze imzalı adres alır; Keşfet yalnız sıradaki ücretsiz videonun adresini önceden hazırlar. R2 API her açılışta gereksiz health isteğini yapmaz; medya ve altyazı sorguları paraleldir.
-- Yalnız normal bölüm altyazısı 12 px aşağı alındı. Keşfet ve tam ekran altyazı yerleşimi değiştirilmedi.
-- Kullanıcının fiziksel cihazında eski APK ile R2 hatası sürdüğü için APK/AAB üretimi durduruldu. Android release işi artık yalnız elle başlatılır. [Expo Go 58 emülatör testi](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37080615748) gerçek ücretsiz Test/KAYRA videosunda Chromium ilk karesini ve ilerleyen zamanı doğruladı; uygulama APK'sı üretmedi. Fiziksel telefonun sonucu bu testten çıkarılmaz.
+- Normal bölüm altyazısı son konumundan 10 px yukarı alındı (116 → 126). Keşfet ve tam ekran altyazı yerleşimi değiştirilmedi. Kaynak açılamazken eski zamanın altyazısı ve dolu ilerleme çubuğu gösterilmez.
+- APK/AAB üretimi durduruldu; Android release işi yalnız elle başlatılır. Ayrı Expo Go testi gerçek ücretsiz Test/KAYRA videosunun ilk karesini, ilerleyen zamanı, tam ekran ve Fast Refresh akışını kontrol eder. Önceki Chromium emülatör başarısı fiziksel telefondaki hatayı çözmedi; yeni native test sonucu [PROGRESS.md](docs/PROGRESS.md) içinde kaydedilir.
 - Şeffaf logo/navigasyon, renkli ödül/promosyon kartları, `hero=season-2/episode-7` yolları ve eski Chrome sekmelerinin sürüm kontrolü v0.7.4'te bulunur. Sürüm 0.7.4 / Android Kod 1 olarak kalır.
 
 ## v0.7.2 güncel düzenlemeler
@@ -121,7 +122,7 @@ Expo Go 58'de `exp://127.0.0.1:8081` adresini aç. Telefonunda R2 testine doğru
 
 Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --go --lan --clear` kullan. Güncelleme: `cd "$HOME/DraBornSeries-Expo-v074" && git pull --ff-only && npm ci && npm run test:phone`. APK üretimi veya Android derleyicisi gerekmez. `test:phone` IPv4 localhost kullanır ve Termux'ta ağ arayüzüne erişemeyen Bonjour keşfini kapatır.
 
-Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sabitlidir. Expo Go'da gerçek Google Play satın alma ve AdMob reklamı çalışmaz; video testi çalışır. R2 hata ekranı artık `R2_NETWORK`, `R2_DECODE`, `R2_FORMAT` gibi güvenli bir neden kodu gösterir; imzalı adresler loglara yazılmaz.
+Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sabitlidir. Expo Go'da gerçek Google Play satın alma ve AdMob reklamı çalışmaz; video testi çalışır. R2 native hata ekranı HTTP yanıtını (`R2_HTTP_403` gibi), çözme (`R2_DECODER`), format ve ağ hatalarını ayrı kodlarla gösterir; imzalı adresler loglara yazılmaz.
 
 ## Test hesabı ve içerik
 

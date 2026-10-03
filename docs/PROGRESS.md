@@ -1,4 +1,14 @@
-# v0.7.4 Expo Go düzeltmesi · 3 Ekim 2026
+# v0.7.4 native R2 ve nesne yaşam döngüsü düzeltmesi · 3 Ekim 2026
+
+Kullanıcının yeni fiziksel cihaz ekranları Test2 için `R2_FORMAT`, Termux'ta R2 `FORMAT/NETWORK` ve diğer videoda `Cannot set prop player … shared object … already released` gösterdi. Önceki emülatör Chromium başarısı fiziksel telefondaki sorunu çözmedi. Kullanıcının v0.7.2'de çalıştığı bilgisi ve o kaynağın karşılaştırması esas alındı: v0.7.2 native Expo Video ve `contentType: auto` kullanırken v0.7.4 özel User-Agent/identity/progressive ve ardından WebView eklemişti. Zorunlu WebView ve özel başlıklar kaldırıldı; dosya/imza korunarak otomatik format tanımı geri getirildi. Format kodu tek başına dosyanın bozuk olduğunu veya kesin HTTP nedenini kanıtlamaz.
+
+`createVideoPlayer` ile nesne yalnız commit sonrasında oluşturulur. Kapanmış handle görünümde yeniden kullanılmaz; kaynak değişiminde yeni handle oluşturulur. Kaynak değiştirmeleri sıra ile çalışır, kapanmış nesneye yeni işler reddedilir; devam eden işlerin bitmesi ve görünüm ayrılması için kısa gecikme sonrasında pause/release yalnız bir kez çalışır. Ready oynatıcı alt bileşeni handle kimliğiyle yeniden kurulur; Fast Refresh eski nesneyi canlıymış gibi kullanmaz. Bu yol Expo Go'ya özel değildir; aynı Expo Video Android modülü APK'nın içine gömülür.
+
+Normal bölüm altyazısı 116 → 126 px, son konumundan 10 px yukarı. Keşfet metadata +39/214 ve tam ekran değerleri korunur. Açılmayan videoda önceki pozisyonun altyazısı ve sahte dolu ilerleme çubuğu gösterilmez. Kaynak önbelleği, yetki kontrolü, R2 sunucu istek optimizasyonları, hesap bazında ilerleme ve içerik dosyaları korunur. HTTP/decoder/format/ağ hataları native mesajdan ayrı güvenli kodlara dönüşür.
+
+Yerel TypeScript/lint, 50 JS + 1 Python testi geçti. Yeni iki nesne yaşam döngüsü testi bekleyen yükleme sırasında kapanma, kuyruklu kaynak değişimi, kapanmış nesne reddi ve tek serbest bırakmayı doğrular. Yeni Expo Go CI gerçek KAYRA ilk karesi/ilerleyen zaman, tam ekran ve Fast Refresh test eder; eski nesne hatasında başarısız olur. Güncel native CI/web yayın sonuçları tamamlanınca bu kontrol noktasına eklenecek. APK/AAB üretilmez.
+
+# Önceki v0.7.4 Chromium denemesi · 3 Ekim 2026
 
 Kullanıcı eski APK'da Test/KAYRA ve Test2 R2 hatasının sürdüğünü bildirdi; APK/AAB teslimi ve otomatik release derlemesi durduruldu. `android.yml` artık workflow_dispatch ile çalışır. Önceki 5d89cc7 release CI, API 36 emülatöründe KAYRA'nın ilk karesini ve oynatma ilerlemesini doğrulamıştı; bu fiziksel telefonun başarısı olarak yorumlanmaz.
 

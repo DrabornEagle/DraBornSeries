@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AppState, Image, View } from "react-native";
-import { VideoView } from "expo-video";
+import { VideoView, type VideoPlayer } from "expo-video";
 import type { InlineVideoProps } from "./InlineVideo.types";
 import { getDiscoverStart, getPreviewWindow } from "../shared/preview-window";
 import SubtitleOverlay from "./SubtitleOverlay";
 import { preferredSubtitle } from "../shared/subtitles";
 import { discoverSubtitleBottom } from "../shared/player-layout";
 import { safeVideoError } from "../shared/native-video-source";
-import { BrowserVideoView, usePlaybackEngine } from "./usePlaybackEngine";
-export default function InlineVideo({
+import { usePlaybackEngine } from "./usePlaybackEngine";
+export default function InlineVideo(props: InlineVideoProps) {
+  const handle = usePlaybackEngine(props.url, !props.startFromMiddle, props.muted ?? true, 0.25);
+  if (!handle) return props.poster ? <Image source={{ uri: props.poster }} resizeMode="cover" style={{ position: "absolute", inset: 0 }} /> : null;
+  return <ReadyInlineVideo key={handle.id} {...props} player={handle.owner.player} />;
+}
+function ReadyInlineVideo({
   url,
   active,
   muted = true,
@@ -20,14 +25,14 @@ export default function InlineVideo({
   onTime,
   onReady,
   onError,
-}: InlineVideoProps) {
+  player,
+}: InlineVideoProps & { player: VideoPlayer }) {
   const [frameReady, setFrameReady] = useState(false);
   const [time, setTime] = useState(0);
   const callbacks = useRef({ onTime, onReady, onError });
   callbacks.current = { onTime, onReady, onError };
   const positioned = useRef(false), seeking = useRef(false), foreground = useRef(AppState.currentState === "active");
   const enabled = useRef(active); enabled.current = active;
-  const { player, native, browser } = usePlaybackEngine(url, !startFromMiddle, muted, 0.25);
   useEffect(() => { setFrameReady(false); positioned.current = false; seeking.current = false; }, [url]);
   useEffect(() => {
     player.muted = muted;
@@ -83,14 +88,14 @@ export default function InlineVideo({
   }, [player, preview, startFromMiddle, url, subtitles.length]);
   return (
     <View pointerEvents="none" style={{ position: "absolute", inset: 0 }}>
-      {browser ? <BrowserVideoView player={browser} onFirstFrameRender={() => { setFrameReady(true); callbacks.current.onReady?.(); }} /> : <VideoView
-        player={native}
+      <VideoView
+        player={player}
         contentFit="cover"
         nativeControls={false}
         surfaceType="textureView"
         onFirstFrameRender={() => { setFrameReady(true); callbacks.current.onReady?.(); }}
         style={{ width: "100%", height: "100%" }}
-      />}
+      />
       {!frameReady && poster && <Image source={{ uri: poster }} resizeMode="cover" style={{ position: "absolute", inset: 0 }} />}
       {frameReady && <SubtitleOverlay track={preferredSubtitle(subtitles)} time={time} bottom={startFromMiddle ? subtitleBottom : 110} />}
     </View>

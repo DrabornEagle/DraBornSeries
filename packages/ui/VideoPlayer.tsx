@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AppState, Modal, Text, View, useWindowDimensions } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
-import { VideoView, isPictureInPictureSupported, type VideoTrack } from "expo-video";
+import { VideoView, isPictureInPictureSupported, type VideoTrack, type VideoPlayer as NativePlayer, type VideoSource } from "expo-video";
 import type { VideoProps } from "./VideoPlayer.types";
 import PlayerChrome from "./PlayerChrome";
 import { colors } from "./theme";
@@ -11,11 +11,16 @@ import SubtitleOverlay, { useSubtitleSelection } from "./SubtitleOverlay";
 import { isTurkish } from "../shared/subtitles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { originalQuality, subtitleBottom, videoFit } from "../shared/player-layout";
-import { nativeVideoSource, safeVideoError } from "../shared/native-video-source";
-import { BrowserVideoView, usePlaybackEngine } from "./usePlaybackEngine";
+import { nativeVideoSource, safeVideoError, isR2Media, nativeVideoFailureCode } from "../shared/native-video-source";
+import { usePlaybackEngine } from "./usePlaybackEngine";
 // Serialize orientation changes so closing quickly cannot leave ALL applied.
 let orientationQueue = Promise.resolve();
-export default function VideoPlayer({ source, initialTime, portrait, title, onRefreshSource, onProgress, onEnd }: VideoProps) {
+export default function VideoPlayer(props: VideoProps) {
+  const handle = usePlaybackEngine(props.source.url);
+  if (!handle) return <View style={{ width: "100%", maxWidth: 420, aspectRatio: 9 / 16, backgroundColor: "#05020a", borderRadius: 22, alignItems: "center", justifyContent: "center" }}><Text style={{ color: colors.muted }}>Video hazırlanıyor…</Text></View>;
+  return <ReadyVideoPlayer key={handle.id} {...props} player={handle.owner.player} replaceSource={(source) => handle.owner.replace(source)} />;
+}
+function ReadyVideoPlayer({ source, initialTime, portrait, title, onRefreshSource, onProgress, onEnd, player, replaceSource }: VideoProps & { player: NativePlayer; replaceSource: (source: VideoSource) => Promise<void> }) {
   const [status, setStatus] = useState("loading"), [error, setError] = useState(""),
     [tracks, setTracks] = useState<VideoTrack[]>([]), [quality, setQuality] = useState("Otomatik"),
     [muted, setMuted] = useState(false), [playing, setPlaying] = useState(true),
@@ -44,7 +49,6 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onRe
   const current = useRef(initialTime), lastSaved = useRef(0), resumed = useRef(false), resumeTime = useRef(initialTime),
     shouldPlay = useRef(true), progressCallback = useRef(onProgress), endCallback = useRef(onEnd);
   progressCallback.current = onProgress; endCallback.current = onEnd;
-  const { player, native, browser } = usePlaybackEngine(source.url);
   useEffect(() => {
     const ready = () => {
       if (player.status !== "readyToPlay") return;
@@ -57,7 +61,7 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onRe
       }
     };
     const statusSub = player.addListener("statusChange", (event) => {
-      setStatus(event.status); if (event.error) { const detail = safeVideoError(event.error); console.warn("DraBornSeries: video error", detail); setError("Video yüklenemedi. Tekrar dene." + (/^R2_[A-Z]+$/.test(detail) ? " (" + detail + ")" : "")); } ready();
+      setStatus(event.status); if (event.error) { console.warn("DraBornSeries: video error", safeVideoError(event.error)); setError("Video yüklenemedi. Tekrar dene." + (isR2Media(source.url) ? " (R2_" + nativeVideoFailureCode(event.error) + ")" : "")); } ready();
     });
     const playingSub = player.addListener("playingChange", (event) => setPlaying(event.isPlaying));
     const timeSub = player.addListener("timeUpdate", (event) => {
@@ -75,11 +79,11 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onRe
       foreground.current = state === "active";
     });
     return () => { statusSub.remove(); timeSub.remove(); endSub.remove(); playingSub.remove(); stateSub.remove(); progressCallback.current(current.current); };
-  }, [player, source.subtitles, initialTime]);
+  }, [player, source.subtitles, source.url, initialTime]);
   const replace = async (url: string, forcePlay = false) => {
     resumeTime.current = current.current; shouldPlay.current = forcePlay || player.playing;
     resumed.current = false; setError(""); setStatus("loading");
-    try { await player.replaceAsync(nativeVideoSource(url)); }
+    try { await replaceSource(nativeVideoSource(url)); }
     catch { setStatus("error"); setError("Bu kalite yüklenemedi. Otomatik kaliteyi seç veya tekrar dene."); }
   };
   const retry = async () => {
@@ -100,18 +104,18 @@ export default function VideoPlayer({ source, initialTime, portrait, title, onRe
   };
   const render = (expanded: boolean) => <View style={{ flex: expanded ? 1 : undefined, backgroundColor: "#05020a", overflow: "hidden",
     borderRadius: expanded ? 0 : 22, aspectRatio: expanded ? undefined : 9 / 16, width: "100%", alignSelf: "center", maxWidth: expanded ? undefined : 420, maxHeight: expanded ? undefined : 720 }}>
-    {browser ? <BrowserVideoView player={browser} fit={fit} onFirstFrameRender={() => { if (!frameLogged.current) { frameLogged.current = true; console.info("DraBornSeries: R2 browser video frame rendered"); } }} /> : <VideoView ref={videoView} player={native} style={{ width: "100%", height: "100%" }} nativeControls={false}
-      onFirstFrameRender={() => { if (!frameLogged.current) { frameLogged.current = true; console.info("DraBornSeries: video frame rendered"); } }}
-      contentFit={videoFit(expanded, portrait, width > height, mediaPortrait, fit)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />}
-    <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, mediaPortrait)} />
-    <PlayerChrome title={title} time={time} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
+    <VideoView ref={videoView} player={player} style={{ width: "100%", height: "100%" }} nativeControls={false}
+      onFirstFrameRender={() => { if (!frameLogged.current) { frameLogged.current = true; console.info("DraBornSeries: video frame rendered"); if (isR2Media(source.url)) console.info("DraBornSeries: R2 native video frame rendered"); } }}
+      contentFit={videoFit(expanded, portrait, width > height, mediaPortrait, fit)} surfaceType="textureView" fullscreenOptions={{ enable: false }} allowsPictureInPicture />
+    {status === "readyToPlay" && duration > 0 && <SubtitleOverlay track={captions.track} time={time} bottom={subtitleBottom(expanded, controlsVisible, insets.bottom, mediaPortrait)} />}
+    <PlayerChrome title={title} time={duration > 0 ? time : 0} duration={duration} playing={playing} muted={muted} loading={status === "loading"}
       onControlsVisibilityChange={setControlsVisible} safeTop={insets.top} safeBottom={insets.bottom}
       fullscreen={expanded} quality={quality} choices={choices} error={error} onQuality={selectQuality} fit={fit} onFit={setFit}
       onSeek={(value) => { player.currentTime = value; current.current = value; setTime(value); }}
       onPlay={() => { shouldPlay.current = !player.playing; if (player.playing) { player.pause(); onProgress(current.current); } else player.play(); }}
       onMute={() => { player.muted = !muted; setMuted(!muted); }} onFullscreen={() => setFullscreen(!fullscreen)}
       onRetry={() => { void retry(); }}
-      onPiP={!browser && isPictureInPictureSupported() ? () => { videoView.current?.startPictureInPicture().catch(() => setError("Bu cihazda küçük pencere başlatılamadı.")); } : undefined}
+      onPiP={isPictureInPictureSupported() ? () => { videoView.current?.startPictureInPicture().catch(() => setError("Bu cihazda küçük pencere başlatılamadı.")); } : undefined}
       audio={player.availableAudioTracks.length > 1 ? player.availableAudioTracks.map((item, index) => ({ key: String(index), label: item.label || item.language })) : undefined}
       onAudio={(key) => { player.audioTrack = player.availableAudioTracks[Number(key)]; }}
       subtitles={captions.choices.length || player.availableSubtitleTracks.length ? [

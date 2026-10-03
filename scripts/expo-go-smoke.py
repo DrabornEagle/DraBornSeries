@@ -21,6 +21,22 @@ def logs():
     (out / 'logcat.txt').write_text(value)
     return value
 
+def tap_label(label):
+    adb('shell', 'uiautomator', 'dump', '/sdcard/dbs-expo.xml')
+    root = ET.fromstring(adb('shell', 'cat', '/sdcard/dbs-expo.xml'))
+    for node in root.iter():
+        if label in [node.get('text', ''), node.get('content-desc', '')]:
+            bounds = list(map(int, re.findall(r'\d+', node.get('bounds', ''))))
+            if len(bounds) == 4:
+                x1, y1, x2, y2 = bounds
+                adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
+                return True
+    return False
+
+def assert_runtime(value):
+    if re.search(r'FATAL EXCEPTION|Fatal signal|JavascriptException|TurboModuleRegistry.*could not be found|Cannot use shared object that was already released|Cannot set prop.*player', value):
+        raise AssertionError('Expo Go native player/runtime failed; see sanitized logs.')
+
 adb('install', '-r', os.environ['RUNNER_TEMP'] + '/expo-go.apk')
 adb('shell', 'appops', 'set', 'host.exp.exponent', 'SYSTEM_ALERT_WINDOW', 'allow')
 adb('reverse', 'tcp:8081', 'tcp:8081')
@@ -42,10 +58,7 @@ with metro_log.open('w') as stream:
         for attempt in range(48):
             time.sleep(5)
             value = logs()
-            if re.search(r'FATAL EXCEPTION|Fatal signal|JavascriptException|TurboModuleRegistry.*could not be found', value):
-                raise AssertionError('Expo Go runtime crashed; see sanitized logs.')
-            if 'DraBornSeries: R2 browser video frame rendered' in value and 'DraBornSeries: video playback advanced' in value:
-                break
+            assert_runtime(value)
             if attempt % 4 == 3:
                 # Dismiss only Expo Go's first-run development tip.
                 try:
@@ -58,12 +71,42 @@ with metro_log.open('w') as stream:
                             adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
                 except Exception:
                     pass
+            if 'DraBornSeries: R2 native video frame rendered' in value and 'DraBornSeries: video playback advanced' in value:
+                break
         else:
-            raise AssertionError('R2 Chromium did not render a frame and advance playback in Expo Go.')
+            raise AssertionError('R2 native player did not render a frame and advance playback in Expo Go.')
+        # Dismiss Expo's own development menu before exercising our full screen.
+        if tap_label('Continue'):
+            time.sleep(1)
+        tap_label('Got it')
+        if not tap_label('Tam ekran'):
+            tap_label('Oynatıcı kontrollerini göster veya gizle')
+            assert tap_label('Tam ekran'), 'Full screen control was not reachable.'
+        time.sleep(2)
+        (out / 'fullscreen.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
+        adb('shell', 'input', 'keyevent', '4')
+        time.sleep(2)
+        assert_runtime(logs())
+
+        # Reproduce the Fast Refresh path from the owner's Termux screenshot.
+        before_log = logs()
+        before = before_log.count('DraBornSeries: video playback advanced')
+        before_frames = before_log.count('DraBornSeries: R2 native video frame rendered')
+        module = Path('packages/ui/VideoPlayer.tsx')
+        original = module.read_text()
+        module.write_text(original + '\n// CI-only Fast Refresh lifecycle probe.\n')
+        for attempt in range(30):
+            time.sleep(3)
+            value = logs(); assert_runtime(value)
+            if (value.count('DraBornSeries: R2 native video frame rendered') > before_frames
+                    and value.count('DraBornSeries: video playback advanced') > before):
+                break
+        else:
+            raise AssertionError('R2 playback did not resume after Fast Refresh.')
         (out / 'r2-playback.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
         adb('shell', 'uiautomator', 'dump', '/sdcard/dbs-expo.xml')
         (out / 'ui.xml').write_text(adb('shell', 'cat', '/sdcard/dbs-expo.xml'))
-        print('Expo Go 58: real R2 KAYRA frame rendered and playback time advanced; no app APK built.')
+        print('Expo Go 58: real R2 KAYRA native frame/time, fullscreen and Fast Refresh passed; no app APK built.')
     finally:
         logs()
         metro.terminate()
