@@ -51,7 +51,10 @@ adb('shell', 'appops', 'set', 'host.exp.exponent', 'SYSTEM_ALERT_WINDOW', 'allow
 adb('reverse', 'tcp:8081', 'tcp:8081')
 adb('logcat', '-c')
 with metro_log.open('w') as stream:
-    metro = subprocess.Popen(['npm', 'run', 'test:phone'], stdout=stream, stderr=stream, env={**os.environ, 'CI': '1', 'EXPO_NO_TELEMETRY': '1'})
+    # Metro's CI mode disables watching/reloads, so it cannot exercise Fast Refresh.
+    metro_env = {key: value for key, value in os.environ.items() if key != 'CI'}
+    metro_env['EXPO_NO_TELEMETRY'] = '1'
+    metro = subprocess.Popen(['npm', 'run', 'test:phone'], stdin=subprocess.DEVNULL, stdout=stream, stderr=stream, env=metro_env)
     try:
         for attempt in range(40):
             try:
@@ -100,6 +103,10 @@ with metro_log.open('w') as stream:
                 adb('shell', 'input', 'swipe', str(width//2), str(height*3//4), str(width//2), str(height*2//5), '350')
                 tap_label('Oynatıcı kontrollerini göster veya gizle')
                 assert tap_label('Tam ekran'), 'Full screen control was not reachable; see ui.xml and final screenshot.'
+        # The short test clip can finish while Go's menu is dismissed. Replay it
+        # inside the modal so the screenshot verifies a decoded full-screen frame.
+        tap_label('10 saniye geri')
+        tap_label('Oynat')
         time.sleep(2)
         (out / 'fullscreen.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
         adb('shell', 'input', 'keyevent', '4')
@@ -112,14 +119,18 @@ with metro_log.open('w') as stream:
         before_frames = before_log.count('DraBornSeries: R2 native video frame rendered')
         module = Path('packages/ui/VideoPlayer.tsx')
         original = module.read_text()
-        module.write_text(original + '\n// CI-only Fast Refresh lifecycle probe.\n')
+        probe = 'DraBornSeries: Fast Refresh probe loaded'
+        module.write_text(original + '\nconsole.info("' + probe + '"); // CI-only probe.\n')
         for attempt in range(30):
             time.sleep(3)
             value = logs(); assert_runtime(value)
-            if (value.count('DraBornSeries: R2 native video frame rendered') > before_frames
+            if (probe in value
+                    and value.count('DraBornSeries: R2 native video frame rendered') > before_frames
                     and value.count('DraBornSeries: video playback advanced') > before):
                 break
         else:
+            if probe not in value:
+                raise AssertionError('Metro did not deliver the Fast Refresh probe; see sanitized logs.')
             raise AssertionError('R2 playback did not resume after Fast Refresh.')
         (out / 'r2-playback.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
         adb('shell', 'uiautomator', 'dump', '/sdcard/dbs-expo.xml')
