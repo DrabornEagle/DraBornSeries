@@ -43,7 +43,8 @@ export function useStore() {
     const uid = userRef.current;
     if (!uid) return;
     if (entitlementFlight.current?.account === uid) {
-      await entitlementFlight.current.promise;
+      try { await entitlementFlight.current.promise; }
+      catch (error) { if (!force) throw error; }
       if (!force || userRef.current !== uid) return;
     }
     const epoch = ++entitlementEpoch.current;

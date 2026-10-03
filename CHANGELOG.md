@@ -4,6 +4,7 @@
 - Recover unfinished purchases per account and display animated payment results.
 - Emphasize BornCoins quantities, bonuses and store prices; suspend CTA motion off screen/background.
 - Refresh wallet/VIP independently, protect updates from stale account responses and sync changes with Realtime.
+- Retry the post-purchase wallet refresh even when an earlier foreground request failed.
 - Reduce Android preview work and playback startup buffering while retaining secure media lifecycle.
 - Report missing Google receipt permissions and prevent new payments until verification access is ready.
 
