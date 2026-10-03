@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Session } from "@supabase/supabase-js";
 import { db, deviceId, requireData, rpc } from "./client";
 import { flushProgress } from "./progress";
+import { activeMemberships, vipColumns, vipStates, type VipMembership } from "../shared/vip";
 import type {
   Series,
   Episode,
@@ -26,6 +27,7 @@ export function useStore() {
     [transactions, setTransactions] = useState<Transaction[]>([]),
     [vip, setVip] = useState(false),
     [vipEnd, setVipEnd] = useState<string | null>(null),
+    [vipMemberships, setVipMemberships] = useState<VipMembership[]>([]),
     [isAdmin, setIsAdmin] = useState(false),
     [streak, setStreak] = useState({
       days: 0,
@@ -54,14 +56,17 @@ export function useStore() {
         requireData(db.from("dbs_borncoins_wallet").select("balance").eq("user_id", uid).single()),
         rpc<boolean>("dbs_is_vip"),
         requireData(db.from("dbs_borncoins_transactions").select("*").order("created_at", { ascending: false }).limit(100)),
-        requireData(db.from("dbs_vip_subscriptions").select("expires_at").in("status", ["active", "grace", "cancelled"])
-          .gt("expires_at", new Date().toISOString()).order("expires_at", { ascending: false }).limit(1)),
+        requireData<VipMembership[]>(db.from("dbs_vip_subscriptions").select(vipColumns).eq("user_id", uid).in("status", vipStates)
+          .gt("expires_at", new Date().toISOString()).order("expires_at", { ascending: false }).limit(20)),
       ]);
       if (userRef.current !== uid || epoch !== entitlementEpoch.current) return;
       if (results[0].status === "fulfilled") setBalance(results[0].value.balance);
       if (results[1].status === "fulfilled") setVip(results[1].value);
       if (results[2].status === "fulfilled") setTransactions(results[2].value);
-      if (results[3].status === "fulfilled") setVipEnd(results[3].value[0]?.expires_at || null);
+      if (results[3].status === "fulfilled") {
+        const memberships = activeMemberships(results[3].value);
+        setVipMemberships(memberships); setVipEnd(memberships[0]?.expires_at || null);
+      }
       if (results[0].status === "rejected" || results[1].status === "rejected") throw Error("Hesap bilgisi henüz yenilenemedi.");
     })().finally(() => { if (entitlementFlight.current?.promise === promise) entitlementFlight.current = null; });
     entitlementFlight.current = { account: uid, promise };
@@ -155,11 +160,12 @@ export function useStore() {
         requireData(
           db
             .from("dbs_vip_subscriptions")
-            .select("expires_at")
-            .in("status", ["active", "grace", "cancelled"])
+            .select(vipColumns)
+            .eq("user_id", uid)
+            .in("status", vipStates)
             .gt("expires_at", new Date().toISOString())
             .order("expires_at", { ascending: false })
-            .limit(1),
+            .limit(20),
         ),
       ]);
       if (userRef.current !== uid) return;
@@ -172,7 +178,8 @@ export function useStore() {
         setBalance(results[4].balance);
         setTransactions(results[5]);
         setVip(results[6]);
-        setVipEnd(results[10][0]?.expires_at || null);
+        const memberships = activeMemberships(results[10]);
+        setVipMemberships(memberships); setVipEnd(memberships[0]?.expires_at || null);
       }
       setIsAdmin(results[7]);
       setStreak(results[8]);
@@ -200,6 +207,10 @@ export function useStore() {
     } = db.auth.onAuthStateChange((_event, current) => {
       const sameAccount = userRef.current === (current?.user.id || null);
       userRef.current = current?.user.id || null;
+      if (!sameAccount) {
+        ++entitlementEpoch.current;
+        setBalance(0); setTransactions([]); setVip(false); setVipEnd(null); setVipMemberships([]);
+      }
       setSession(current);
       if (sameAccount && _event === "TOKEN_REFRESHED") return;
       if (current) {
@@ -216,6 +227,7 @@ export function useStore() {
         setTransactions([]);
         setVip(false);
         setVipEnd(null);
+        setVipMemberships([]);
         bootstrapped.current = null;
         setIsAdmin(false);
         setNotifications([]);
@@ -238,6 +250,19 @@ export function useStore() {
       sub.remove();
     };
   }, [refreshEntitlements]);
+  useEffect(() => {
+    if (!vip || !vipEnd) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const check = () => {
+      const remaining = Date.parse(vipEnd) - Date.now();
+      if (remaining <= 0) {
+        // A locally expired entitlement must disappear even if the network is offline.
+        setVip(false); setVipEnd(null); setVipMemberships([]);
+        void refreshEntitlements(true).catch(() => {});
+      } else timer = setTimeout(check, Math.min(remaining + 25, 60000));
+    };
+    check(); return () => clearTimeout(timer);
+  }, [vip, vipEnd, refreshEntitlements]);
   useEffect(() => {
     const uid = session?.user.id;
     if (!uid) return;
@@ -282,6 +307,7 @@ export function useStore() {
     transactions,
     vip,
     vipEnd,
+    vipMemberships,
     isAdmin,
     streak,
     notifications,

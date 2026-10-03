@@ -1,9 +1,19 @@
-# DraBornSeries v0.7.5 · Kod 2
+# DraBornSeries v0.7.7 · Kod 4
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.7 · VIP üyeliği ve satın alımları geri yükleme
+
+- Sürüm 0.7.7 / Android versionCode 4. BornCoins kartlarındaki “Cüzdanına toplam” satırı kaldırıldı; paket, bonus ve gerçek mağaza fiyatı korunur.
+- Aktif VIP için uygulama, taze sunucu üyeliği ve Google Play makbuzlarını denetler; ikinci VIP ödemesi renkli üyelik penceresiyle engellenir. Bekleyen veya askıya alınmış Play aboneliği de yeni ödeme başlatmaz. Süresi dolan üyelik yeniden alınabilir.
+- Geri yükleme anında ilerleme gösterir; başarı, bekleyen ödeme, boş sonuç, süre sonu ve bağlantı hatası görünür. Otomatik arka plan doğrulaması sessizdir. Aynı coin makbuzu iki kez bakiye üretmez.
+- Sağ üst VIP rozeti üyelik, gerçek bitiş tarihi, kalan gün ve mağaza bağlantısını açar. VIP bitişi ön planda yerel erişimi de kapatır; hesap değişimi eski üyeliği taşımaz.
+- Renkli VIP avantajları, satın alma pencereleri, hareket tercihine uyumlu ödeme düğmesi ve görev ilerlemesini gösteren BornCoins kazan ekranı Android/web ortak bileşenleridir.
+- Ekran görüntülerindeki haftalık test aboneliği Google Play’in 5 dakikalık lisans testi yenilemesidir; test aboneliği altı yenilemeden sonra biter. İptal edilmiş aboneliğin VIP erişimi gerçek bitiş anına kadar sürebilir. [Resmi test belgesi](https://developer.android.com/google/play/billing/test).
+- Yerel TypeScript, lint, 75 JavaScript + 1 Python testi, web export ve Android JavaScript export geçti. Güncel yayın/derleme kanıtları [PROGRESS.md](docs/PROGRESS.md) içindedir.
 
 ## v0.7.5 · Google Play VIP ve BornCoins
 
@@ -154,7 +164,7 @@ npm run sync:web
 
 `apps/mobile` ortak uygulama, `apps/web` web davranışı, `apps/admin` yönetim paneli; ortak servisler `packages/api`, bileşenler `packages/ui`. Backend migration/seed/Edge Functions `supabase`, yeni R2 gateway `cloudflare/r2-worker.js` altında. Önceki Stream adaptörleri mevcut kaynaklarla uyumluluk için tutulur; otomatik Stream katalog aktarımı çalıştırılmaz.
 
-GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Android release işi yalnız elle başlatılır; Expo Go testi uygulama APK/AAB çıktısı üretmez. Play Console yayını yapılmaz. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
+GitHub Actions uygulama kontrollerini, web export ve Android JS export'u çalıştırır. Android release işi açık sürüm isteğiyle (elle veya `[android-release]` işaretli release metadata değişikliğiyle) başlatılır; Expo Go testi uygulama APK/AAB çıktısı üretmez. Play Console yayını yapılmaz. Ayrı veritabanı işi local Supabase üzerinde migration/seed/RLS testini çalıştırır. Web reposundaki sync işi en son doğrulanmış ana kaynak commit'ini `/DraBornSeries/` altına yayınlar.
 
 ## Güvenlik
 

@@ -25,7 +25,9 @@ Deno.serve(async request => {
     if (!product) return reply({ error: "PRODUCT_INACTIVE" }, 409);
     if (product.kind === "vip") {
       const result = await syncSubscription(service, user.id, productId, purchaseToken, env("DBS_GOOGLE_SERVICE_ACCOUNT"));
-      return reply(result, result.entitled ? result.acknowledged ? 200 : 202 : 409);
+      // An expired/cancelled receipt is a verified lifecycle update, not a failed request.
+      // Clients must refresh their entitlement after it, including when access is removed.
+      return reply(result, result.entitled && !result.acknowledged ? 202 : 200);
     }
     if (product.kind !== "coins") return reply({ error: "PRODUCT_INACTIVE" }, 409);
     const google = await googleHeaders(env("DBS_GOOGLE_SERVICE_ACCOUNT"));

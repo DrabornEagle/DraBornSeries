@@ -150,8 +150,8 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.5",
-        versionCode: 2,
+        version: "0.7.7",
+        versionCode: 4,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
         uploads: streamConfigured(),
@@ -170,9 +170,13 @@ Deno.serve(async (req) => {
       const profile = await checked(client.from("dbs_profiles").select("user_id,status").eq("user_id", user.id).maybeSingle());
       if (!profile || profile.status !== "active") return send(req, { error: "ACCOUNT_UNAVAILABLE" }, 403);
       if (body.action === "billing-account") {
+        const activeVip = await checked(client.from("dbs_vip_subscriptions")
+          .select("product_id,provider,status,starts_at,expires_at,auto_renew").eq("user_id", user.id)
+          .in("status", ["active", "grace", "cancelled"]).gt("expires_at", new Date().toISOString())
+          .order("expires_at", { ascending: false }).limit(20));
         const access = await playBillingAccess(env("DBS_GOOGLE_SERVICE_ACCOUNT"));
         const accountId = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(user.id)))].map(byte => byte.toString(16).padStart(2, "0")).join("");
-        return send(req, { accountId, configured: access.ready, error: access.error, package: "com.draborneagle.drabornseries" });
+        return send(req, { accountId, activeVip, configured: access.ready, error: access.error, package: "com.draborneagle.drabornseries" });
       }
       if (body.action === "ad-status") {
         if (!/^[a-f0-9-]{36}$/.test(body.id || "")) return send(req, { error: "INVALID_AD_TICKET" }, 400);

@@ -44,6 +44,7 @@ import Splash from "../../packages/ui/Splash";
 import AdminPanel from "../admin/AdminPanel";
 import ErrorPopup from "../../packages/ui/ErrorPopup";
 import PurchasePopup from "../../packages/ui/PurchasePopup";
+import VipPopup from "../../packages/ui/VipPopup";
 import { config } from "../../packages/shared/config";
 import RefreshScrollView from "../../packages/ui/RefreshScrollView";
 import { useBilling } from "../../packages/api/billing";
@@ -79,6 +80,7 @@ function Main() {
     [dismissedError, setDismissedError] = useState(""),
     [previewRegion, setPreviewRegion] = useState("hero"),
     [busy, setBusy] = useState(false);
+  const [vipVisible, setVipVisible] = useState(false);
   const scrollOffset = useRef(0);
   const billing = useBilling(store.session?.user.id, () => store.refreshEntitlements(true));
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null),
@@ -588,7 +590,7 @@ function Main() {
                 >
                   <Icon name="bag-handle-outline" />
                 </Pressable>
-                {store.vip && <Pressable accessibilityLabel="VIP üyeliğin aktif" onPress={() => go("vip")} style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 12, backgroundColor: "#ffd58c20", borderWidth: 1, borderColor: "#ffd58c70" }}><Icon name="diamond" color="#ffd58c" size={14} /><Text style={{ fontSize: 12, color: "#ffd58c", fontWeight: "900" }}>VIP</Text></Pressable>}
+                {store.vip && <Pressable accessibilityRole="button" accessibilityLabel="VIP üyelik bilgilerimi aç" onPress={() => { setVipVisible(true); void store.refreshEntitlements().catch(() => {}); }} style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 12, backgroundColor: "#ffd58c20", borderWidth: 1, borderColor: "#ffd58c70" }}><Icon name="diamond" color="#ffd58c" size={14} /><Text style={{ fontSize: 12, color: "#ffd58c", fontWeight: "900" }}>VIP</Text></Pressable>}
                 <Pressable
                   accessibilityLabel={store.session ? t.profile : t.login}
                   onPress={() => go(store.session ? "profile" : "auth")}
@@ -806,10 +808,13 @@ function Main() {
           await store.refreshCatalog(); await store.refreshAccount();
         })} />
       <Splash ready={!store.loading} />
-      <PurchasePopup notice={billing.notice} onClose={billing.clearNotice}
+      <PurchasePopup notice={billing.notice} busy={billing.restoring} onClose={billing.clearNotice}
+        onVip={() => { billing.clearNotice(); go("vip"); }}
+        onManage={() => { billing.clearNotice(); void Linking.openURL("https://play.google.com/store/account/subscriptions?package=com.draborneagle.drabornseries"); }}
         onWallet={() => { billing.clearNotice(); go("wallet"); }}
         onRetry={() => { const product = billing.notice?.started === false ? billing.notice.productId : "";
           billing.clearNotice(); void run(() => product ? billing.buy(product) : billing.restore()); }} />
+      <VipPopup visible={vipVisible} store={store} onClose={() => setVipVisible(false)} onStore={() => { setVipVisible(false); go("store"); }} />
     </SafeAreaView>
   );
 }

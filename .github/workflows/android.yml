@@ -4,7 +4,7 @@ on:
 # APK/AAB builds require an explicit release request.
   push:
     branches: [main]
-    paths: ["supabase/releases/v076.sql"]
+    paths: ["supabase/releases/v077.sql"]
 permissions:
   contents: read
   actions: write
@@ -57,17 +57,17 @@ jobs:
         run: |
           mkdir -p artifacts/release
           if [ "${DBS_UNSIGNED_RELEASE:-0}" = "1" ]; then
-            cp android/app/build/outputs/apk/release/app-release-unsigned.apk artifacts/release/DraBornSeries-v0.7.6-unsigned.apk
-            cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.6-unsigned.aab
+            cp android/app/build/outputs/apk/release/app-release-unsigned.apk artifacts/release/DraBornSeries-v0.7.7-unsigned.apk
+            cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.7-unsigned.aab
             keytool -genkeypair -keystore "$RUNNER_TEMP/dbs-smoke.jks" -storepass android -keypass android -alias ci-smoke -keyalg RSA -validity 2 -dname 'CN=Temporary CI playback validation'
-            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/dbs-smoke.jks" --ks-pass pass:android --key-pass pass:android --out "$RUNNER_TEMP/dbs-smoke.apk" artifacts/release/DraBornSeries-v0.7.6-unsigned.apk
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/dbs-smoke.jks" --ks-pass pass:android --key-pass pass:android --out "$RUNNER_TEMP/dbs-smoke.apk" artifacts/release/DraBornSeries-v0.7.7-unsigned.apk
             echo "DBS_SMOKE_APK=$RUNNER_TEMP/dbs-smoke.apk" >> "$GITHUB_ENV"
             printf 'Unsigned packages. Delivery requires the pinned owner certificate; the temporary CI certificate is only for emulator installation.\n' > artifacts/release/SIGNING.txt
           else
-            cp android/app/build/outputs/apk/release/app-release.apk artifacts/release/DraBornSeries-v0.7.6-release.apk
-            cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.6-release.aab
-            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/release/DraBornSeries-v0.7.6-release.apk > artifacts/release/APK-signature.txt
-            jarsigner -verify artifacts/release/DraBornSeries-v0.7.6-release.aab > artifacts/release/AAB-signature.txt
+            cp android/app/build/outputs/apk/release/app-release.apk artifacts/release/DraBornSeries-v0.7.7-release.apk
+            cp android/app/build/outputs/bundle/release/app-release.aab artifacts/release/DraBornSeries-v0.7.7-release.aab
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/release/DraBornSeries-v0.7.7-release.apk > artifacts/release/APK-signature.txt
+            jarsigner -verify artifacts/release/DraBornSeries-v0.7.7-release.aab > artifacts/release/AAB-signature.txt
           fi
           sha256sum artifacts/release/*.apk artifacts/release/*.aab > artifacts/release/SHA256SUMS.txt
       - name: Prepare bounded AAB download parts from this exact build
@@ -88,7 +88,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.6-AAB-part01
+          name: DraBornSeries-v0.7.7-AAB-part01
           path: |
             artifacts/aab-delivery/aab.part01
             artifacts/aab-delivery/manifest.json
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ hashFiles('artifacts/aab-delivery/aab.part02') != '' }}
         with:
-          name: DraBornSeries-v0.7.6-AAB-part02
+          name: DraBornSeries-v0.7.7-AAB-part02
           path: |
             artifacts/aab-delivery/aab.part02
             artifacts/aab-delivery/manifest.json
@@ -114,11 +114,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: DraBornSeries-v0.7.6-native-diagnostics
+          name: DraBornSeries-v0.7.7-native-diagnostics
           path: artifacts/diagnostics/
       - uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.6-release-packages
+          name: DraBornSeries-v0.7.7-release-packages
           path: artifacts/release/
           retention-days: 90
       - name: Enable accelerated Android emulator
@@ -140,5 +140,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: DraBornSeries-v0.7.6-Android-startup
+          name: DraBornSeries-v0.7.7-Android-startup
           path: artifacts/smoke/

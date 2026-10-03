@@ -1,3 +1,12 @@
+## 0.7.7 · Android versionCode 4
+
+- Block a second ongoing VIP purchase using current server membership and verified Play receipts; display a colorful membership popup.
+- Report restore progress, restored purchases, pending payments, expired memberships, empty results and failures; deduplicate receipt processing.
+- Refresh rights after verified inactive subscription receipts and expire local VIP access at the real deadline.
+- Add a header membership popup, remaining-day/date card, colorful benefits and checkout screens, animated payment actions and reward-task progress.
+- Remove the redundant wallet-total line from all BornCoins product cards.
+- Validate production billing hooks with account-switch, replay, pending, expiry and duplicate-payment regressions.
+
 ## 0.7.6 · Android versionCode 3
 
 - Fix Google Play regular VIP offers and partial native product queries.

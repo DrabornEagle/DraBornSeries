@@ -1,3 +1,13 @@
+# v0.7.7 / Android code 4 · 3 Ekim 2026
+
+Google Play ekran görüntüleri lisans testi makbuzlarını içerir. Haftalık test aboneliği 5 dakikada yenilenir, altı yenilemeden sonra sona erer; bu e-postalar uygulama tarafından gönderilmez. Canlı RTDN kayıtları iki haftalık test üyeliğinin süresi dolduğunu doğru kaydetmiştir. Kod düzeltmesi Play bildirimlerini gizlemez; uygulama artık gerçek bitiş anında yerel VIP durumunu da kapatır ve doğrulanmış süresi dolmuş makbuzdan sonra haklarını yeniler.
+
+Aktif VIP için ortak checkout penceresi ikinci ödemeyi engeller. Native ödeme başlangıcı taze sunucu üyeliğini ve Play makbuzlarını ayrıca denetler; aktif/bekleyen/askıya alınmış abonelik yeni ücretlendirme başlatmaz. Süresi dolan VIP yeniden alınabilir. Geri yükleme anında ilerleme ve sonunda doğrulanmış/bekleyen/süresi dolmuş/boş/hatalı sonuç gösterir. Makbuz token'ları tek işlemde birleştirilir; otomatik kurtarma sessizdir, tüketilmiş coin yeniden üretilmez. Hesap değişiminde eski makbuz başka hesabı güncellemez.
+
+VIP rozeti üyelik penceresini ve mağaza bağlantısını açar. Gerçek üyelik bitişi gün/saat, kalan gün ve gün içi süreyle gösterilir. Renkli VIP avantajları/ödeme ekranları, animasyonlu ödeme düğmesi ve görev ilerlemeli BornCoins kazan ekranı Android/web ortaktır. BornCoins kartlarından “Cüzdanına toplam” satırı kaldırıldı.
+
+Yerel TypeScript, lint, 75 JS testi ve Python kuyruk testi geçti. Web ve Android JS export başarılı. Canlı dbs-api v51, dbs-play-verify v15 ve dbs-play-rtdn v9 güncel kaynakla dağıtıldı. Health 0.7.7/kod 4; kimliksiz ödeme doğrulaması 401. Native imzalı AAB, tarayıcı/cihaz smoke testi ve web eşitlemesi bu kayıtta henüz bekliyor; sonuçlar son teslim kaydına eklenecek.
+
 # v0.7.6 / Android code 3 · 3 Ekim 2026
 
 Uygulama düzeltmeleri: OpenIAP 3.6.2 normal abonelik tekliflerinin `id=basePlanId` eşlemesi; sıralı native mağaza sorguları ve bağımsız eksik SKU tekrarları; gerçek satın alma teklif fiyatı/token eşlemesi; hesaba özel kalıcı yarım işlem kaydı; uygulamaya dönüşte doğrulama/geri yükleme; doğrulanmış bakiye, sipariş ve VIP sonucu için animasyonlu pencere. Kartlarda paket, bonus, toplam yükleme ve fiyat ayrı vurgulanır. VIP çağrı düğmeleri yalnız ilgili görünüm açık, uygulama ön planda ve hareket erişilebilirlik ayarı izinliyken çalışır.
