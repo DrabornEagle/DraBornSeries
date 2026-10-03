@@ -36,6 +36,36 @@ export function useStore() {
     [error, setError] = useState(""),
     [language, setLanguage] = useState<Language>("tr");
   const userRef = useRef<string | null>(null);
+  const bootstrapped = useRef<string | null>(null);
+  const entitlementEpoch = useRef(0);
+  const entitlementFlight = useRef<{ account: string; promise: Promise<void> } | null>(null);
+  const refreshEntitlements = useCallback(async (force = false) => {
+    const uid = userRef.current;
+    if (!uid) return;
+    if (entitlementFlight.current?.account === uid) {
+      await entitlementFlight.current.promise;
+      if (!force || userRef.current !== uid) return;
+    }
+    const epoch = ++entitlementEpoch.current;
+    const promise = (async () => {
+      // A failure in profile/history must never prevent an already credited wallet from updating.
+      const results = await Promise.allSettled([
+        requireData(db.from("dbs_borncoins_wallet").select("balance").eq("user_id", uid).single()),
+        rpc<boolean>("dbs_is_vip"),
+        requireData(db.from("dbs_borncoins_transactions").select("*").order("created_at", { ascending: false }).limit(100)),
+        requireData(db.from("dbs_vip_subscriptions").select("expires_at").in("status", ["active", "grace", "cancelled"])
+          .gt("expires_at", new Date().toISOString()).order("expires_at", { ascending: false }).limit(1)),
+      ]);
+      if (userRef.current !== uid || epoch !== entitlementEpoch.current) return;
+      if (results[0].status === "fulfilled") setBalance(results[0].value.balance);
+      if (results[1].status === "fulfilled") setVip(results[1].value);
+      if (results[2].status === "fulfilled") setTransactions(results[2].value);
+      if (results[3].status === "fulfilled") setVipEnd(results[3].value[0]?.expires_at || null);
+      if (results[0].status === "rejected" || results[1].status === "rejected") throw Error("Hesap bilgisi henüz yenilenemedi.");
+    })().finally(() => { if (entitlementFlight.current?.promise === promise) entitlementFlight.current = null; });
+    entitlementFlight.current = { account: uid, promise };
+    return promise;
+  }, []);
   const refreshCatalog = useCallback(async () => {
     try {
       const [shows, eps] = await Promise.all([
@@ -72,13 +102,17 @@ export function useStore() {
     } = await db.auth.getSession();
     if (!current) return;
     const uid = current.user.id;
+    const epoch = entitlementEpoch.current;
     try {
-      await rpc("dbs_bootstrap", {
-        device: await deviceId(),
-        label: Platform.OS === "web" ? "Web tarayıcı" : "Android · Expo Go",
-        platform: Platform.OS,
-      });
-      await restoreProfilePhoto(current.user);
+      if (bootstrapped.current !== uid) {
+        await rpc("dbs_bootstrap", {
+          device: await deviceId(),
+          label: Platform.OS === "web" ? "Web tarayıcı" : "Android · DraBornSeries",
+          platform: Platform.OS,
+        });
+        await restoreProfilePhoto(current.user);
+        bootstrapped.current = uid;
+      }
       const results = await Promise.all([
         requireData(
           db.from("dbs_profiles").select("*").eq("user_id", uid).single(),
@@ -133,13 +167,15 @@ export function useStore() {
       setFavorites(results[1].map((r: any) => r.series_id));
       setProgress(results[2]);
       setUnlocks(results[3].map((r: any) => r.episode_id));
-      setBalance(results[4].balance);
-      setTransactions(results[5]);
-      setVip(results[6]);
+      if (epoch === entitlementEpoch.current) {
+        setBalance(results[4].balance);
+        setTransactions(results[5]);
+        setVip(results[6]);
+        setVipEnd(results[10][0]?.expires_at || null);
+      }
       setIsAdmin(results[7]);
       setStreak(results[8]);
       setNotifications(results[9]);
-      setVipEnd(results[10][0]?.expires_at || null);
       setError("");
     } catch (err) {
       if (userRef.current === uid)
@@ -153,6 +189,7 @@ export function useStore() {
           const parsed = JSON.parse(cached);
           setSeries(parsed.series);
           setEpisodes(parsed.episodes);
+          setLoading(false);
         } catch {}
       }
     });
@@ -160,8 +197,10 @@ export function useStore() {
     const {
       data: { subscription },
     } = db.auth.onAuthStateChange((_event, current) => {
+      const sameAccount = userRef.current === (current?.user.id || null);
       userRef.current = current?.user.id || null;
       setSession(current);
+      if (sameAccount && _event === "TOKEN_REFRESHED") return;
       if (current) {
         setTimeout(() => {
           refreshAccount();
@@ -175,6 +214,8 @@ export function useStore() {
         setBalance(0);
         setTransactions([]);
         setVip(false);
+        setVipEnd(null);
+        bootstrapped.current = null;
         setIsAdmin(false);
         setNotifications([]);
       }
@@ -183,19 +224,33 @@ export function useStore() {
   }, [refreshAccount, refreshCatalog]);
   useEffect(() => {
     const timer = setInterval(() => {
-      if (userRef.current) refreshAccount();
-    }, 45000);
+      if (userRef.current && AppState.currentState === "active") void refreshEntitlements().catch(() => {});
+    }, 60000);
     const sub = AppState.addEventListener("change", (state) => {
       if (state === "active") {
         flushProgress();
-        refreshAccount();
+        void refreshEntitlements().catch(() => {});
       }
     });
     return () => {
       clearInterval(timer);
       sub.remove();
     };
-  }, [refreshAccount]);
+  }, [refreshEntitlements]);
+  useEffect(() => {
+    const uid = session?.user.id;
+    if (!uid) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const update = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => { void refreshEntitlements().catch(() => {}); }, 150);
+    };
+    const channel = db.channel("dbs-entitlements:" + uid)
+      .on("postgres_changes", { event: "*", schema: "drabornseries", table: "dbs_borncoins_wallet", filter: "user_id=eq." + uid }, update)
+      .on("postgres_changes", { event: "*", schema: "drabornseries", table: "dbs_vip_subscriptions", filter: "user_id=eq." + uid }, update)
+      .subscribe();
+    return () => { if (timer) clearTimeout(timer); void db.removeChannel(channel); };
+  }, [session?.user.id, refreshEntitlements]);
   const toggleFavorite = async (id: string) => {
     if (!session) throw Error("AUTH_REQUIRED");
     if (favorites.includes(id))
@@ -234,6 +289,7 @@ export function useStore() {
     language,
     setLanguage,
     refreshAccount,
+    refreshEntitlements,
     refreshCatalog,
     toggleFavorite,
   };

@@ -1,3 +1,13 @@
+# v0.7.6 / Android code 3 · 3 Ekim 2026
+
+Uygulama düzeltmeleri: OpenIAP 3.6.2 normal abonelik tekliflerinin `id=basePlanId` eşlemesi; bağımsız eksik SKU sorgusu; Console satın alma seçeneklerinin ve gerçek teklif fiyatlarının seçimi; hesaba özel kalıcı yarım işlem kaydı; uygulamaya dönüşte doğrulama/geri yükleme; doğrulanmış bakiye, sipariş ve VIP sonucu için animasyonlu pencere. Kartlarda paket, bonus, toplam yükleme ve fiyat ayrı vurgulanır. VIP çağrı düğmeleri yalnız ilgili görünüm açık, uygulama ön planda ve hareket erişilebilirlik ayarı izinliyken çalışır.
+
+Performans: katalog önbelleği bekletmeden gösterilir; bootstrap/fotoğraf kurtarma bir kez yapılır; bakiyeyi yenilemek için tüm profil sorguları gerekmez. Cüzdan/VIP RLS korumalı Realtime yayını ve bir dakikalık ön plan kontrolü iki platformda ortak kullanılır. Eski profil cevabı yeni ödemeyi geri alamaz. Android video başlangıç tamponu 0,4 saniye, ileri tampon 6 saniye/16 MiB; gereksiz ön izleme zaman olayları azaltılır ve ekran kapanırken oynatıcı hemen durur. Kaynak URL güvenliği, gerçek signed URI, altyazı yerleşimi ve güvenli native release sırası korunur.
+
+Harici engel kanıtlandı: 3 Ekim canlı Google API denemesinde coin, productsv2 ve subscriptionsv2 erişimleri `401 permissionDenied / insufficient permissions` döndü. Hizmet hesabının Play Console sipariş doğrulama izinleri eksik. Kaynak kodu bu izni veremez. API hatası ayrı raporlanır; sunucu doğrulama erişimi yokken yeni ödeme penceresi açılmaz. Tamamlanmamış eski ödemeler, Google'da hâlâ geçerliyse aynı hesapla yeniden doğrulanabilir. İade/iptal edilmiş makbuza coin verilmez.
+
+Yerel kontrol: TypeScript/lint, 59 JS testi ve Python kuyruk testi başarılı. Gerçek normalize dokuz SKU, tek ürün sorgusu hatasında kardeş ürünlerin korunması, hesaplar arası işlem yalıtımı, yeniden başlatma ve paralel kayıtlar test edildi. Native release, R2 oynatma ve AAB imza kontrolleri sıradaki adımdır. Kullanıcının istediği teslim yalnız AAB'dir; APK sadece CI emülatör kontrolünde kullanılır.
+
 # v0.7.5 / Android Kod 2 · 3 Ekim 2026
 
 Üç VIP ürünü doğru `weekly/monthly/yearly` temel planına bağlıdır. Altı coin ürünü tek seferlik/tüketilebilir akışa eklendi; doğru hesap ve ürün, tek adet ve satın alınmış durum kontrolü sunucu ve SQL'de yapılır. Paket + bonus toplamı bir token için bir kez yüklenir, ardından sunucu Google consume çağrısını tamamlar. Restore akışı coin ve VIP için ortaktır; tüketilmiş token'ın kalıcı bakiye kaydı sunucudadır. Refund RTDN kullanılmamış bakiyeyi bir kez geri alır; harcanmış kısım özel makbuzda denetime kaydedilir.

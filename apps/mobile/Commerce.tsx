@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Modal,
   Pressable,
@@ -118,6 +119,7 @@ function Row({
 }
 export default function Commerce({ billing, page, store, go, run, onHistory }: Props) {
   const { refresh } = billing;
+  const accountUser = store.session?.user.id;
   const [products, setProducts] = useState<Product[]>([]),
     [selected, setSelected] = useState("monthly"),
     [checkout, setCheckout] = useState<Product | null>(null),
@@ -129,8 +131,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     [tasks, setTasks] = useState<any[]>([]),
     [claims, setClaims] = useState<string[]>([]);
   const openCheckout = (product: Product) => { setCheckout(product); setCheckoutVisible(true); void billing.refresh().catch(() => {}); };
+  useEffect(() => { if (billing.notice) setCheckoutVisible(false); }, [billing.notice]);
   useEffect(() => {
-    if (["store", "vip", "wallet"].includes(page)) void refresh().catch(() => {});
     requireData(
       db.from("dbs_google_play_products").select("*").order("sort_order"),
     )
@@ -139,7 +141,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     requireData(db.from("dbs_tasks").select("*").eq("active", true))
       .then(setTasks)
       .catch(() => {});
-    if (store.session)
+    if (accountUser)
       requireData(
         db
           .from("dbs_user_tasks")
@@ -149,7 +151,10 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         .then((rows) => setClaims(rows.map((r: any) => r.tasks_id)))
         .catch(() => {});
     else setClaims([]);
-  }, [store.session, page, refresh]);
+  }, [accountUser]);
+  useEffect(() => {
+    if (["store", "vip", "wallet"].includes(page)) void refresh().catch(() => {});
+  }, [page, refresh]);
   const logged = !!store.session,
     coins = products.filter((p) => p.kind === "coins"),
     plans = products.filter((p) => p.kind === "vip"),
@@ -270,8 +275,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                 VIP kapsamındaki bölümlere {length} erişim
               </Text>
               <View style={[styles.row, { justifyContent: "space-between" }]}>
-                <Text style={{ color: "#ffe0b3", fontSize: 16, fontWeight: "900" }}>
-                  {billing.prices[product?.id || "dbs_vip_" + id] || "Google Play fiyatı"}
+                <Text style={{ color: "#ffe0b3", fontSize: billing.prices[product?.id || "dbs_vip_" + id] ? 24 : 14, fontWeight: "900" }}>
+                  {billing.prices[product?.id || "dbs_vip_" + id] || "Fiyat yükleniyor…"}
                 </Text>
                 <Text
                   style={{
@@ -352,20 +357,22 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               <Pressable
                 key={p.id}
                 accessibilityRole="button"
-                accessibilityLabel={`${p.coins} BornCoins paketi`}
+                accessibilityLabel={`${p.coins} BornCoins paketi, ${billing.prices[p.id] || "fiyat yükleniyor"}`}
                 onPress={() => openCheckout(p)}
                 style={{ width: "47.8%", flexGrow: 1, minWidth: 135 }}
               >
                 <LinearGradient
                   colors={
-                    i === 2 ? ["#482b35", "#251a2d"] : ["#241b2e", "#181321"]
+                    i === 2 ? ["#5b2e43", "#27172f"] : ["#302040", "#161021"]
                   }
                   style={{
-                    padding: 20,
-                    borderRadius: 18,
+                    padding: 17,
+                    borderRadius: 24,
                     borderWidth: 1,
                     borderColor: i === 2 ? colors.orange : "#392841",
-                    minHeight: 131,
+                    minHeight: 205,
+                    overflow: "hidden",
+                    gap: 8,
                     justifyContent: "space-between",
                   }}
                 >
@@ -379,28 +386,30 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                         color: "#fff",
                         paddingHorizontal: 9,
                         paddingVertical: 5,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: "900",
-                        borderTopRightRadius: 16,
+                        borderTopRightRadius: 22,
                         borderBottomLeftRadius: 10,
                       }}
                     >
                       +{p.bonus_coins} BONUS
                     </Text>
                   )}
-                  <View style={[styles.row, { gap: 8, marginTop: 12 }]}>
-                    <Icon name="dbs-coin" color={colors.orange} size={27} />
+                  <View style={[styles.row, { gap: 8, marginTop: 23, flexWrap: "wrap" }]}>
+                    <Icon name="dbs-coin" color="#ffba72" size={30} />
                     <Text
-                      style={{ color: "#fff", fontSize: 26, fontWeight: "900" }}
+                      style={{ color: "#fff4da", fontSize: 34, fontWeight: "900", letterSpacing: -0.8 }}
                     >
                       {p.coins - (p.bonus_coins || 0)}
                     </Text>
                   </View>
-                  <Text
-                    style={{ color: "#b3a0bd", fontSize: 12, marginTop: 12 }}
-                  >
-                    {billing.prices[p.id] || "Fiyat Google Play’den yüklenir"}
-                  </Text>
+                  <Text style={{ color: "#cbb6dd", fontSize: 13, fontWeight: "700" }}>BornCoins</Text>
+                  {!!p.bonus_coins && <Text style={{ color: "#f5b7dc", fontSize: 13, lineHeight: 19 }}>Cüzdanına toplam {p.coins.toLocaleString("tr-TR")} coin</Text>}
+                  <View style={{ marginTop: "auto", paddingTop: 12, borderTopWidth: 1, borderTopColor: "#ffffff16", gap: 6 }}>
+                    {billing.prices[p.id] ? <Text style={{ color: "#ffd295", fontSize: 24, fontWeight: "900" }}>{billing.prices[p.id]}</Text>
+                      : <View style={[styles.row, { gap: 7 }]}><ActivityIndicator size="small" color="#ffb67b" /><Text style={{ color: "#cbb6dd", fontSize: 13, flex: 1 }}>Fiyat yükleniyor…</Text></View>}
+                    <Text style={{ color: "#ac95bc", fontSize: 12 }}>Tek seferlik ödeme</Text>
+                  </View>
                 </LinearGradient>
               </Pressable>
             ))}
@@ -408,9 +417,10 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         </View>
         <Text style={styles.h2}>Sınırsız hikâyelere bir adım</Text>
         {planCards}
-        <Button onPress={() => go("vip")} icon="diamond">
+        <AnimatedCTA active={page === "store" && !checkoutVisible && !billing.notice} onPress={() => go("vip")} icon="diamond">
           VIP avantajlarını keşfet
-        </Button>
+        </AnimatedCTA>
+        <Button secondary small icon="refresh" disabled={billing.busy} onPress={() => void refresh()}>Google Play fiyatlarını yenile</Button>
         <Button
           secondary
           small
@@ -492,12 +502,14 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         </LinearGradient>
         {planCards}
         <AnimatedCTA
+          active={page === "vip" && !checkoutVisible && !billing.notice}
           icon="diamond"
           onPress={() => currentPlan && openCheckout(currentPlan)}
           style={{ alignSelf: "stretch" }}
         >
           Seçili paketi incele
         </AnimatedCTA>
+        <Button secondary small icon="refresh" disabled={billing.busy} onPress={() => void refresh()}>Google Play fiyatlarını yenile</Button>
         <Text style={styles.h2}>VIP dünyanda neler var?</Text>
         <View style={panel}>
           {[
@@ -1056,7 +1068,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                 {checkout?.kind === "vip" ? "Google Play aboneliği" : "BornCoins paketi"}
               </Text>
               <Text style={styles.body}>
-                {checkout?.kind === "coins" ? "Tek seferlik ödeme. Paket ve bonus BornCoins aynı hesabınla Android ve webde kullanılabilir." : billing.message}
+                {checkout?.kind === "coins" ? "Tek seferlik ödeme. Paket ve bonus BornCoins aynı hesabınla Android ve webde kullanılabilir. " + billing.message : billing.message}
                 {checkout?.kind === "vip" && " Abonelik otomatik yenilenir. Bir sonraki yenilemeyi Google Play aboneliklerinden iptal edebilirsin. Ücret ve dönem Google Play onay ekranında gösterilir."}
               </Text>
             </View>
@@ -1071,6 +1083,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               {billing.busy ? "Google Play işlemi sürüyor…" : checkout?.kind === "coins" ? "Google Play ile Ödeme Yap" : "Google Play ile Abone Ol"}
             </Button>
             <Button secondary small disabled={billing.busy} icon="refresh" onPress={() => needLogin(() => billing.restore())}>Satın alımlarımı geri yükle</Button>
+            <Button secondary small disabled={billing.busy} icon="reload" onPress={() => void refresh()}>Fiyatı yeniden yükle</Button>
             {Platform.OS !== "android" && <Text style={styles.body}>Ödemeyi Android uygulamasında tamamlayabilirsin.</Text>}
             {checkout?.kind === "vip" && store.vip && (
               <Button

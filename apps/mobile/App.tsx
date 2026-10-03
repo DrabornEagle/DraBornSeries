@@ -43,6 +43,7 @@ import Discover from "./Discover";
 import Splash from "../../packages/ui/Splash";
 import AdminPanel from "../admin/AdminPanel";
 import ErrorPopup from "../../packages/ui/ErrorPopup";
+import PurchasePopup from "../../packages/ui/PurchasePopup";
 import { config } from "../../packages/shared/config";
 import RefreshScrollView from "../../packages/ui/RefreshScrollView";
 import { useBilling } from "../../packages/api/billing";
@@ -79,7 +80,7 @@ function Main() {
     [previewRegion, setPreviewRegion] = useState("hero"),
     [busy, setBusy] = useState(false);
   const scrollOffset = useRef(0);
-  const billing = useBilling(store.session?.user.id, store.refreshAccount);
+  const billing = useBilling(store.session?.user.id, () => store.refreshEntitlements(true));
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null),
     history = useRef<Route[]>([]),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
@@ -805,6 +806,10 @@ function Main() {
           await store.refreshCatalog(); await store.refreshAccount();
         })} />
       <Splash ready={!store.loading} />
+      <PurchasePopup notice={billing.notice} onClose={billing.clearNotice}
+        onWallet={() => { billing.clearNotice(); go("wallet"); }}
+        onRetry={() => { const product = billing.notice?.started === false ? billing.notice.productId : "";
+          billing.clearNotice(); void run(() => product ? billing.buy(product) : billing.restore()); }} />
     </SafeAreaView>
   );
 }

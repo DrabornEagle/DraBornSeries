@@ -9,7 +9,8 @@ import { discoverSubtitleBottom } from "../shared/player-layout";
 import { safeVideoError } from "../shared/native-video-source";
 import { usePlaybackEngine } from "./usePlaybackEngine";
 export default function InlineVideo(props: InlineVideoProps) {
-  const handle = usePlaybackEngine(props.url, !props.startFromMiddle, props.muted ?? true, 0.25);
+  const interval = props.subtitles?.length || props.onTime ? 0.25 : props.preview ? 0.75 : 1;
+  const handle = usePlaybackEngine(props.url, !props.startFromMiddle, props.muted ?? true, props.active ? interval : 0);
   if (!handle) return props.poster ? <Image source={{ uri: props.poster }} resizeMode="cover" style={{ position: "absolute", inset: 0 }} /> : null;
   return <ReadyInlineVideo key={handle.id} {...props} player={handle.owner.player} />;
 }

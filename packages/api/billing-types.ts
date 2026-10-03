@@ -3,4 +3,5 @@ export const playCoins = ["dbs_coins_50", "dbs_coins_100", "dbs_coins_250", "dbs
 export const isCoinProduct = (id: string) => (playCoins as readonly string[]).includes(id);
 export const isPlayProduct = (id: string) => isCoinProduct(id) || Object.hasOwn(playPlans, id);
 export type PlayCatalog = { configured: boolean; prices: Record<string, string>; available: string[]; checkedAt: string; region: string };
-export type Billing = { ready: boolean; busy: boolean; message: string; prices: Record<string, string>; available: string[]; buy: (id: string) => Promise<void>; restore: () => Promise<void>; refresh: () => Promise<void> };
+export type PurchaseNotice = { id: string; status: "success" | "pending" | "error"; productId: string; message: string; started?: boolean; coins?: number; balance?: number; restored?: boolean; orderId?: string | null };
+export type Billing = { ready: boolean; busy: boolean; message: string; prices: Record<string, string>; available: string[]; notice: PurchaseNotice | null; clearNotice: () => void; buy: (id: string) => Promise<void>; restore: () => Promise<void>; refresh: () => Promise<void> };

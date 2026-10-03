@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 import { syncSubscription } from "./sync.ts";
 import { googleHeaders, googleRoot, hash } from "./google.ts";
 import { validateCoinReceipt } from "./coin-receipt.ts";
+import { playApiFailure } from "./google-failure.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const service = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), { db: { schema: "drabornseries" }, auth: { persistSession: false } });
 const headers = { "Content-Type": "application/json", "Cache-Control": "no-store" };
@@ -30,7 +31,11 @@ Deno.serve(async request => {
     const google = await googleHeaders(env("DBS_GOOGLE_SERVICE_ACCOUNT"));
     const path = `/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
     const verification = await fetch(googleRoot + path, { headers: google, signal: AbortSignal.timeout(15000) });
-    if (!verification.ok) return reply({ error: "PURCHASE_NOT_VERIFIED" }, 403);
+    if (!verification.ok) {
+      const failure = playApiFailure(verification.status, await verification.json().catch(() => ({})));
+      console.warn("dbs-play-verify: Google purchase lookup", verification.status, failure.error);
+      return reply({ error: failure.error, retry: failure.retry }, failure.status);
+    }
     const receipt = await verification.json();
     if (validateCoinReceipt(receipt, productId, await hash(user.id)) === "pending") return reply({ status: "pending" }, 202);
     const tokenHash = await hash(purchaseToken);
@@ -43,14 +48,17 @@ Deno.serve(async request => {
       account: user.id, product: productId, token_hash: tokenHash, order_id: receipt.orderId || null,
       subscription_status: "verified", expires_at: null, receipt,
     });
-    if (error) throw Error("VERIFICATION_FAILED");
+    if (error) { console.error("dbs-play-verify: ledger rejected", error.code); throw Error("VERIFICATION_FAILED"); }
     // Atomically credit once before consuming. Failed consumption stays recoverable via restore.
-    const consumed = receipt.consumptionState === 1 || (await fetch(googleRoot + path + ":consume", { method: "POST", headers: google, signal: AbortSignal.timeout(15000) })).ok;
-    return reply({ verified: true, credited: true, consumed, acknowledged: consumed, retry: !consumed, coins: product.coins, ...data }, consumed ? 200 : 202);
+    const consumed = receipt.consumptionState === 1 || await fetch(googleRoot + path + ":consume", { method: "POST", headers: google, signal: AbortSignal.timeout(15000) }).then(result => result.ok).catch(() => false);
+    const { data: wallet } = await service.from("dbs_borncoins_wallet").select("balance").eq("user_id", user.id).single();
+    return reply({ verified: true, credited: !data?.duplicate, consumed, acknowledged: consumed, retry: !consumed,
+      coins: product.coins, balance: wallet?.balance, orderId: receipt.orderId || null, ...data }, consumed ? 200 : 202);
   } catch (error) {
     const code = error instanceof Error ? error.message : "VERIFICATION_FAILED";
     if (["PURCHASE_ACCOUNT_MISMATCH", "PURCHASE_PRODUCT_MISMATCH"].includes(code)) return reply({ error: code }, 403);
     if (["PURCHASE_CANCELLED", "UNSUPPORTED_QUANTITY"].includes(code)) return reply({ error: code }, 409);
+    if (["PLAY_VERIFICATION_PERMISSION", "GOOGLE_AUTH_FAILED", "PLAY_TEMPORARILY_UNAVAILABLE"].includes(code)) return reply({ error: code, retry: true }, 503);
     console.error("dbs-play-verify: verification failed"); return reply({ error: "VERIFICATION_FAILED" }, 503);
   }
 });

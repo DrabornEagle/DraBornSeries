@@ -14,7 +14,7 @@ export function usePlaybackEngine(url: string, loop = false, muted = false, inte
     if (!url) return;
     const player = createVideoPlayer(null), setup = options.current;
     player.loop = setup.loop; player.muted = setup.muted; player.timeUpdateEventInterval = setup.interval;
-    player.bufferOptions = { preferredForwardBufferDuration: 10, minBufferForPlayback: 0.75 };
+    player.bufferOptions = { preferredForwardBufferDuration: 6, minBufferForPlayback: 0.4, maxBufferBytes: 16 * 1024 * 1024 };
     const owner = new OwnedVideoPlayer(player);
     setHandle({ id: ++nextId, url, owner });
     void owner.replace(nativeVideoSource(url)).catch(error => {

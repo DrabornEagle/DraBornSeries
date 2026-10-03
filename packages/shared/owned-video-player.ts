@@ -20,7 +20,14 @@ export class OwnedVideoPlayer<T extends Player> {
     this.queue = task.catch(() => {});
     return task.then(() => this.finished(), error => { this.finished(); throw error; });
   }
-  close() { this.closed = true; this.disposeWhenReady(); }
+  close() {
+    if (this.closed) return;
+    this.closed = true;
+    // Stop audio/decoding as soon as the screen leaves, while retaining the
+    // safe delayed native release for any source load still in flight.
+    try { this.player.pause(); } catch {}
+    this.disposeWhenReady();
+  }
   private finished() { this.pending--; this.disposeWhenReady(); }
   private disposeWhenReady() {
     if (!this.closed || this.pending || this.released || this.timer) return;

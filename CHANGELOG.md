@@ -1,3 +1,12 @@
+## 0.7.6 · Android versionCode 3
+
+- Fix Google Play regular VIP offers and partial native product queries.
+- Recover unfinished purchases per account and display animated payment results.
+- Emphasize BornCoins quantities, bonuses and store prices; suspend CTA motion off screen/background.
+- Refresh wallet/VIP independently, protect updates from stale account responses and sync changes with Realtime.
+- Reduce Android preview work and playback startup buffering while retaining secure media lifecycle.
+- Report missing Google receipt permissions and prevent new payments until verification access is ready.
+
 # Changelog
 
 ## 0.7.0 · 2026-09-30 · Android versionCode 1
