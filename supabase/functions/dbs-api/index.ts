@@ -5,6 +5,7 @@ import { verifyCaptionRunner } from "./caption-auth.ts";
 import { validateAutoVtt } from "./captions.ts";
 import { resolveTrailer } from "./trailer.ts";
 import { workerDefault, mediaUrl, normalizeR2Key, probeR2, r2Playback, workerCapabilities } from "./r2.ts";
+import { playCatalog } from "../dbs-play-verify/catalog.ts";
 const env = (key: string) => Deno.env.get(key) || "";
 const admin = createClient(
   env("SUPABASE_URL"),
@@ -80,6 +81,10 @@ Deno.serve(async (req) => {
       return send(req, { received: true });
     }
     const body = JSON.parse(raw);
+    if (body.action === "billing-catalog") {
+      const products = await checked(admin.from("dbs_google_play_products").select("id").eq("active", true));
+      return send(req, await playCatalog(env("DBS_GOOGLE_SERVICE_ACCOUNT"), products.map((product: any) => product.id)));
+    }
     const authorization = req.headers.get("authorization") || "";
     if (["caption-jobs", "caption-complete"].includes(body.action)) {
       try { await verifyCaptionRunner(authorization); } catch { return send(req, { error: "INVALID_RUNNER" }, 401); }
@@ -144,7 +149,7 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.3",
+        version: "0.7.5",
         versionCode: 2,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
@@ -245,14 +250,17 @@ Deno.serve(async (req) => {
           { error: user ? "ACCESS_DENIED" : "AUTH_REQUIRED" },
           403,
         );
-      const [asset, subtitles] = await Promise.all([checked(
-        admin
-          .from("dbs_video_assets")
-          .select("*")
-          .eq("episode_id", body.episode)
-          .single(),
-      ), subtitleTracks(body.episode)]);
+      const asset = await checked(admin.from("dbs_video_assets").select("*").eq("episode_id", body.episode).single());
       if (!asset.ready) return send(req, { error: "VIDEO_NOT_READY" }, 409);
+      if (asset.provider === "r2") {
+        const key = normalizeR2Key(asset.r2_key, r2Base());
+        const [playback, subtitles] = await Promise.all([
+          r2Playback(body.episode, key, authorization, episode.access_type, r2Base()),
+          subtitleTracks(body.episode),
+        ]);
+        return send(req, { ...playback, subtitles });
+      }
+      const subtitles = await subtitleTracks(body.episode);
       if (asset.provider === "demo" && episode.dbs_series.is_demo) {
         const landscape = episode.orientation === "landscape" && asset.landscape_renditions?.length ? asset.landscape_renditions : null;
         return send(req, {
@@ -261,10 +269,6 @@ Deno.serve(async (req) => {
           provider: "demo",
           subtitles,
         });
-      }
-      if (asset.provider === "r2") {
-        const key = normalizeR2Key(asset.r2_key, r2Base());
-        return send(req, { ...await r2Playback(body.episode, key, authorization, episode.access_type, r2Base()), subtitles });
       }
       // The Edge function has already checked the real user's entitlement.
       // It can sign directly too, without requiring a separate Worker/code.

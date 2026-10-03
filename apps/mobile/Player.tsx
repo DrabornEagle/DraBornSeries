@@ -88,6 +88,13 @@ export default function Player({
       live = false;
     };
   }, [episode.id, allowed, retry, store.session?.user.id]);
+  const nextId = next?.id, nextAllowed = next && clientCanWatch(next, new Set(store.unlocks), store.vip);
+  useEffect(() => {
+    // Prepare only the next authorized URL; never download whole videos in the background.
+    if (source && nextId && nextAllowed) {
+      void loadPlaybackSource(nextId).catch(() => {});
+    }
+  }, [source, nextId, nextAllowed, store.session?.user.id]);
   return (
     <View style={{ gap: 24 }}>
       <View>

@@ -43,7 +43,7 @@ jobs:
       - name: Validate migrations and seed in local database
         run: npx --yes supabase@2.118.0 db reset --local
       - name: Apply application release metadata only
-        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/releases/v072.sql
+        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/releases/v075.sql
       - name: Verify ledger, RLS and progress isolation
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/database-security.sql
       - name: Verify Studio media ownership, roles and registration
@@ -58,6 +58,8 @@ jobs:
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/v071-promotions-security.sql
       - name: Verify approved comments, Play lifecycle and signed ad rewards
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/v072-billing-ads-security.sql
+      - name: Verify coin credit, account binding, replay and refunds
+        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/v075-coins-security.sql
   edge:
     runs-on: ubuntu-latest
     steps:

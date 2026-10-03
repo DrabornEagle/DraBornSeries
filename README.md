@@ -1,11 +1,20 @@
-# DraBornSeries v0.7.4 · Kod 1
+# DraBornSeries v0.7.5 · Kod 2
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
 
-## v0.7.4 · Expo cihaz testi
+## v0.7.5 · Google Play VIP ve BornCoins
+
+- Sürüm 0.7.5 / Android versionCode 2. Üç VIP temel planı ve altı tek seferlik tüketilebilir coin paketi hazırdır.
+- Android fiyatı Google Play ProductDetails'tan; web fiyatı sunucunun Play Console Türkiye kataloğundan alınır. Örnek fiyatlar kaldırıldı. Coin ödeme düğmesi “Google Play ile Ödeme Yap”.
+- Coinler ve bonus atomik olarak bir kez yüklenir, Google API doğrulaması ve tüketimi sunucudadır. Bekleyen/yanlış hesap ödemeleri coin vermez. İade bildirimleri kullanılmamış bakiyeyi bir kez geri alır.
+- R2 imzalama ve altyazı istekleri paraleldir; yalnız bir sonraki yetkili bölümün URL metadata'sı hazırlanır. Mevcut normal/Keşfet altyazı konumları korunur.
+- Play Console kimlik/plan/tablo, fiyat senkronizasyon süresi ve imza ayarları: [V075_PLAY_KURULUM.md](docs/V075_PLAY_KURULUM.md).
+- Yayın anahtarı Actions'a tanımlı değilse unsigned APK/AAB çıkar; mevcut sertifikayı değiştirecek bir anahtar üretilmez. Derleme/doğrulama sonucu PROGRESS.md'de tutulur.
+
+## v0.7.4 · Önceki Expo cihaz testi
 
 - Android R2 videoları v0.7.2'deki gibi Expo Video ile, özgün istek başlıkları ve otomatik format tanımıyla açılır. Telefonda `R2_FORMAT/R2_NETWORK` veren zorunlu WebView yolu kaldırıldı. Expo Video hem Expo Go'da hem de sonradan üretilen APK'nın içinde çalışan yerel Android oynatıcısıdır.
 - Native oynatıcı commit sonrasında oluşturulur. Fast Refresh/ekran değişiminde kapanmış nesne tekrar gösterilmez; bekleyen kaynak yüklemeleri tamamlanıp görünüm ayrıldıktan sonra yalnız bir kez serbest bırakılır. Tam ekran aynı yaşayan nesneyi kullanır; seek, ses, altyazı ve izleme kayıtları korunur.

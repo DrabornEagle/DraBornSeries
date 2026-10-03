@@ -1,4 +1,6 @@
 import type { Billing } from "./billing-types";
+import { usePlayCatalog } from "./play-catalog";
 export function useBilling(_user: string | undefined, _onVerified: () => Promise<void>): Billing {
-  return { ready: false, busy: false, message: "VIP satın alımını Google Play Android uygulamasında tamamlayabilirsin. Üyeliğin aynı hesapla webde de geçerli olur.", prices: {}, buy: async () => {}, restore: _onVerified };
+  const { catalog, refresh } = usePlayCatalog();
+  return { ready: false, busy: false, message: "Satın alımını Google Play Android uygulamasında tamamlayabilirsin. VIP üyeliğin ve BornCoins bakiyen aynı hesapla webde de geçerlidir.", prices: catalog?.prices || {}, available: catalog?.available || [], buy: async () => {}, restore: _onVerified, refresh };
 }

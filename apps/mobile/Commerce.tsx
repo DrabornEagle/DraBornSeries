@@ -24,7 +24,6 @@ import {
   styles,
 } from "../../packages/ui/theme";
 import { rewardDays } from "../../packages/shared/domain";
-import { examplePrice } from "../../packages/shared/pricing";
 import type { Billing } from "../../packages/api/billing-types";
 import { adTestMode } from "../../packages/api/ads";
 import AdRewardButton from "../../packages/ui/AdRewardButton";
@@ -118,6 +117,7 @@ function Row({
   );
 }
 export default function Commerce({ billing, page, store, go, run, onHistory }: Props) {
+  const { refresh } = billing;
   const [products, setProducts] = useState<Product[]>([]),
     [selected, setSelected] = useState("monthly"),
     [checkout, setCheckout] = useState<Product | null>(null),
@@ -128,8 +128,9 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     [promo, setPromo] = useState(""),
     [tasks, setTasks] = useState<any[]>([]),
     [claims, setClaims] = useState<string[]>([]);
-  const openCheckout = (product: Product) => { setCheckout(product); setCheckoutVisible(true); };
+  const openCheckout = (product: Product) => { setCheckout(product); setCheckoutVisible(true); void billing.refresh().catch(() => {}); };
   useEffect(() => {
+    if (["store", "vip", "wallet"].includes(page)) void refresh().catch(() => {});
     requireData(
       db.from("dbs_google_play_products").select("*").order("sort_order"),
     )
@@ -148,7 +149,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         .then((rows) => setClaims(rows.map((r: any) => r.tasks_id)))
         .catch(() => {});
     else setClaims([]);
-  }, [store.session, page]);
+  }, [store.session, page, refresh]);
   const logged = !!store.session,
     coins = products.filter((p) => p.kind === "coins"),
     plans = products.filter((p) => p.kind === "vip"),
@@ -398,7 +399,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                   <Text
                     style={{ color: "#b3a0bd", fontSize: 12, marginTop: 12 }}
                   >
-                    {examplePrice(p.id)} · Satış kapalı
+                    {billing.prices[p.id] || "Fiyat Google Play’den yüklenir"}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -1037,7 +1038,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                 ? "Seçtiğin VIP paketi aynı hesabınla Android ve webde geçerli olacak."
                 : "BornCoins ile uygun bölümleri kalıcı olarak hesabına açabilirsin."}
             </Text>
-            {checkout && <Text style={[styles.h2, { color: colors.orange }]}>{billing.prices[checkout.id] || (checkout.kind === "vip" ? "Fiyat Google Play’den yüklenir" : examplePrice(checkout.id))}</Text>}
+            {checkout && <Text style={[styles.h2, { color: colors.orange }]}>{billing.prices[checkout.id] || "Fiyat Google Play’den yüklenir"}</Text>}
             {checkout?.kind === "vip" && <View style={{ gap: 12, backgroundColor: "#332040", borderRadius: 18, padding: 18 }}>
               {[["videocam-outline", "1080p FULL HD", "İçeriğin sunduğu en yüksek kalite"],
                 ["infinite", "Sınırsız İzleme", "VIP kapsamındaki tüm diziler ve bölümler"],
@@ -1055,21 +1056,22 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                 {checkout?.kind === "vip" ? "Google Play aboneliği" : "BornCoins paketi"}
               </Text>
               <Text style={styles.body}>
-                {billing.message}
+                {checkout?.kind === "coins" ? "Tek seferlik ödeme. Paket ve bonus BornCoins aynı hesabınla Android ve webde kullanılabilir." : billing.message}
                 {checkout?.kind === "vip" && " Abonelik otomatik yenilenir. Bir sonraki yenilemeyi Google Play aboneliklerinden iptal edebilirsin. Ücret ve dönem Google Play onay ekranında gösterilir."}
               </Text>
             </View>
             <Button
               onPress={() => {
-                if (checkout?.kind === "vip") void needLogin(() => billing.buy(checkout.id));
+                if (checkout) void needLogin(() => billing.buy(checkout.id));
               }}
-              disabled={!billing.ready || billing.busy || checkout?.kind !== "vip" || !checkout || !billing.prices[checkout.id]}
+              disabled={!billing.ready || billing.busy || !checkout?.active || !billing.available.includes(checkout.id)}
               icon="card-outline"
               style={{ alignSelf: "stretch" }}
             >
-              {billing.busy ? "Google Play işlemi sürüyor…" : "Google Play ile abone ol"}
+              {billing.busy ? "Google Play işlemi sürüyor…" : checkout?.kind === "coins" ? "Google Play ile Ödeme Yap" : "Google Play ile Abone Ol"}
             </Button>
             <Button secondary small disabled={billing.busy} icon="refresh" onPress={() => needLogin(() => billing.restore())}>Satın alımlarımı geri yükle</Button>
+            {Platform.OS !== "android" && <Text style={styles.body}>Ödemeyi Android uygulamasında tamamlayabilirsin.</Text>}
             {checkout?.kind === "vip" && store.vip && (
               <Button
                 secondary

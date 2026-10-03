@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p artifacts/smoke
-adb install -r "${DBS_SMOKE_APK:-artifacts/release/DraBornSeries-v0.7.4-release.apk}"
+adb install -r "${DBS_SMOKE_APK:-artifacts/release/DraBornSeries-v0.7.5-release.apk}"
 adb logcat -c
 adb shell am start -W -n com.draborneagle.drabornseries/.MainActivity
 for attempt in $(seq 1 8); do
@@ -42,7 +42,7 @@ for _ in range(18):
     logs = re.sub(r'https?://[^\s]+', '[media]', adb('logcat', '-d'))
     Path('artifacts/smoke/r2-playback-logcat.txt').write_text(logs)
     assert not re.search(r'FATAL EXCEPTION|Fatal signal|JavascriptException', logs), 'Release crashed during R2 playback.'
-    if 'DraBornSeries: video frame rendered' in logs and 'DraBornSeries: video playback advanced' in logs:
+    if 'DraBornSeries: R2 native video frame rendered' in logs and 'DraBornSeries: video playback advanced' in logs:
         break
 else:
     raise AssertionError('R2 did not render a frame and advance playback; see sanitized logcat.')

@@ -134,7 +134,7 @@ export default function Account({ page, store, go, run }: Props) {
             Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır.
             VIP aboneliklerini Android’de Google Play üzerinden satın alıp aynı hesabınla her iki platformda kullanabilirsin.
             {Platform.OS === "android" ? " Bu APK'da resmi AdMob test reklamları hazır. Test reklamları gerçek BornCoins kazandırmaz." : ""}
-            BornCoins paket satışı ve push bildirimleri henüz etkin değildir.
+            BornCoins paketleri Google Play üzerinden tek seferlik ödeme ile alınır ve aynı hesabın web cüzdanında da kullanılabilir. Push bildirimleri henüz etkin değildir.
           </Text>
           <Button
             secondary

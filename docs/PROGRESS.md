@@ -1,3 +1,13 @@
+# v0.7.5 / Android Kod 2 · 3 Ekim 2026
+
+Üç VIP ürünü doğru `weekly/monthly/yearly` temel planına bağlıdır. Altı coin ürünü tek seferlik/tüketilebilir akışa eklendi; doğru hesap ve ürün, tek adet ve satın alınmış durum kontrolü sunucu ve SQL'de yapılır. Paket + bonus toplamı bir token için bir kez yüklenir, ardından sunucu Google consume çağrısını tamamlar. Restore akışı coin ve VIP için ortaktır; tüketilmiş token'ın kalıcı bakiye kaydı sunucudadır. Refund RTDN kullanılmamış bakiyeyi bir kez geri alır; harcanmış kısım özel makbuzda denetime kaydedilir.
+
+Android oturum açılmadan fiyat sorgular; ödeme öncesi taze ProductDetails kullanır. Web sunucu tarafı Google Developer API kataloğundaki Türkiye fiyatını okur. Örnek fiyatlar ve coin için VIP abonelik metni kaldırıldı. Sunucu katalog önbelleği beş dakika; istemci yenilemesi foreground, mağaza açılışı ve beş dakika aralıklıdır. VIP için trial/yanlış temel plana fallback yapılmaz. Kayıtlı hizmet hesabının canlı varlığı health'te doğrulandı; gerçek katalog fiyat sonucu yayın sonrasında kontrol edilecek.
+
+R2 bağlantısı ile altyazı metadata'sı paralel hazırlanır. Yalnız bir sonraki yetkili bölümün URL'si önceden hazırlanır; tam dosya indirmesi yok. Önceki native nesne yaşam döngüsü, otomatik kaynak tanımı ve altyazı konumları korunur. Backend health eski 0.7.3 bildiriyordu; 0.7.5/Kod 2 olarak düzeltildi.
+
+Yerel TypeScript, lint ve 54 JS + 1 Python testi geçti. SQL güvenlik, release APK/R2/AdMob çalışma testi ve web yayını izleniyor; sonuçlar tamamlandığında eklenecek. Son mevcut native workflow'da imza Secrets'ı eksikti; pinned yayın sertifikası korunur ve başka anahtarla teslim çıktısı imzalanmaz.
+
 # v0.7.4 native R2 ve nesne yaşam döngüsü düzeltmesi · 3 Ekim 2026
 
 Son doğrulama: kaynak `d22f17ece52df4bae492ba120c170d3e6d20002f` için [Expo Go 58 / Android API 36 testi](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37106174514) başarılı. Gerçek R2 Test/KAYRA ilk karesi 07:27:02.794 UTC, ilerleyen zaman 07:27:04.322 UTC. Tam ekran görüntüsü gerçek video ve Türkçe altyazıyı 0:06 / 0:09 konumunda gösterdi. Gerçek Fast Refresh değişikliği 07:28:07.662 UTC'de telefona ulaştı; yeni native kare 07:28:09.457 UTC, yeniden ilerleyen zaman 07:28:10.947 UTC. Kapanmış/serbest bırakılmış nesne, native view veya runtime hatası yok. [Aynı kaynak için genel kontroller](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37106174497) de başarılı: TypeScript, lint, 50 JS + 1 Python testi, web/Android JS export, Edge ve izole veritabanı güvenlik senaryoları. APK/AAB üretilmedi. Test2 aynı R2/native kodunu kullanır; ücretli hesaptaki Test2 ve fiziksel kullanıcı telefonu bu emülatör sonucuyla doğrulanmış sayılmaz.

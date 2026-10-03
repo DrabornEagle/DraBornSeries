@@ -29,6 +29,13 @@ Deno.serve(async request => {
     // New purchase notifications can arrive before the in-app verification.
     if (!prior) return reply(503);
     const { data: product } = await service.from("dbs_google_play_products").select("kind").eq("id", prior.product_id).single();
+    if (product?.kind === "coins") {
+      if (notice.voidedPurchaseNotification) {
+        const { error } = await service.rpc("dbs_refund_play_coins", { token_hash: tokenHash });
+        if (error) return reply(503);
+      }
+      return reply(204);
+    }
     if (product?.kind !== "vip") return reply(204);
     // The current Google API response controls access, including revoked refunds.
     await syncSubscription(service, prior.user_id, prior.product_id, purchaseToken, env("DBS_GOOGLE_SERVICE_ACCOUNT"), Boolean(notice.voidedPurchaseNotification));
