@@ -88,6 +88,9 @@ with metro_log.open('w') as stream:
         if tap_label('Continue'):
             time.sleep(1)
         tap_label('Got it')
+        # Go's Continue tip opens its tools sheet, whose Close icon covers our controls.
+        if tap_label('Close'):
+            time.sleep(1)
         capture('before-fullscreen')
         if not tap_label('Tam ekran'):
             tap_label('Oynatıcı kontrollerini göster veya gizle')
