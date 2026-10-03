@@ -21,9 +21,18 @@ def logs():
     (out / 'logcat.txt').write_text(value)
     return value
 
-def tap_label(label):
+def ui():
     adb('shell', 'uiautomator', 'dump', '/sdcard/dbs-expo.xml')
-    root = ET.fromstring(adb('shell', 'cat', '/sdcard/dbs-expo.xml'))
+    value = adb('shell', 'cat', '/sdcard/dbs-expo.xml')
+    (out / 'ui.xml').write_text(value)
+    return ET.fromstring(value)
+
+def capture(name):
+    (out / (name + '.png')).write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
+    ui()
+
+def tap_label(label):
+    root = ui()
     for node in root.iter():
         if label in [node.get('text', ''), node.get('content-desc', '')]:
             bounds = list(map(int, re.findall(r'\d+', node.get('bounds', ''))))
@@ -79,9 +88,15 @@ with metro_log.open('w') as stream:
         if tap_label('Continue'):
             time.sleep(1)
         tap_label('Got it')
+        capture('before-fullscreen')
         if not tap_label('Tam ekran'):
             tap_label('Oynatıcı kontrollerini göster veya gizle')
-            assert tap_label('Tam ekran'), 'Full screen control was not reachable.'
+            if not tap_label('Tam ekran'):
+                # The normal player can extend below a small phone viewport.
+                width, height = map(int, re.findall(r'(\d+)x(\d+)', adb('shell', 'wm', 'size'))[-1])
+                adb('shell', 'input', 'swipe', str(width//2), str(height*3//4), str(width//2), str(height*2//5), '350')
+                tap_label('Oynatıcı kontrollerini göster veya gizle')
+                assert tap_label('Tam ekran'), 'Full screen control was not reachable; see ui.xml and final screenshot.'
         time.sleep(2)
         (out / 'fullscreen.png').write_bytes(subprocess.check_output(['adb', 'exec-out', 'screencap', '-p']))
         adb('shell', 'input', 'keyevent', '4')
@@ -109,6 +124,10 @@ with metro_log.open('w') as stream:
         print('Expo Go 58: real R2 KAYRA native frame/time, fullscreen and Fast Refresh passed; no app APK built.')
     finally:
         logs()
+        try:
+            capture('final-state')
+        except Exception:
+            pass
         metro.terminate()
         try:
             metro.wait(timeout=10)

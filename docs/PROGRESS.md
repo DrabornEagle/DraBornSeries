@@ -6,7 +6,9 @@ Kullanıcının yeni fiziksel cihaz ekranları Test2 için `R2_FORMAT`, Termux't
 
 Normal bölüm altyazısı 116 → 126 px, son konumundan 10 px yukarı. Keşfet metadata +39/214 ve tam ekran değerleri korunur. Açılmayan videoda önceki pozisyonun altyazısı ve sahte dolu ilerleme çubuğu gösterilmez. Kaynak önbelleği, yetki kontrolü, R2 sunucu istek optimizasyonları, hesap bazında ilerleme ve içerik dosyaları korunur. HTTP/decoder/format/ağ hataları native mesajdan ayrı güvenli kodlara dönüşür.
 
-Yerel TypeScript/lint, 50 JS + 1 Python testi geçti. Yeni iki nesne yaşam döngüsü testi bekleyen yükleme sırasında kapanma, kuyruklu kaynak değişimi, kapanmış nesne reddi ve tek serbest bırakmayı doğrular. Yeni Expo Go CI gerçek KAYRA ilk karesi/ilerleyen zaman, tam ekran ve Fast Refresh test eder; eski nesne hatasında başarısız olur. Güncel native CI/web yayın sonuçları tamamlanınca bu kontrol noktasına eklenecek. APK/AAB üretilmez.
+Yerel TypeScript/lint, 50 JS + 1 Python testi, web ve Android JS export geçti. Kaynak `dfaebd1` için [uygulama, veritabanı ve Edge kontrolleri](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37085349414) başarılı. Yeni iki nesne yaşam döngüsü testi bekleyen yükleme sırasında kapanma, kuyruklu kaynak değişimi, kapanmış nesne reddi ve tek serbest bırakmayı doğrular.
+
+İlk [native Expo Go testi](https://github.com/DrabornEagle/DraBornSeries/actions/runs/37085349348) gerçek R2 KAYRA karesini 01:18:06.718 UTC ve ilerleyen zamanı 01:18:08.520 UTC kaydetti; serbest bırakılmış nesne hatası yoktu. Test tam ekran kontrolüne erişim adımında durdu. Test scriptine küçük ekran için kaydırma ve hata durumunda da UI XML/ekran görüntüsü eklendi. Tam ekran ve Fast Refresh yalnız son başarılı testten sonra doğrulanmış sayılacak. Güncel native CI/web yayın sonuçları tamamlanınca bu kontrol noktasına eklenecek. APK/AAB üretilmez.
 
 # Önceki v0.7.4 Chromium denemesi · 3 Ekim 2026
 
