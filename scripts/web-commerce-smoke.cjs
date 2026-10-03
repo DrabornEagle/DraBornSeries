@@ -75,7 +75,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.screenshot({path:root+'/vip-checkout-top.png'});
  await page.getByRole('button',{name:/Google\ Play\ ile\ Abone\ Ol/}).scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/vip-checkout-payment.png'});
- await page.getByRole('button',{name:/Kapat/}).first().click();
+ await page.getByLabel('Kapat',{exact:true}).first().click();
  await page.goto('http://localhost:8765/DraBornSeries/?page=store',{waitUntil:'networkidle'});
  await page.getByRole('button',{name:/50 BornCoins paketi/}).first().scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/borncoins-cards.png'});
