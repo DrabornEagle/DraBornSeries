@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['apps/**', 'packages/**', 'package*.json', 'app.json', 'app.config.cjs', 'index.ts', 'scripts/expo-go-smoke.py', '.github/workflows/expo-go.yml']
+    paths: ['apps/**', 'packages/**', 'package*.json', 'app.json', 'app.config.cjs', 'index.ts', 'scripts/expo-go-smoke.py', 'scripts/start-phone.cjs', '.github/workflows/expo-go.yml']
 permissions:
   contents: read
 concurrency:

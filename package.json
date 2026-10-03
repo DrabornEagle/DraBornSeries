@@ -18,7 +18,7 @@
     "export:android": "expo export --platform android --output-dir dist-android",
     "sync:web": "node scripts/sync-web.mjs",
     "db:new": "npx --yes supabase@2.118.0 migration new",
-    "test:phone": "expo start --go --localhost --clear"
+    "test:phone": "node scripts/start-phone.cjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "58.0.7",

@@ -119,7 +119,7 @@ npm run test:phone
 
 Expo Go 58'de `exp://127.0.0.1:8081` adresini aç. Telefonunda R2 testine doğrudan gitmek için `exp://127.0.0.1:8081/--/?episode=aa930f3f-db90-4bc6-917a-e9284f84a4b1` adresi ücretsiz **Test → KAYRA** bölümünü açar. Test2 ücretli bir bölümse aynı hesabınla giriş yap ve mevcut erişimini kullan. Test amacıyla içeriklerin erişim politikaları değiştirilmez.
 
-Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --go --lan --clear` kullan. Güncelleme: `cd "$HOME/DraBornSeries-Expo-v074" && git pull --ff-only && npm ci && npm run test:phone`. APK üretimi veya Android derleyicisi gerekmez.
+Başka cihaz aynı Wi-Fi'da bağlanacaksa `npx expo start --go --lan --clear` kullan. Güncelleme: `cd "$HOME/DraBornSeries-Expo-v074" && git pull --ff-only && npm ci && npm run test:phone`. APK üretimi veya Android derleyicisi gerekmez. `test:phone` IPv4 localhost kullanır ve Termux'ta ağ arayüzüne erişemeyen Bonjour keşfini kapatır.
 
 Expo SDK `58.0.0-preview.7`, React Native `0.88.0-rc.1`, React `19.3.0` sabitlidir. Expo Go'da gerçek Google Play satın alma ve AdMob reklamı çalışmaz; video testi çalışır. R2 hata ekranı artık `R2_NETWORK`, `R2_DECODE`, `R2_FORMAT` gibi güvenli bir neden kodu gösterir; imzalı adresler loglara yazılmaz.
 

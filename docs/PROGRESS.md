@@ -2,6 +2,8 @@
 
 Kullanıcı eski APK'da Test/KAYRA ve Test2 R2 hatasının sürdüğünü bildirdi; APK/AAB teslimi ve otomatik release derlemesi durduruldu. `android.yml` artık workflow_dispatch ile çalışır. Önceki 5d89cc7 release CI, API 36 emülatöründe KAYRA'nın ilk karesini ve oynatma ilerlemesini doğrulamıştı; bu fiziksel telefonun başarısı olarak yorumlanmaz.
 
+İlk Expo Go CI video aşamasından önce localhost kontrolünde durdu: SDK 58 localhost sunucusu IPv6'ya bağlanmış, test/telefon adresi IPv4 idi. `start-phone.cjs` DNS sırasını IPv4'e ayarlar ve Termux'ta izin verilmeyen Bonjour ağ arayüzü taramasını kapatır. Aynı `npm run test:phone` CI ve telefonda kullanılır.
+
 Yeni Android R2 yolu Expo Go 58'de bulunan WebView 14.0.1 ile Chromium HTML5 video kullanır. Aynı PlayerChrome/SubtitleOverlay, gerçek medya boyutları, seek, ses, ilerleme, taze URL yeniden denemesi ve tam ekran korunur. Diğer sağlayıcılar Media3'tedir; düşük başlangıç buffer eşiği eklendi. R2 imzaları yalnız bellekte ve yalnız HTTPS/exact Worker hostunda kullanılır; dış script/sayfa veya yetki atlayan media URL'si yüklenmez. Güvenli hata kodu cihazın ağ/çözme/format farkını görünür kılar.
 
 Oynatma istekleri hesap bazında tekilleşir, 90 saniye veya imzanın bitmesine 30 saniye kala sona erer. Hesap değişince bekleyen sonuçlar da geçersizdir. Önizlemeden bölüme geçiş aynı kaynağı kullanır; tekrar deneme kaynağı yeniler. Keşfet sadece sıradaki ücretsiz bölümün adresini hazırlar; video dosyaları topluca indirilmez. Sunucu R2 health çağrısını başarılı imzalama yolundan kaldırır, asset ve altyazıyı erişim kontrolünden sonra paralel okur. Eski Worker fallback'i 404/405 ile ve yalnız ücretsiz erişimle sınırlıdır; 401/403/500 public URL'ye çevrilmez.

@@ -10,6 +10,7 @@ export class BrowserPlayer implements Engine {
   duration = 0;
   playing = false;
   wanted = false;
+  private fit: "cover" | "contain" = "cover";
   maxResolution: VideoPlayer["maxResolution"] = null;
   availableVideoTracks: VideoTrack[] = [];
   availableAudioTracks: VideoPlayer["availableAudioTracks"] = [];
@@ -43,7 +44,7 @@ export class BrowserPlayer implements Engine {
     return { remove: () => { listeners.delete(callback); } };
   }
   private emit(name: keyof VideoPlayerEvents, event?: unknown) { this.listeners.get(name)?.forEach((listener) => listener(event)); }
-  command(data: Record<string, unknown>) { this.view?.run(`window.dbsVideoCommand?.(${scriptData(data)});true;`); }
+  command(data: Record<string, unknown>) { if (data.type === "fit" && (data.fit === "contain" || data.fit === "cover")) this.fit = data.fit; this.view?.run(`window.dbsVideoCommand?.(${scriptData(data)});true;`); }
   attach(id: string, run: (script: string) => void) { this.view = { id, run }; }
   detach(id: string) { if (this.view?.id === id) this.view = undefined; }
   fail(code: string) { this.status = "error"; this.playing = false; this.emit("statusChange", { status: this.status, error: { message: "R2_" + code } }); }
@@ -54,7 +55,7 @@ export class BrowserPlayer implements Engine {
     if (data?.id !== this.view?.id) return;
     switch (data.type) {
       case "attached":
-        this.muted = this.silent; this.loop = this.looping; this.currentTime = this.time;
+        this.muted = this.silent; this.loop = this.looping; this.currentTime = this.time; this.command({ type: "fit", fit: this.fit });
         if (this.wanted) this.play(); else this.pause(); break;
       case "metadata": {
         const duration = Number(data.duration), width = Number(data.width), height = Number(data.height);

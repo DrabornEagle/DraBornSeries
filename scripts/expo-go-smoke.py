@@ -26,7 +26,7 @@ adb('shell', 'appops', 'set', 'host.exp.exponent', 'SYSTEM_ALERT_WINDOW', 'allow
 adb('reverse', 'tcp:8081', 'tcp:8081')
 adb('logcat', '-c')
 with metro_log.open('w') as stream:
-    metro = subprocess.Popen(['npx', 'expo', 'start', '--go', '--localhost', '--clear'], stdout=stream, stderr=stream, env={**os.environ, 'CI': '1', 'EXPO_NO_TELEMETRY': '1'})
+    metro = subprocess.Popen(['npm', 'run', 'test:phone'], stdout=stream, stderr=stream, env={**os.environ, 'CI': '1', 'EXPO_NO_TELEMETRY': '1'})
     try:
         for attempt in range(40):
             try:
