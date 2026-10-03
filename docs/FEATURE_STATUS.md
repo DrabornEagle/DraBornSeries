@@ -1,12 +1,12 @@
 # Kapsam ve gerçek durum — 2026-10-03
 
-v0.7.4 Expo düzeltmesi: Kullanıcı telefonda Chromium yolunun `R2_FORMAT/R2_NETWORK` verdiğini ve Fast Refresh sonrasında kapanmış native nesne hatasını bildirdi. R2 şimdi v0.7.2'deki Expo Video yolu, otomatik format tanımı ve özgün istemci başlıklarına döndü; nesne sahibi kaynak yüklemeleri ve görünüm ayrılmasını bekler. Expo Video APK içinde de çalışır. Yeni emülatör sonucu [PROGRESS.md](PROGRESS.md) içinde; fiziksel Android ve ücretli Test2 hesabı kullanıcı telefonunda doğrulanmalıdır. Kaynak/istek önbelleği iyileştirmeleri korunur. Normal bölüm altyazısı son konumundan 10 px yukarı; Keşfet konumu korunur. APK/AAB üretilmez; Termux komutu README'dedir.
+v0.7.4 Expo düzeltmesi: R2 v0.7.2'deki Expo Video yolu, otomatik format tanımı ve özgün istemci başlıklarına döndü; nesne sahibi kaynak yüklemeleri ve görünüm ayrılmasını bekler. Expo Video APK içinde de çalışır. Expo Go 58 / API 36 testi gerçek Test/KAYRA videosu, tam ekran ve gerçek Fast Refresh sonrası yeni kare/ilerleyen zamanı doğruladı; kapanmış native nesne hatası yok. Sonuç [PROGRESS.md](PROGRESS.md) içinde; fiziksel Android ve ücretli Test2 hesabı kullanıcı telefonunda doğrulanmalıdır. Kaynak/istek önbelleği iyileştirmeleri korunur. Normal bölüm altyazısı son konumundan 10 px yukarı; Keşfet konumu korunur. APK/AAB üretilmez; Termux komutu README'dedir.
 
 Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırır. Hiçbir test/demonstrasyon gerçek ticari yayın olarak kabul edilmez.
 
 | Alan | Durum |
 |---|---|
-| Android + Web ortak arayüz/backend | Uygulandı; web tarayıcı, Android JS export ve Billing/AdMob içeren native APK derlemesiyle kontrol edildi. Fiziksel Android testi burada yapılmadı. |
+| Android + Web ortak arayüz/backend | Uygulandı; güncel düzeltme web tarayıcı, Android JS export ve Expo Go 58 / API 36 native R2 testiyle kontrol edildi. Bu düzeltme için APK/AAB ve fiziksel telefon testi yapılmadı. |
 | Marka, ikon, splash, neon tasarım | Özgün görseller ve animasyonlu splash; Mağaza/VIP/cüzdan/ödüller/profil ve beşli alt menü yenilendi. |
 | E-posta kayıt/giriş, profil, oturumlar | Uygulandı. Ortak Auth ayarları korunur. |
 | Google giriş | Kullanıcı OAuth bağlantısını yaptı. İlk girişte e-postanın @ öncesindeki kısmı kullanıcı adı ve Google profil fotoğrafı alınır. Google e-postasının uygulama adı için dış Branding doğrulama/yayın ayarı gerekir. |
