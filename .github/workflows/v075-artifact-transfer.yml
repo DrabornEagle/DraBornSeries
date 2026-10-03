@@ -1,0 +1,104 @@
+name: DraBornSeries v0.7.5 artifact transfer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/v075-artifact-transfer.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read the already validated release packages
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: DrabornEagle/DraBornSeries
+          run-id: 37111053755
+          name: DraBornSeries-v0.7.5-release-packages
+          path: original
+      - name: Prepare bounded delivery chunks without rebuilding or signing
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, zipfile
+          source = pathlib.Path("original")
+          paths = sorted(p for p in source.iterdir() if p.is_file())
+          expected = {"DraBornSeries-v0.7.5-unsigned.apk", "DraBornSeries-v0.7.5-unsigned.aab", "SHA256SUMS.txt", "SIGNING.txt"}
+          assert {p.name for p in paths} == expected
+          out = pathlib.Path("delivery")
+          out.mkdir()
+          metadata = {"source_run": 37111053755, "source_commit": "20861ec88cd2502b2c718e3b7171e0beea186c99", "signed": False, "files": []}
+          for p in paths:
+              metadata["files"].append({"name": p.name, "size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()})
+          bundle = out / "release.zip"
+          with zipfile.ZipFile(bundle, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+              for p in paths:
+                  z.write(p, p.name)
+              z.writestr("release-files.json", json.dumps(metadata, indent=2))
+          manifest = {"zip_size": bundle.stat().st_size, "zip_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(), **metadata}
+          print(json.dumps(manifest, indent=2))
+          assert bundle.stat().st_size <= 6 * 29 * 1024 * 1024
+          with bundle.open("rb") as r:
+              for n in range(1, 7):
+                  chunk = r.read(29 * 1024 * 1024)
+                  if not chunk: break
+                  (out / f"release.zip.part{n:02}").write_bytes(chunk)
+          (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part01') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part01
+          path: |
+            delivery/release.zip.part01
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part02') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part02
+          path: |
+            delivery/release.zip.part02
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part03') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part03
+          path: |
+            delivery/release.zip.part03
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part04') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part04
+          path: |
+            delivery/release.zip.part04
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part05') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part05
+          path: |
+            delivery/release.zip.part05
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('delivery/release.zip.part06') != '' }}
+        with:
+          name: DraBornSeries-v0.7.5-delivery-part06
+          path: |
+            delivery/release.zip.part06
+            delivery/manifest.json
+          compression-level: 0
+          retention-days: 30
