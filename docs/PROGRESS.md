@@ -1,3 +1,11 @@
+# v0.7.7.1 / Android code 4 · 4 Ekim 2026
+
+Kullanıcı bu güncellemede APK/AAB üretimini açıkça durdurdu. Ortak web/Android sürümü 0.7.7.1, kod 4. Ödül düğmeleri küçük kartlara uygun animasyonlu CTA kullanır; günlük ödül de animasyonludur. Hareket yalnız Ödüller sayfası açık, uygulama ön planda ve hareket azaltma kapalıyken çalışır. Ödül/promo/satın alma/üyelik penceresi düğmeleri durdurur; sayfadan ayrılınca döngü ve dinleyiciler temizlenir. Alınmış ödüller sabit, pasif düğmelerdir. Geciken hareket tercihi yanıtı kapanmış bileşeni yeniden başlatamaz.
+
+VIP checkout ayrıcalıkları bağımsız bir bileşende 1080p / 4K (FULL HD / ULTRA HD), Sınırsız İzleme ve Reklamsız kartlarına dönüştürüldü. Kaynak kalite desteği açıklamada belirtilir; medya kaynağı veya oynatıcı kalite seçimi değiştirilmez. “VIP dünyanda neler var?” bölümünün önceki bileşeni ve metni korunur. Satın alma, geri yükleme, VIP bitişi ve bakiye davranışı önceki sürümden devam eder. Sürüm SQL'i yalnız release metadata günceller, ürün veya müşteri kaydı değiştirmez.
+
+Doğrulama ve web yayın sonuçları tamamlandığında bu kontrol noktasına işlenecek. Android release iş akışı başlatılmayacak; Android doğrulaması JavaScript export ve Expo Go üzerinden yapılacak.
+
 # v0.7.7 / Android code 4 · 4 Ekim 2026
 
 Google Play ekran görüntüleri lisans testi makbuzlarını içerir. Haftalık test aboneliği 5 dakikada yenilenir, altı yenilemeden sonra sona erer; bu e-postalar uygulama tarafından gönderilmez. Canlı RTDN kayıtları iki haftalık test üyeliğinin süresi dolduğunu doğru kaydetmiştir. İptal edilmiş üyelik gerçek bitiş tarihine kadar erişim sağlayabilir. Uygulama artık gerçek bitiş anında yerel VIP durumunu da kapatır ve doğrulanmış süresi dolmuş makbuzdan sonra haklarını yeniler. [Google Play resmi test belgesi](https://developer.android.com/google/play/billing/test).

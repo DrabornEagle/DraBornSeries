@@ -14,7 +14,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
 (async()=>{
  await fs.mkdir(root,{recursive:true}); const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const context=await browser.newContext({viewport:{width:393,height:851},deviceScaleFactor:1,reducedMotion:'reduce'});
- let active=true; const errors=[];
+ let active=true, favoriteClaimed=false; const errors=[];
  await context.addInitScript(({user})=>{
   const payload={sub:user.id,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
   const token=btoa(JSON.stringify({alg:'HS256',typ:'JWT'}))+'.'+btoa(JSON.stringify(payload))+'.visual-test';
@@ -26,11 +26,14 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   if(url.pathname.startsWith('/auth/')) data=user;
   else if(url.pathname.includes('/functions/')) {
    const body=req.postDataJSON()||{};
-   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7'}:{};
-  } else if(url.pathname.includes('/rpc/')) data=name==='dbs_is_vip'?active:name==='dbs_is_admin'?false:name==='dbs_bootstrap'?{}:{};
+   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7.1'}:{};
+  } else if(url.pathname.includes('/rpc/')) {
+   if(name==='dbs_claim_task') { favoriteClaimed=true; data={coins:10}; }
+   else data=name==='dbs_is_vip'?active:name==='dbs_is_admin'?false:name==='dbs_bootstrap'?{}:{};
+  }
   else if(name==='dbs_google_play_products') data=products;
   else if(name==='dbs_tasks') data=tasks;
-  else if(name==='dbs_user_tasks') data=[{tasks_id:'welcome',claimed_at:new Date().toISOString()}];
+  else if(name==='dbs_user_tasks') data=[{tasks_id:'welcome',claimed_at:new Date().toISOString()},...(favoriteClaimed?[{tasks_id:'favorite',claimed_at:new Date().toISOString()}]:[])];
   else if(name==='dbs_profiles') data={user_id:user.id,username:'Test İzleyicisi',full_name:'Test İzleyicisi',language:'tr',status:'active',autoplay_preview:false};
   else if(name==='dbs_borncoins_wallet') data={balance:147};
   else if(name==='dbs_user_streaks') data={days:2,last_claim_date:null};
@@ -59,14 +62,37 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.getByRole('button',{name:/VIP\ bilgisini\ kapat/}).click();
  await page.getByText('VIP üyeliğin zaten aktif',{exact:true}).waitFor({state:'detached'});
  await page.getByText('VIP dünyanda neler var?',{exact:true}).scrollIntoViewIfNeeded();
+ assert.ok(await page.getByText('VIP içerik koleksiyonları',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Erken erişim',{exact:true}).count());
+ assert.ok(await page.getByText('Sana özel VIP rozeti',{exact:true}).count());
  await page.screenshot({path:root+'/vip-benefits.png'});
  await page.getByRole('button',{name:/Ödüller/}).click();
  await page.getByText('BornCoins kazan',{exact:true}).scrollIntoViewIfNeeded();
  await page.getByText('1 / 3 görev tamamlandı',{exact:true}).scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/borncoins-rewards.png'});
  assert.ok(await page.getByText('1 / 3 görev tamamlandı',{exact:true}).isVisible());
+ const claimButton=page.getByTestId('reward-claim-favorite');
+ await claimButton.scrollIntoViewIfNeeded();
+ const transform=()=>claimButton.evaluate(element=>getComputedStyle(element).transform);
+ const still=await transform();
+ await page.waitForTimeout(150); assert.equal(await transform(),still);
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-favorite"]');return element&&getComputedStyle(element).transform!=='none'&&getComputedStyle(element).transform!=='matrix(1, 0, 0, 1, 0, 0)';});
+ const moving=await transform(); await page.waitForTimeout(200); assert.notEqual(await transform(),moving);
+ await claimButton.getByRole('button',{name:/Ödülü al/}).click();
+ await page.getByText('Ödülün hesabına eklendi.',{exact:false}).waitFor();
+ assert.equal(await claimButton.count(),0);
+ assert.equal(await page.getByText('Ödül alındı',{exact:true}).count(),2);
+ const otherReward=page.getByTestId('reward-claim-profile');
+ await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-profile"]');return element&&getComputedStyle(element).transform==='matrix(1, 0, 0, 1, 0, 0)';});
+ const paused=await otherReward.evaluate(element=>getComputedStyle(element).transform);
+ await page.waitForTimeout(200); assert.equal(await otherReward.evaluate(element=>getComputedStyle(element).transform),paused);
+ await page.getByRole('button',{name:'Harika!',exact:true}).click();
+ await page.getByText('Ödülün hesabına eklendi.',{exact:false}).waitFor({state:'detached'});
+ await page.emulateMedia({reducedMotion:'reduce'});
  await page.getByRole('button',{name:/Mağaza/}).first().click().catch(async()=>{await visit('store');});
  await page.getByRole('button',{name:/Satın\ alımlarımı\ geri\ yükle/}).click();
+ assert.equal(await page.getByTestId('reward-claim-profile').count(),0);
  await page.getByText('Hesabın güncellendi',{exact:true}).waitFor();
  await page.screenshot({path:root+'/restore-result.png'});
  await page.getByRole('button',{name:/Tamam,\ hesabım\ güncel/}).click();
@@ -74,6 +100,11 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await visit('vip');
  await page.getByRole('button',{name:/Seçili\ paketi\ incele/}).click();
  await page.getByText('Google Play aboneliği',{exact:true}).waitFor();
+ assert.ok(await page.getByText('1080p / 4K',{exact:true}).isVisible());
+ assert.ok(await page.getByText('FULL HD',{exact:true}).isVisible());
+ assert.ok(await page.getByText('ULTRA HD',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Sınırsız İzleme',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Reklamsız',{exact:true}).isVisible());
  await page.screenshot({path:root+'/vip-checkout-top.png'});
  await page.getByRole('button',{name:/Google\ Play\ ile\ Abone\ Ol/}).scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/vip-checkout-payment.png'});
@@ -87,6 +118,6 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const overflow=layout.width>layout.viewport+1;
  assert.equal(overflow,false);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({screenshots:8,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','benefits','reward-progress','restore-result','vip-checkout','six-clean-coin-cards','no-horizontal-overflow']}));
+ console.log(JSON.stringify({screenshots:8,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-animation-and-reduced-motion','claimed-reward-static','reward-modal-pauses-animation','reward-page-cleanup','restore-result','new-vip-purchase-benefits','six-clean-coin-cards','no-horizontal-overflow']}));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

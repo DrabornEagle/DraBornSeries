@@ -15,6 +15,7 @@ import AnimatedCTA from "../../packages/ui/AnimatedCTA";
 import VipStatus from "../../packages/ui/VipStatus";
 import VipPopup from "../../packages/ui/VipPopup";
 import VipBenefits from "../../packages/ui/VipBenefits";
+import VipPurchaseBenefits from "../../packages/ui/VipPurchaseBenefits";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Store } from "../../packages/api/store";
@@ -168,6 +169,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     coins = products.filter((p) => p.kind === "coins"),
     plans = products.filter((p) => p.kind === "vip"),
     currentPlan = plans.find((p) => p.billing_period === selected);
+  const rewardAnimationsActive = page === "rewards" && reward === null && !promoReward && !checkoutVisible && !ownedVisible && !billing.notice;
   const needLogin = (fn: () => Promise<unknown>) =>
     logged ? run(fn) : go("auth");
   const claim = async (id: string) => {
@@ -700,8 +702,10 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </View>
             ))}
           </View>
-          <Button
+          <AnimatedCTA
             icon="gift"
+            active={rewardAnimationsActive}
+            testID="daily-reward-claim"
             onPress={() =>
               needLogin(async () => {
                 const data = await rpc<{ coins: number }>("dbs_claim_daily");
@@ -712,7 +716,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             style={{ alignSelf: "stretch" }}
           >
             Günlük ödülünü al
-          </Button>
+          </AnimatedCTA>
         </LinearGradient>
         <Text style={styles.h2}>BornCoins kazan</Text>
         <LinearGradient colors={["#613048", "#35234d", "#17323c"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
@@ -736,7 +740,9 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </View>
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                 <View style={[styles.row, { backgroundColor: accent + "15", padding: 10, borderRadius: 14, gap: 7 }]}><Icon name="dbs-coin" color={accent} size={20} /><Text style={{ color: accent, fontSize: 16, fontWeight: "900" }}>+{task.data?.coins || 0}</Text><Text style={{ color: "#d9cce4", fontSize: 12, fontWeight: "700" }}>BornCoins</Text></View>
-                <Button small secondary={claimed} icon={claimed ? "checkmark-circle" : "gift-outline"} disabled={claimed} onPress={() => needLogin(() => claim(task.id))}>{claimed ? "Ödül alındı" : "Ödülü al"}</Button>
+                {claimed
+                  ? <Button small secondary icon="checkmark-circle" disabled onPress={() => {}}>Ödül alındı</Button>
+                  : <AnimatedCTA small active={rewardAnimationsActive} testID={`reward-claim-${task.id}`} icon="gift-outline" onPress={() => needLogin(() => claim(task.id))}>Ödülü al</AnimatedCTA>}
               </View>
             </LinearGradient>;
           })}
@@ -1012,7 +1018,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               <View style={styles.row}><Icon name={checkout.kind === "vip" ? "diamond" : "dbs-coin"} color="#ffd38b" size={31} /><View style={{ flex: 1, gap: 5 }}><Text style={{ color: "#ffd499", fontSize: 31, fontWeight: "900" }}>{billing.prices[checkout.id] || "Fiyat yükleniyor…"}</Text><Text style={{ color: "#dfc9e3", fontSize: 12 }}>{checkout.kind === "vip" ? `${periods.find(period => period[0] === checkout.billing_period)?.[1] || "VIP"} · Otomatik yenilenen abonelik` : "Tek seferlik ödeme"}</Text></View></View>
               {!!checkout.bonus_coins && <Text style={{ color: "#ff9acb", fontWeight: "800", fontSize: 13 }}>+{checkout.bonus_coins} bonus BornCoins dahil</Text>}
             </LinearGradient>}
-            {checkout?.kind === "vip" && <VipBenefits compact />}
+            {checkout?.kind === "vip" && <VipPurchaseBenefits />}
             <View style={[panel, { borderColor: "#9a73df65", backgroundColor: "#171a2c", padding: 18, gap: 11 }]}>
               <View style={styles.row}><Icon name="shield-checkmark" color="#89e4cb" size={23} />
               <Text

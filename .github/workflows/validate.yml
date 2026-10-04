@@ -62,7 +62,7 @@ jobs:
       - name: Validate migrations and seed in local database
         run: npx --yes supabase@2.118.0 db reset --local
       - name: Apply application release metadata only
-        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/releases/v077.sql
+        run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/releases/v0771.sql
       - name: Verify ledger, RLS and progress isolation
         run: psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f tests/database-security.sql
       - name: Verify Studio media ownership, roles and registration

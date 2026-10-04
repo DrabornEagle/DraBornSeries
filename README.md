@@ -1,9 +1,15 @@
-# DraBornSeries v0.7.7 · Kod 4
+# DraBornSeries v0.7.7.1 · Kod 4
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.7.1 · Ödül animasyonları ve VIP ayrıcalıkları
+
+- Sürüm 0.7.7.1 / Android versionCode 4. Bu güncellemede APK/AAB üretilmez; web ve Android ortak kaynakları güncellenir.
+- “Ödülü al” düğmelerinde renkli nabız, ışık ve hediye hareketi; günlük ödülde renkli animasyon vardır. Yalnız Ödüller sayfası açık ve uygulama ön plandayken çalışır. Ödül penceresi, sayfa değişimi, alınmış ödül ve hareket azaltma tercihi animasyonu durdurur.
+- VIP satın alma ayrıcalıkları üç modern kartta sunulur: 1080p / 4K (FULL HD / ULTRA HD), Sınırsız İzleme, Reklamsız. Kalite içeriğin desteklediği kaynağa bağlıdır. “VIP dünyanda neler var?” bölümü korunur.
 
 ## v0.7.7 · VIP üyeliği ve satın alımları geri yükleme
 
