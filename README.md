@@ -10,6 +10,7 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 - Sürüm 0.7.7.1 / Android versionCode 4. Bu güncellemede APK/AAB üretilmez; web ve Android ortak kaynakları güncellenir.
 - “Ödülü al” düğmelerinde renkli nabız, ışık ve hediye hareketi; günlük ödülde renkli animasyon vardır. Yalnız Ödüller sayfası açık ve uygulama ön plandayken çalışır. Ödül penceresi, sayfa değişimi, alınmış ödül ve hareket azaltma tercihi animasyonu durdurur.
 - VIP satın alma ayrıcalıkları üç modern kartta sunulur: 1080p / 4K (FULL HD / ULTRA HD), Sınırsız İzleme, Reklamsız. Kalite içeriğin desteklediği kaynağa bağlıdır. “VIP dünyanda neler var?” bölümü korunur.
+- TypeScript/lint, 78 JavaScript + 1 Python testi, web/Android JavaScript export, gerçek tarayıcı animasyon/tıklama kontrolü, izole SQL ve Expo Go 58 / API 36 testi başarılı. Web yayını ve Android ortak kaynakları eşitlendi; ayrıntılı kayıt [PROGRESS.md](docs/PROGRESS.md).
 
 ## v0.7.7 · VIP üyeliği ve satın alımları geri yükleme
 
