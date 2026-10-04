@@ -114,7 +114,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  assert.ok(await page.getByText('FULL HD · ULTRA HD',{exact:true}).isVisible());
  assert.ok(await page.getByText('Sınırsız İzleme',{exact:true}).isVisible());
  assert.ok(await page.getByText('Reklamsız',{exact:true}).isVisible());
- assert.ok(await page.getByText('Android + Web',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Android + Web',{exact:true}).last().isVisible());
  await page.screenshot({path:root+'/vip-checkout-top.png'});
  await page.getByRole('button',{name:/Google\ Play\ ile\ Abone\ Ol/}).scrollIntoViewIfNeeded();
  const controls=await page.getByTestId('checkout-tools').evaluate(element=>[...element.children].map(child=>({top:child.getBoundingClientRect().top})));
