@@ -1,9 +1,17 @@
-# DraBornSeries v0.7.7.1 · Kod 4
+# DraBornSeries v0.7.7.2 · Kod 5
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.7.2 · Paket geçişi, sade VIP ve Destek
+
+- Aynı VIP paketi tekrar alınmaz; farklı pakete geçiş, doğrulanmış mevcut Google Play token'ıyla abonelik değiştirme işlemi kullanır. Kalan dönemin değeri Play tarafından aktarılır.
+- Gerçek `testPurchase` makbuzu test etiketiyle gösterilir. Haftalık/aylık testte 5 dakika yenilenme, üretimdeki haftalık/aylık dönem yerine geçmez; sunucudaki gerçek bitiş korunur.
+- VIP checkout: 1080p/4K FULL HD/ULTRA HD, Sınırsız İzleme, Reklamsız ve Android + Web için dört kısa kart. Mevcut Google Play abonelik düğmesi ve VIP dünyası bölümü korunur.
+- Üyelik özellikleri ve geri yükle/fiyat yenile düğmeleri tek satır. Ödül düğmeleri sabit. Profil → Destek mevcut yardım sayfasını açar.
+- 83 JavaScript + 1 Python testi, 9 SQL kontrolü, 12 mobil web ekranı ve API 36 Android video/reklam kontrolleri başarılı. Kod 5 AAB sahibin yükleme anahtarıyla imzalandı, bundle ve 16 KiB uyumluluğu doğrulandı. [Sürüm kaydı](docs/RELEASE-v0.7.7.2.md).
 
 ## v0.7.7.1 · Ödül animasyonları ve VIP ayrıcalıkları
 

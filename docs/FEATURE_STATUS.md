@@ -1,12 +1,12 @@
 # Kapsam ve gerçek durum — 2026-10-04
 
-v0.7.7 / Android code 4: imzalı AAB, API 36 release açılışı, gerçek R2 kare/ilerleme ve AdMob test reklamı doğrulandı; web sürümü eşitlendi. Aktif VIP tekrar alımı engellenir, geri yükleme görünür ilerleme/sonuç verir; VIP rozeti, kalan gün/bitiş ve renkli ödeme/ödül ekranları ortaktır. Test aboneliklerinin sık e-postaları Google Play lisans testi davranışıdır. Sonuç ve sertifika/hash [PROGRESS.md](PROGRESS.md) içinde; fiziksel telefon ve gerçek Google Play ücretlendirmesi emülatör sonucundan çıkarılmaz.
+v0.7.7.2 / Android code 5: sahip anahtarıyla imzalı AAB, API 36 release video/ilerleme ve AdMob test reklamı doğrulandı; web/sunucu aynı sürümde. Aynı plan tekrar alınmaz, farklı plan Play replacement token'ıyla değişir. Test aboneliği etiketi gerçek kısa süreyi açıklar. VIP checkout sade dört kart ve Android + Web içerir; özellik/geri yükle/fiyat yenile tek satır, ödül düğmeleri sabit, Profil Destek yardım sayfasını açar. 83 JavaScript + 1 Python, 9 SQL suite ve 12 mobil ekran başarılı. Ayrıntılar [RELEASE-v0.7.7.2.md](RELEASE-v0.7.7.2.md); gerçek Google Play ücretlendirmesi emülatör sonucundan çıkarılmaz.
 
 Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırır. Hiçbir test/demonstrasyon gerçek ticari yayın olarak kabul edilmez.
 
 | Alan | Durum |
 |---|---|
-| Android + Web ortak arayüz/backend | Uygulandı; v0.7.7 ortak ekranları mobil webde, açılış ve R2 oynatma Android API 36 release ve Expo Go içinde kontrol edildi. İmzalı AAB doğrulandı; fiziksel telefon ve gerçek Google Play ödeme testi ayrı aşamadır. |
+| Android + Web ortak arayüz/backend | Uygulandı; v0.7.7.2 ortak ekranları mobil webde, açılış ve R2 oynatma Android API 36 release ve Expo Go içinde kontrol edildi. İmzalı AAB doğrulandı; fiziksel telefon ve gerçek Google Play ödeme testi ayrı aşamadır. |
 | Marka, ikon, splash, neon tasarım | Özgün görseller ve animasyonlu splash; Mağaza/VIP/cüzdan/ödüller/profil ve beşli alt menü yenilendi. |
 | E-posta kayıt/giriş, profil, oturumlar | Uygulandı. Ortak Auth ayarları korunur. |
 | Google giriş | Kullanıcı OAuth bağlantısını yaptı. İlk girişte e-postanın @ öncesindeki kısmı kullanıcı adı ve Google profil fotoğrafı alınır. Google e-postasının uygulama adı için dış Branding doğrulama/yayın ayarı gerekir. |
@@ -22,7 +22,7 @@ Bu dosya, 49 maddelik ürün hedefi ile şu anda teslim edilen sürümü ayırı
 | Günlük ödül, streak, promosyon | Aktif; Türkiye saatine göre. Stüdyo promosyonları BornCoins/VIP günü/ikisini birlikte, elle girilen miktar, kullanım sınırı ve son tarih ile kaydeder. Hesap başına bir kez kullanılır. |
 | Görev/başarım sistemi | Karşılama, ilk favori ve profil görevleri server-side koşul ve tek seferlik ledger ile çalışıyor. İzleme görevleri, XP/davet/badge claim motoru bekliyor. |
 | VIP erişim kontrolü | Server-side aktif subscription kontrolü ve haftalık/aylık/yıllık plan kartları var. VIP fiyatları Android native Billing üzerinden gerçek Play fiyatıdır; dış Console kurulumu yokken ödeme açılmaz. Yönetici yalnızca kayıtlı gerekçeyle 7/30/365 gün VIP tanımlayabilir. |
-| Google Play Billing | Native expo-iap, sunucu doğrulama ve authenticated RTDN/refund lifecycle uygulandı ve sunucuya dağıtıldı; Play Console ürünleri, yetkili service account ve Pub/Sub push hesabın içinde bağlanmalı. |
+| Google Play Billing | Native expo-iap, canlı dokuz Play ürünü, sunucu doğrulama ve authenticated RTDN/refund lifecycle hazır. Tek abonelik ve eski token'la plan replacement uygulanır; gerçek hesapla yeni ücretli checkout bu otomatik kontrolde başlatılmadı. |
 | Rewarded Ads | Native Google Mobile Ads SDK resmi test kimlikleriyle hazır. DER/ECDSA SSV, tek kullanımlık bilet ve atomik günlük ödül akışı sunucuda. Gerçek AdMob ID/UMP/callback dış kurulum; test reklamları bakiye/erişim vermez. |
 | Cloudflare | Yeni videolar R2 Worker üzerinden alınır. Canlı Worker v0.7.0 yetkili klasör tarama, imzalı oynatma ve Range desteği verir. v0.7.1 sunucu API key önizleme düzeltmesi hazır; Cloudflare hesabı erişimi olmadığından bu modülün dağıtımı bekler. Mevcut katalog kaynakları korunur. |
 | Yorum, spoiler, puan, şikayet | Uygulandı; yeni yorumlar varsayılan onaylı yayımlanır, tekrar/sıklık sınırı var. Topluluk kuralları kabulü, yorum yazarını engelleme ve Ayarlar’dan engeli kaldırma var. Otomatik gelişmiş küfür sınıflandırıcı yok. |
