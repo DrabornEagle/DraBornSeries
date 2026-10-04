@@ -80,7 +80,10 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-favorite"]');return element&&getComputedStyle(element).transform!=='none'&&getComputedStyle(element).transform!=='matrix(1, 0, 0, 1, 0, 0)';}).catch(async error=>{console.error(JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,transform:getComputedStyle(document.querySelector('[data-testid="reward-claim-favorite"]')).transform}))));throw error;});
  const moving=await transform(); await page.waitForTimeout(200); assert.notEqual(await transform(),moving);
  await page.screenshot({path:root+'/borncoins-rewards-animated.png'});
- await claimButton.getByRole('button',{name:/Ödülü al/}).click();
+ // A pulsing button intentionally never has a stable bounding box. Tap its
+ // center as a viewer would, keeping normal motion enabled for the popup check.
+ const claimBounds=await claimButton.getByRole('button',{name:/Ödülü al/}).boundingBox();
+ assert.ok(claimBounds); await page.mouse.click(claimBounds.x+claimBounds.width/2,claimBounds.y+claimBounds.height/2);
  await page.getByText('Ödülün hesabına eklendi.',{exact:false}).waitFor();
  assert.equal(await claimButton.count(),0);
  assert.equal(await page.getByText('Ödül alındı',{exact:true}).count(),2);
