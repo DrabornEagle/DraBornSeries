@@ -15,7 +15,7 @@ export default function AnimatedCTA({ children, onPress, icon, disabled = false,
     const update = () => {
       if (!live) return;
       loop.stop(); pulse.setValue(0);
-      if (active && !disabled && !reduced && AppState.currentState === "active") loop.start();
+      if (active && !disabled && !reduced && AppState.currentState === "active") { loop.reset(); loop.start(); }
     };
     if (Platform.OS === "web") {
       // RNW keys accessibility subscriptions by callback text; separate buttons

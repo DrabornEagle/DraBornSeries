@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { URL } from "node:url";
+import { createRequire } from "node:module";
 import React from "react";
 import ts from "typescript";
+
+const productionAnimated = createRequire(import.meta.url)("react-native-web/dist/cjs/vendor/react-native/Animated/AnimatedImplementation.js");
 
 // Execute the shared production component with a controlled native lifecycle.
 function fixture() {
@@ -33,11 +36,12 @@ function fixture() {
     Animated: {
       View: "AnimatedView",
       Value: class { setValue(value: number) { resets.push(value); } interpolate(options: any) { return options; } },
-      timing: () => ({}), sequence: () => ({}),
-      loop() {
-        const loop = { running: false, start() { this.running = true; }, stop() { this.running = false; } };
-        loops.push(loop); return loop;
+      timing: () => ({}),
+      sequence() {
+        const animation = { running: false, start() { this.running = true; }, stop() { this.running = false; }, reset() {}, _isUsingNativeDriver: () => false };
+        loops.push(animation); return animation;
       },
+      loop: productionAnimated.loop,
     },
   };
   const dependencies: Record<string, any> = { react: host, "react-native": native, "expo-linear-gradient": { LinearGradient: "Gradient" }, "./theme": { Icon: "Icon" } };
