@@ -64,7 +64,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.getByRole('button',{name:/VIP\ bilgisini\ kapat/}).click();
  await page.getByText('VIP üyeliğin zaten aktif',{exact:true}).waitFor({state:'detached'});
  await page.getByRole('radio',{name:'Yıllık VIP',exact:true}).click();
- await page.getByRole('button',{name:'Seçili pakete geç',exact:true}).click();
+ await page.getByRole('button',{name:/Seçili pakete geç/}).click();
  await page.getByText('Paket değişikliği',{exact:true}).waitFor();
  assert.ok(await page.getByText('Google Play ile Abone Ol',{exact:true}).count());
  await page.screenshot({path:root+'/vip-plan-change.png'});
