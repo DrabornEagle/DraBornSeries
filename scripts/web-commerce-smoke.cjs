@@ -77,8 +77,9 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const still=await transform();
  await page.waitForTimeout(150); assert.equal(await transform(),still);
  await page.emulateMedia({reducedMotion:'no-preference'});
- await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-favorite"]');return element&&getComputedStyle(element).transform!=='none'&&getComputedStyle(element).transform!=='matrix(1, 0, 0, 1, 0, 0)';});
+ await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-favorite"]');return element&&getComputedStyle(element).transform!=='none'&&getComputedStyle(element).transform!=='matrix(1, 0, 0, 1, 0, 0)';}).catch(async error=>{console.error(JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,transform:getComputedStyle(document.querySelector('[data-testid="reward-claim-favorite"]')).transform}))));throw error;});
  const moving=await transform(); await page.waitForTimeout(200); assert.notEqual(await transform(),moving);
+ await page.screenshot({path:root+'/borncoins-rewards-animated.png'});
  await claimButton.getByRole('button',{name:/Ödülü al/}).click();
  await page.getByText('Ödülün hesabına eklendi.',{exact:false}).waitFor();
  assert.equal(await claimButton.count(),0);
@@ -118,6 +119,6 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const overflow=layout.width>layout.viewport+1;
  assert.equal(overflow,false);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({screenshots:8,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-animation-and-reduced-motion','claimed-reward-static','reward-modal-pauses-animation','reward-page-cleanup','restore-result','new-vip-purchase-benefits','six-clean-coin-cards','no-horizontal-overflow']}));
+ console.log(JSON.stringify({screenshots:9,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-animation-and-reduced-motion','claimed-reward-static','reward-modal-pauses-animation','reward-page-cleanup','restore-result','new-vip-purchase-benefits','six-clean-coin-cards','no-horizontal-overflow']}));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

@@ -17,6 +17,20 @@ export default function AnimatedCTA({ children, onPress, icon, disabled = false,
       loop.stop(); pulse.setValue(0);
       if (active && !disabled && !reduced && AppState.currentState === "active") loop.start();
     };
+    if (Platform.OS === "web") {
+      // RNW keys accessibility subscriptions by callback text; separate buttons
+      // can otherwise remove each other's motion listeners when a page closes.
+      const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const motionChanged = () => { reduced = media.matches; update(); };
+      media.addEventListener("change", motionChanged);
+      document.addEventListener("visibilitychange", update);
+      motionChanged();
+      return () => {
+        live = false; loop.stop();
+        media.removeEventListener("change", motionChanged);
+        document.removeEventListener("visibilitychange", update);
+      };
+    }
     void AccessibilityInfo.isReduceMotionEnabled().then(value => { reduced = value; update(); }).catch(() => {});
     const motion = AccessibilityInfo.addEventListener("reduceMotionChanged", value => { reduced = value; update(); });
     const state = AppState.addEventListener("change", update);
