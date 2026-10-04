@@ -10,6 +10,7 @@ import * as products from "../packages/shared/play-products";
 import * as journal from "../packages/shared/purchase-journal";
 import * as messages from "../packages/shared/purchase-result";
 import * as vip from "../packages/shared/vip";
+import { subscriptionSnapshot } from "../supabase/functions/dbs-play-verify/receipt";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -80,9 +81,9 @@ function fixture() {
   };
 }
 
-test("an active VIP returned by the server blocks every second plan with a visible owned notice", async () => {
+test("the same active plan is blocked with a visible owned notice", async () => {
   const app = fixture(); await app.mount(); app.settings.activeVip = [membership];
-  await app.render().buy("dbs_vip_yearly");
+  await app.render().buy("dbs_vip_weekly");
   const billing = app.render();
   assert.equal(billing.notice.kind, "owned"); assert.equal(billing.notice.status, "info");
   assert.equal(billing.notice.expiresAt, membership.expires_at); assert.equal(billing.busy, false);
@@ -91,7 +92,7 @@ test("an active VIP returned by the server blocks every second plan with a visib
 
 test("Play ownership blocks duplicate VIP while local/server state is still catching up", async () => {
   const app = fixture(); await app.mount(); app.settings.owned = [receipt("dbs_vip_weekly")];
-  await app.render().buy("dbs_vip_monthly");
+  await app.render().buy("dbs_vip_weekly");
   assert.equal(app.render().notice.kind, "owned");
   assert.ok(app.events.includes("verify:dbs_vip_weekly"));
   assert.equal(app.events.filter(event => event.startsWith("purchase:")).length, 0);
@@ -102,6 +103,47 @@ test("a pending VIP never starts another charge or acknowledges unpaid access", 
   await app.render().buy("dbs_vip_weekly");
   assert.equal(app.render().notice.kind, "owned");
   assert.equal(app.events.filter(event => event.startsWith("purchase:") || event === "finish").length, 0);
+});
+
+test("weekly to monthly replaces the verified Play token and credits remaining time", async () => {
+  const app = fixture(); await app.mount(); app.settings.activeVip = [membership];
+  app.settings.owned = [receipt("dbs_vip_weekly", "original-weekly-token")];
+  let request: any; app.settings.request = async value => { request = value; };
+  await app.render().buy("dbs_vip_monthly");
+  assert.equal(request.type, "subs");
+  assert.equal(request.request.google.purchaseToken, "original-weekly-token");
+  assert.equal(request.request.google.subscriptionProductReplacementParams.oldProductId, "dbs_vip_weekly");
+  assert.equal(request.request.google.subscriptionProductReplacementParams.replacementMode, "with-time-proration");
+  assert.equal(request.request.google.subscriptionOffers[0].sku, "dbs_vip_monthly");
+  assert.equal(app.events.filter(event => event.startsWith("purchase:")).length, 1);
+  app.sdk.failed({ code: app.sdk.ErrorCode.UserCancelled });
+  assert.equal(app.render().busy, false); assert.equal(app.render().notice, null);
+});
+
+test("a server subscription without its device token cannot launch a second independent charge", async () => {
+  const app = fixture(); await app.mount(); app.settings.activeVip = [membership];
+  await app.render().buy("dbs_vip_monthly");
+  assert.equal(app.render().notice.status, "error");
+  assert.equal(app.render().notice.started, false);
+  assert.equal(app.events.filter(event => event.startsWith("purchase:")).length, 0);
+});
+
+test("a foreign or unverified existing token cannot be used for a plan replacement", async () => {
+  const app = fixture(); await app.mount(); app.settings.owned = [receipt("dbs_vip_weekly", "foreign-token")];
+  app.settings.verify = async () => ({ data: null, error: { context: new Response(JSON.stringify({ error: "PURCHASE_ACCOUNT_MISMATCH" }), { status: 403 }) } });
+  await app.render().buy("dbs_vip_monthly");
+  assert.equal(app.render().notice.status, "error");
+  assert.equal(app.events.filter(event => event.startsWith("purchase:")).length, 0);
+});
+
+test("paused and held subscriptions require resolution before another plan charge", async () => {
+  for (const status of ["paused", "on_hold"]) {
+    const app = fixture(); await app.mount(); app.settings.owned = [receipt("dbs_vip_weekly")];
+    app.settings.verify = async () => ({ data: { verified: true, acknowledged: true, entitled: false, status }, error: null });
+    await app.render().buy("dbs_vip_monthly");
+    assert.equal(app.render().notice.kind, "owned");
+    assert.equal(app.events.filter(event => event.startsWith("purchase:")).length, 0);
+  }
 });
 
 test("an expired server VIP does not create a lifetime purchase ban, while rapid taps start only one charge", async () => {
@@ -184,7 +226,18 @@ test("VIP countdown distinguishes live cancellation, exact expiration and short 
   const now = Date.now();
   assert.equal(vip.activeMemberships([{ ...membership, status: "cancelled", expires_at: new Date(now + 300000).toISOString() }], now).length, 1);
   assert.equal(vip.activeMemberships([{ ...membership, status: "active", expires_at: new Date(now).toISOString() }], now).length, 0);
-  assert.equal(vip.vipCountdown(new Date(now + 5 * 60000).toISOString(), now).daysLabel, "1 günden az");
+  assert.equal(vip.vipCountdown(new Date(now + 5 * 60000).toISOString(), now).daysLabel, "5 dakika");
   assert.equal(vip.vipCountdown(new Date(now + 5 * 60000).toISOString(), now).detail, "5 dakika kaldı");
   assert.equal(vip.vipCountdown("invalid", now).active, false);
+});
+
+test("Google test receipts keep their real five-minute expiry while production weekly receipts keep seven days", () => {
+  const now = Date.parse("2026-10-04T01:00:00Z");
+  const base = { subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [{ productId: "dbs_vip_weekly", expiryTime: new Date(now + 300000).toISOString(), autoRenewingPlan: { autoRenewEnabled: true } }] };
+  const testing = subscriptionSnapshot({ ...base, testPurchase: {} }, "dbs_vip_weekly", now);
+  assert.equal(testing.isTest, true); assert.equal(testing.expires, base.lineItems[0].expiryTime);
+  const production = subscriptionSnapshot({ ...base, lineItems: [{ ...base.lineItems[0], expiryTime: new Date(now + 7 * 86400000).toISOString() }] }, "dbs_vip_weekly", now);
+  assert.equal(production.isTest, false); assert.equal(vip.vipCountdown(production.expires, now).daysLabel, "7 gün");
+  assert.equal(vip.vipCountdown(testing.expires, now).daysLabel, "5 dakika");
+  assert.equal(vip.vipCountdown(new Date(now + 3600000).toISOString(), now).daysLabel, "1 saat");
 });

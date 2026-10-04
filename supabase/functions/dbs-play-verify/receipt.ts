@@ -6,5 +6,5 @@ export function subscriptionSnapshot(receipt: any, product: string, now = Date.n
   if (!state) throw Error("INVALID_SUBSCRIPTION_STATE");
   const entitled = ["active", "grace", "cancelled"].includes(state) && Date.parse(line.expiryTime) > now;
   return { status: !entitled && ["active", "grace", "cancelled"].includes(state) ? "expired" : state, expires: line.expiryTime, entitled,
-    autoRenew: line.autoRenewingPlan?.autoRenewEnabled === true, orderId: line.latestSuccessfulOrderId || receipt.latestOrderId || null };
+    isTest: receipt.testPurchase != null, autoRenew: line.autoRenewingPlan?.autoRenewEnabled === true, orderId: line.latestSuccessfulOrderId || receipt.latestOrderId || null };
 }

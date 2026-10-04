@@ -112,6 +112,8 @@ export function Button({
   icon,
   small = false,
   style,
+  testID,
+  accessibilityLabel,
 }: {
   children: ReactNode;
   onPress: () => void;
@@ -120,10 +122,14 @@ export function Button({
   icon?: React.ComponentProps<typeof Ionicons>["name"];
   small?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
+  accessibilityLabel?: string;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      testID={testID}
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [

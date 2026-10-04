@@ -14,7 +14,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
 (async()=>{
  await fs.mkdir(root,{recursive:true}); const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const context=await browser.newContext({viewport:{width:393,height:851},deviceScaleFactor:1,reducedMotion:'reduce'});
- let active=true, favoriteClaimed=false; const errors=[];
+ let active=true, favoriteClaimed=false, testing=false; const errors=[];
  await context.addInitScript(({user})=>{
   const payload={sub:user.id,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
   const token=btoa(JSON.stringify({alg:'HS256',typ:'JWT'}))+'.'+btoa(JSON.stringify(payload))+'.visual-test';
@@ -26,7 +26,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   if(url.pathname.startsWith('/auth/')) data=user;
   else if(url.pathname.includes('/functions/')) {
    const body=req.postDataJSON()||{};
-   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7.1'}:{};
+   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7.2'}:{};
   } else if(url.pathname.includes('/rpc/')) {
    if(name==='dbs_claim_task') { favoriteClaimed=true; data={coins:10}; }
    else data=name==='dbs_is_vip'?active:name==='dbs_is_admin'?false:name==='dbs_bootstrap'?{}:{};
@@ -37,7 +37,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   else if(name==='dbs_profiles') data={user_id:user.id,username:'Test İzleyicisi',full_name:'Test İzleyicisi',language:'tr',status:'active',autoplay_preview:false};
   else if(name==='dbs_borncoins_wallet') data={balance:147};
   else if(name==='dbs_user_streaks') data={days:2,last_claim_date:null};
-  else if(name==='dbs_vip_subscriptions') data=active?[membership]:[];
+  else if(name==='dbs_vip_subscriptions') data=active?[testing?{...membership,product_id:'dbs_vip_weekly',is_test:true,expires_at:new Date(Date.now()+5*60000).toISOString()}:membership]:[];
   const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*','Content-Type':'application/json'};
   await route.fulfill({status:200,headers:cors,body:JSON.stringify(data)});
  });
@@ -49,6 +49,8 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.getByText('Ayrıcalıkların seninle',{exact:true}).waitFor();
  assert.ok(await page.getByText('KALAN SÜRE',{exact:true}).isVisible());
  assert.ok(await page.getByText('12 gün',{exact:true}).isVisible());
+ const chips=await page.getByTestId('vip-membership-features').evaluate(element=>[...element.children].map(child=>child.getBoundingClientRect().top));
+ assert.ok(chips.every(top=>Math.abs(top-chips[0])<1));
  await page.screenshot({path:root+'/vip-badge.png'});
  await page.getByRole('button',{name:/Mağazayı\ keşfet/}).click();
  await page.getByText('Ayrıcalıkların seninle',{exact:true}).waitFor({state:'detached'});
@@ -61,6 +63,13 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  assert.equal(await page.getByText('Google Play ile Abone Ol',{exact:true}).count(),0);
  await page.getByRole('button',{name:/VIP\ bilgisini\ kapat/}).click();
  await page.getByText('VIP üyeliğin zaten aktif',{exact:true}).waitFor({state:'detached'});
+ await page.getByRole('radio',{name:'Yıllık VIP',exact:true}).click();
+ await page.getByRole('button',{name:'Seçili pakete geç',exact:true}).click();
+ await page.getByText('Paket değişikliği',{exact:true}).waitFor();
+ assert.ok(await page.getByText('Google Play ile Abone Ol',{exact:true}).count());
+ await page.screenshot({path:root+'/vip-plan-change.png'});
+ await page.getByLabel('Kapat',{exact:true}).first().click();
+ await page.getByText('Paket değişikliği',{exact:true}).waitFor({state:'detached'});
  await page.getByText('VIP dünyanda neler var?',{exact:true}).scrollIntoViewIfNeeded();
  assert.ok(await page.getByText('VIP içerik koleksiyonları',{exact:true}).isVisible());
  assert.ok(await page.getByText('Erken erişim',{exact:true}).count());
@@ -77,18 +86,15 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const still=await transform();
  await page.waitForTimeout(150); assert.equal(await transform(),still);
  await page.emulateMedia({reducedMotion:'no-preference'});
- await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-favorite"]');return element&&getComputedStyle(element).transform!=='none'&&getComputedStyle(element).transform!=='matrix(1, 0, 0, 1, 0, 0)';}).catch(async error=>{console.error(JSON.stringify(await page.evaluate(()=>({hidden:document.hidden,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,transform:getComputedStyle(document.querySelector('[data-testid="reward-claim-favorite"]')).transform}))));throw error;});
- const moving=await transform(); await page.waitForTimeout(200); assert.notEqual(await transform(),moving);
- await page.screenshot({path:root+'/borncoins-rewards-animated.png'});
- // A pulsing button intentionally never has a stable bounding box. Tap its
- // center as a viewer would, keeping normal motion enabled for the popup check.
- const claimBounds=await claimButton.getByRole('button',{name:/Ödülü al/}).boundingBox();
- assert.ok(claimBounds); await page.mouse.click(claimBounds.x+claimBounds.width/2,claimBounds.y+claimBounds.height/2);
+ await page.waitForTimeout(250); assert.equal(await transform(),still);
+ await page.waitForTimeout(250); assert.equal(await transform(),still);
+ await page.screenshot({path:root+'/borncoins-rewards-static.png'});
+ await claimButton.click();
  await page.getByText('Ödülün hesabına eklendi.',{exact:false}).waitFor();
  assert.equal(await claimButton.count(),0);
  assert.equal(await page.getByText('Ödül alındı',{exact:true}).count(),2);
  const otherReward=page.getByTestId('reward-claim-profile');
- await page.waitForFunction(()=>{const element=document.querySelector('[data-testid="reward-claim-profile"]');return element&&getComputedStyle(element).transform==='matrix(1, 0, 0, 1, 0, 0)';});
+ await otherReward.waitFor();
  const paused=await otherReward.evaluate(element=>getComputedStyle(element).transform);
  await page.waitForTimeout(200); assert.equal(await otherReward.evaluate(element=>getComputedStyle(element).transform),paused);
  await page.getByRole('button',{name:'Harika!',exact:true}).click();
@@ -105,23 +111,35 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.getByRole('button',{name:/Seçili\ paketi\ incele/}).click();
  await page.getByText('Google Play aboneliği',{exact:true}).waitFor();
  assert.ok(await page.getByText('1080p / 4K',{exact:true}).isVisible());
- assert.ok(await page.getByText('FULL HD',{exact:true}).isVisible());
- assert.ok(await page.getByText('ULTRA HD',{exact:true}).isVisible());
+ assert.ok(await page.getByText('FULL HD · ULTRA HD',{exact:true}).isVisible());
  assert.ok(await page.getByText('Sınırsız İzleme',{exact:true}).isVisible());
  assert.ok(await page.getByText('Reklamsız',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Android + Web',{exact:true}).isVisible());
  await page.screenshot({path:root+'/vip-checkout-top.png'});
  await page.getByRole('button',{name:/Google\ Play\ ile\ Abone\ Ol/}).scrollIntoViewIfNeeded();
+ const controls=await page.getByTestId('checkout-tools').evaluate(element=>[...element.children].map(child=>({top:child.getBoundingClientRect().top})));
+ assert.equal(controls.length,2); assert.ok(Math.abs(controls[0].top-controls[1].top)<1);
  await page.screenshot({path:root+'/vip-checkout-payment.png'});
  await page.getByLabel('Kapat',{exact:true}).first().click();
  await visit('store');
  await page.getByRole('button',{name:/50 BornCoins paketi/}).first().scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/borncoins-cards.png'});
  assert.equal(await page.getByText('Cüzdanına toplam',{exact:false}).count(),0);
+ active=true; testing=true;
+ await visit('vip');
+ assert.ok(await page.getByText('GOOGLE PLAY TEST ABONELİĞİ',{exact:true}).isVisible());
+ assert.ok(await page.getByText('5 dakika',{exact:true}).isVisible());
+ await page.screenshot({path:root+'/vip-test-period.png'});
+ await visit('profile');
+ await page.getByText('Destek',{exact:true}).click();
+ await page.getByText('Nasıl yardımcı olabiliriz?',{exact:true}).waitFor();
+ assert.ok(await page.getByText('DraBornSeries · v0.7.7.2 · Kod 5',{exact:true}).isVisible());
+ await page.screenshot({path:root+'/profile-support.png'});
  const layout=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth}));
  console.log(JSON.stringify({layout}));
  const overflow=layout.width>layout.viewport+1;
  assert.equal(overflow,false);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({screenshots:9,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-animation-and-reduced-motion','claimed-reward-static','reward-modal-pauses-animation','reward-page-cleanup','restore-result','new-vip-purchase-benefits','six-clean-coin-cards','no-horizontal-overflow']}));
+ console.log(JSON.stringify({screenshots:12,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-buttons-static-with-normal-motion','claimed-reward-static','reward-modal-static-buttons','reward-page-cleanup','restore-result','minimal-vip-purchase-benefits-android-web','single-row-features-and-tools','plan-change-preview','verified-test-period','profile-support-route','six-clean-coin-cards','no-horizontal-overflow']}));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

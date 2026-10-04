@@ -98,7 +98,7 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
           const outcome: Outcome = { state: inactive ? "inactive" : "verified", entitled: data.entitled, status: data.status, expiresAt: data.expiresAt };
           if (notify) publish({ id: key + ":" + (inactive ? data.status : "success"), productId: purchase.productId, status: inactive ? "info" : "success",
             coins: coin ? Number(data.coins) : undefined, balance: Number.isFinite(data.balance) ? data.balance : undefined,
-            orderId: data.orderId || null, restored: data.duplicate, expiresAt: data.expiresAt, entitled: data.entitled,
+            orderId: data.orderId || null, restored: data.duplicate, expiresAt: data.expiresAt, entitled: data.entitled, isTest: data.isTest, autoRenew: data.autoRenew,
             message: coin ? "BornCoins hesabına yüklendi. Aynı hesabınla Android ve webde kullanabilirsin."
               : data.entitled ? "VIP üyeliğin aktif. Ayrıcalıkların Android ve webde seninle." : "Google Play abonelik durumun güncellendi. Bu abonelik artık VIP erişimi sağlamıyor." });
           if (finished && refreshed) { completed.set(key, { at: Date.now(), outcome }); await journal.forget(account, token); }
@@ -195,7 +195,7 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
   }, [supported]);
   useEffect(() => { if (user) void refreshRef.current().catch(() => {}); }, [user]);
   const ownedNotice = (id: string, expiresAt?: string) => {
-    const detail = "VIP üyeliğin zaten aktif veya Google Play’de devam eden bir aboneliğin var. İkinci bir VIP aboneliği satın almana gerek yok. Mevcut üyeliğini Google Play’den yönetebilirsin.";
+    const detail = "Bu paket zaten mevcut veya Google Play’de tamamlanmayı bekleyen bir abonelik işlemin var. Yeniden ödeme yapmadan mevcut üyeliğini yönetebilirsin. Aktif planından farklı bir pakete mağazadan geçebilirsin.";
     setMessage(detail); setNotice({ id: "owned:" + Date.now(), kind: "owned", status: "info", productId: id, expiresAt, message: detail });
   };
   const buy = async (id: string) => {
@@ -205,18 +205,34 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
     locked.current = true; setBusy(true); setNotice(null);
     let started = false;
     try {
-      const account = await api<{ accountId: string; configured: boolean; error?: string; activeVip: VipMembership[] }>("billing-account");
+      let replacement: { productId: string; purchaseToken: string } | undefined;
+      const account = await api<{ accountId: string; configured: boolean; error?: string; activeVip: VipMembership[]; subscriptions?: VipMembership[] }>("billing-account");
       if (currentUser.current !== accountUser) return;
       if (!isCoinProduct(id)) {
         const activeVip = activeMemberships(account.activeVip || []);
-        if (activeVip.length) { ownedNotice(id, activeVip[0].expires_at); await verified.current().catch(() => {}); return; }
+        const blocked = (account.subscriptions || []).find(item => ["pending", "paused", "on_hold"].includes(item.status));
+        const samePlan = activeVip.find(item => item.product_id === id || item.provider !== "google_play");
+        if (samePlan || blocked) { ownedNotice(id, (samePlan || blocked)?.expires_at); await verified.current().catch(() => {}); return; }
         // Check Play too: app state can lag behind a pending purchase or another device.
         for (const item of (await module.getAvailablePurchases()).filter(item => Object.hasOwn(playPlans, item.productId))) {
           if (currentUser.current !== accountUser) return;
           const result = await processRef.current(item, false, true);
           if (result.state === "error" || result.state === "ignored") throw Error("OWNERSHIP_CHECK_FAILED");
-          if (result.entitled || result.state === "pending" || ["paused", "on_hold"].includes(result.status || "")) { ownedNotice(id, result.expiresAt); return; }
+          if (result.state === "pending" || ["paused", "on_hold"].includes(result.status || "") || (result.entitled && item.productId === id)) { ownedNotice(id, result.expiresAt); return; }
+          if (result.entitled) {
+            if (!item.purchaseToken || replacement) throw Error("OWNERSHIP_CHECK_FAILED");
+            replacement = { productId: item.productId, purchaseToken: item.purchaseToken };
+          }
         }
+        // A plan change must use the verified original token, including when
+        // the subscription was purchased on another device.
+        if (activeVip.length && !replacement) throw Error("OWNERSHIP_CHECK_FAILED");
+        const latest = await api<{ activeVip: VipMembership[]; subscriptions?: VipMembership[] }>("billing-account");
+        if (currentUser.current !== accountUser) return;
+        if ((latest.subscriptions || []).some(item => ["pending", "paused", "on_hold"].includes(item.status))) { ownedNotice(id); return; }
+        const current = activeMemberships(latest.activeVip || []);
+        if (current.some(item => item.product_id === id || item.provider !== "google_play")) { ownedNotice(id, current[0]?.expires_at); return; }
+        if (current.some(item => item.product_id !== replacement?.productId) || (!replacement && current.length)) throw Error("OWNERSHIP_CHECK_FAILED");
       }
       if (!account.configured) throw Error(account.error || "BILLING_NOT_CONFIGURED");
       const fetched = await module.fetchProducts({ skus: [id], type: isCoinProduct(id) ? "in-app" : "subs" });
@@ -227,7 +243,8 @@ export function useBilling(user: string | undefined, onVerified: () => Promise<v
       if (!isCoinProduct(id) && !offer?.offerTokenAndroid) throw Error("PRODUCT_UNAVAILABLE");
       requested.current = { account: accountUser, id }; started = true;
       if (isCoinProduct(id)) await module.requestPurchase({ type: "in-app", request: { google: { skus: [id], obfuscatedAccountId: account.accountId, ...(offer?.offerTokenAndroid ? { offerToken: offer.offerTokenAndroid } : {}) } } });
-      else await module.requestPurchase({ type: "subs", request: { google: { skus: [id], obfuscatedAccountId: account.accountId, subscriptionOffers: [{ sku: id, offerToken: offer!.offerTokenAndroid! }] } } });
+      else await module.requestPurchase({ type: "subs", request: { google: { skus: [id], obfuscatedAccountId: account.accountId, subscriptionOffers: [{ sku: id, offerToken: offer!.offerTokenAndroid! }],
+        ...(replacement ? { purchaseToken: replacement.purchaseToken, subscriptionProductReplacementParams: { oldProductId: replacement.productId, replacementMode: "with-time-proration" as const } } : {}) } } });
     } catch (error) {
       started = false;
       if (currentUser.current !== accountUser) return;

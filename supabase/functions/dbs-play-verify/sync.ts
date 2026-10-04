@@ -18,5 +18,5 @@ export async function syncSubscription(service: any, user: string, product: stri
     acknowledged = await fetch(googleRoot + `/subscriptions/${encodeURIComponent(product)}/tokens/${encodeURIComponent(token)}:acknowledge`, { method: "POST", headers, body: "{}", signal: AbortSignal.timeout(15000) }).then(result => result.ok).catch(() => false);
   }
   return { ...data, verified: true, status: data.status || snapshot.status, entitled: data.entitled, acknowledged,
-    ...(!data.stale ? { expiresAt: snapshot.expires, autoRenew: snapshot.autoRenew, orderId: snapshot.orderId } : {}) };
+    ...(!data.stale ? { expiresAt: snapshot.expires, autoRenew: snapshot.autoRenew, orderId: snapshot.orderId, isTest: snapshot.isTest } : {}) };
 }

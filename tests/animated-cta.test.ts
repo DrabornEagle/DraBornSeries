@@ -64,7 +64,7 @@ function fixture() {
   };
 }
 
-test("reward animation stops when its page closes and resumes only when reopened", async () => {
+test("CTA animation stops when its page closes and resumes only when reopened", async () => {
   const app = fixture(); app.render({ active: true }); await app.answerMotion(false);
   assert.equal(app.running, 1);
   app.render({ active: false }); await app.answerMotion(false);
@@ -74,7 +74,7 @@ test("reward animation stops when its page closes and resumes only when reopened
   app.unmount(); assert.equal(app.running, 0); assert.equal(app.listeners, 0);
 });
 
-test("backgrounding and reduced motion pause rewards without reviving a closed page", async () => {
+test("backgrounding and reduced motion pause the CTA without reviving a closed page", async () => {
   const app = fixture(); app.render(); await app.answerMotion(false);
   app.foreground(false); assert.equal(app.running, 0);
   app.foreground(true); assert.equal(app.running, 1);
@@ -85,7 +85,7 @@ test("backgrounding and reduced motion pause rewards without reviving a closed p
   app.unmount();
 });
 
-test("disabled rewards and an unmounted pending motion query leave no animation or listeners", async () => {
+test("a disabled CTA and an unmounted pending motion query leave no animation or listeners", async () => {
   const app = fixture(); app.render({ disabled: true }); await app.answerMotion(false);
   assert.equal(app.running, 0);
   app.render({ disabled: false }); app.unmount();

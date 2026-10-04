@@ -150,8 +150,8 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.7.1",
-        versionCode: 4,
+        version: "0.7.7.2",
+        versionCode: 5,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
         uploads: streamConfigured(),
@@ -170,13 +170,14 @@ Deno.serve(async (req) => {
       const profile = await checked(client.from("dbs_profiles").select("user_id,status").eq("user_id", user.id).maybeSingle());
       if (!profile || profile.status !== "active") return send(req, { error: "ACCOUNT_UNAVAILABLE" }, 403);
       if (body.action === "billing-account") {
-        const activeVip = await checked(client.from("dbs_vip_subscriptions")
-          .select("product_id,provider,status,starts_at,expires_at,auto_renew").eq("user_id", user.id)
-          .in("status", ["active", "grace", "cancelled"]).gt("expires_at", new Date().toISOString())
+        const subscriptions = await checked(client.from("dbs_vip_subscriptions")
+          .select("product_id,provider,status,starts_at,expires_at,auto_renew,is_test").eq("user_id", user.id)
+          .in("status", ["active", "grace", "cancelled", "pending", "paused", "on_hold"]).or(`expires_at.gt.${new Date().toISOString()},status.in.(pending,paused,on_hold)`)
           .order("expires_at", { ascending: false }).limit(20));
         const access = await playBillingAccess(env("DBS_GOOGLE_SERVICE_ACCOUNT"));
         const accountId = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(user.id)))].map(byte => byte.toString(16).padStart(2, "0")).join("");
-        return send(req, { accountId, activeVip, configured: access.ready, error: access.error, package: "com.draborneagle.drabornseries" });
+        const activeVip = subscriptions.filter((item: any) => ["active", "grace", "cancelled"].includes(item.status) && Date.parse(item.expires_at) > Date.now());
+        return send(req, { accountId, activeVip, subscriptions, configured: access.ready, error: access.error, package: "com.draborneagle.drabornseries" });
       }
       if (body.action === "ad-status") {
         if (!/^[a-f0-9-]{36}$/.test(body.id || "")) return send(req, { error: "INVALID_AD_TICKET" }, 400);

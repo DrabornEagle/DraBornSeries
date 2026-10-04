@@ -21,6 +21,10 @@ export default function VipStatus({ membership, expiresAt, active = true }: { me
         <Text style={{ color: entitled ? "#8eebd5" : "#dccbe6", fontSize: 12, fontWeight: "700" }}>{entitled ? "Ayrıcalıkların aktif" : "Üyelik durumun"}</Text></View>
       <Icon name={entitled ? "checkmark-circle" : "time-outline"} color={entitled ? "#8eebd5" : "#ffd295"} size={25} />
     </View>
+    {membership?.is_test && <View style={{ backgroundColor: "#ffc78015", padding: 11, borderRadius: 12, gap: 5 }}>
+      <Text style={{ color: "#ffd295", fontSize: 11, fontWeight: "900" }}>GOOGLE PLAY TEST ABONELİĞİ</Text>
+      <Text style={{ color: "#decfe5", fontSize: 12, lineHeight: 18 }}>Testte haftalık ve aylık paketler yaklaşık 5 dakikada, yıllık paket 30 dakikada yenilenir. Aşağıdaki süre bu test dönemine aittir.</Text>
+    </View>}
     <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
       <View style={{ flex: 1, minWidth: 125, padding: 14, borderRadius: 17, backgroundColor: "#ffcd8414", gap: 6 }}>
         <Text style={{ color: "#efcda8", fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>KALAN SÜRE</Text>
@@ -28,7 +32,7 @@ export default function VipStatus({ membership, expiresAt, active = true }: { me
         <Text style={{ color: "#d2bdd5", fontSize: 12 }}>{countdown.detail}</Text>
       </View>
       <View style={{ flex: 1, minWidth: 125, padding: 14, borderRadius: 17, backgroundColor: "#98e8da10", gap: 6 }}>
-        <Text style={{ color: "#a9dcd6", fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>BİTİŞ TARİHİ</Text>
+        <Text style={{ color: "#a9dcd6", fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>{membership?.auto_renew ? "YENİLEME TARİHİ" : "BİTİŞ TARİHİ"}</Text>
         <Text style={{ color: "#f2fffb", fontSize: 17, fontWeight: "900" }}>{end ? new Date(end).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" }) : "Güncelleniyor"}</Text>
         {end && <Text style={{ color: "#c1d7de", fontSize: 12 }}>{new Date(end).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</Text>}
       </View>

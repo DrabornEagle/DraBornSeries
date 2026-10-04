@@ -1,30 +1,23 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "./theme";
 
-const benefits: { icon: React.ComponentProps<typeof Icon>["name"]; title: string; detail: string; color: string; badges: string[] }[] = [
-  { icon: "videocam", title: "1080p / 4K", detail: "İçeriğin desteklediği Full HD ve Ultra HD kalitesinde izle.", color: "#8ddff5", badges: ["FULL HD", "ULTRA HD"] },
-  { icon: "infinite", title: "Sınırsız İzleme", detail: "VIP kapsamındaki dizileri ve bölümleri dilediğin kadar izle.", color: "#d5abff", badges: ["SINIRSIZ HİKÂYE"] },
-  { icon: "shield-checkmark", title: "Reklamsız", detail: "VIP içeriklerini reklamsız, kesintisiz izle.", color: "#ffb992", badges: ["KESİNTİSİZ KEYİF"] },
+const benefits: { icon: React.ComponentProps<typeof Icon>["name"]; title: string; detail: string; color: string }[] = [
+  { icon: "videocam-outline", title: "1080p / 4K", detail: "FULL HD · ULTRA HD", color: "#8ddff5" },
+  { icon: "infinite", title: "Sınırsız İzleme", detail: "VIP diziler ve bölümler", color: "#d5abff" },
+  { icon: "shield-checkmark-outline", title: "Reklamsız", detail: "Kesintisiz VIP deneyimi", color: "#ffb992" },
+  { icon: "sync-outline", title: "Android + Web", detail: "Aynı hesap, aynı VIP", color: "#8ee6d1" },
 ];
 
 export default function VipPurchaseBenefits() {
-  return <View style={{ gap: 11 }}>
-    {benefits.map(item => <LinearGradient key={item.title} colors={[item.color + "24", "#1c172d"]}
-      start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 17, borderRadius: 23, borderWidth: 1, borderColor: item.color + "45" }}>
-      <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 13 }}>
-        <LinearGradient colors={[item.color, item.color + "99"]} style={{ width: 46, height: 46, borderRadius: 16, alignItems: "center", justifyContent: "center" }}>
-          <Icon name={item.icon} size={27} color="#2d233e" />
-        </LinearGradient>
-        <View style={{ flex: 1, gap: 8 }}>
-          <Text style={{ color: "#fff8ff", fontSize: 17, fontWeight: "900", lineHeight: 23 }}>{item.title}</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-            {item.badges.map(badge => <Text key={badge} style={{ color: item.color, backgroundColor: item.color + "18", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, fontSize: 9, fontWeight: "900", letterSpacing: 0.9 }}>{badge}</Text>)}
-          </View>
-          <Text style={{ color: "#d4c5df", fontSize: 12, lineHeight: 19 }}>{item.detail}</Text>
-        </View>
-      </View>
-    </LinearGradient>)}
+  return <View style={{ gap: 12 }}>
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+      {benefits.map(item => <View key={item.title} style={{ width: "48%", flexGrow: 1, padding: 14, borderRadius: 17, borderWidth: 1, borderColor: item.color + "35", backgroundColor: "#17132390", gap: 9 }}>
+        <Icon name={item.icon} size={25} color={item.color} />
+        <Text style={{ color: "#fff7ff", fontSize: 15, fontWeight: "900" }}>{item.title}</Text>
+        <Text style={{ color: item.color, fontSize: 10, fontWeight: "700", lineHeight: 16 }}>{item.detail}</Text>
+      </View>)}
+    </View>
+    <Text style={{ color: "#bdafcd", fontSize: 11, lineHeight: 17 }}>Görüntü kalitesi içeriğin, cihazının ve bağlantının desteklediği çözünürlüğe bağlıdır.</Text>
   </View>;
 }

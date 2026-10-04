@@ -138,7 +138,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     [tasks, setTasks] = useState<any[]>([]),
     [claims, setClaims] = useState<string[]>([]);
   const openCheckout = (product: Product) => {
-    if (product.kind === "vip" && store.vip) { setOwnedVisible(true); void store.refreshEntitlements().catch(() => {}); return; }
+    if (product.kind === "vip" && store.vip && (store.vipMemberships.some(item => item.product_id === product.id) || !store.vipMemberships.some(item => item.provider === "google_play"))) { setOwnedVisible(true); void store.refreshEntitlements().catch(() => {}); return; }
     setCheckout(product); setCheckoutVisible(true); void billing.refresh().catch(() => {});
   };
   useEffect(() => { if (billing.notice) setCheckoutVisible(false); }, [billing.notice]);
@@ -169,7 +169,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     coins = products.filter((p) => p.kind === "coins"),
     plans = products.filter((p) => p.kind === "vip"),
     currentPlan = plans.find((p) => p.billing_period === selected);
-  const rewardAnimationsActive = page === "rewards" && reward === null && !promoReward && !checkoutVisible && !ownedVisible && !billing.notice;
+  const selectedOwned = !!currentPlan && store.vipMemberships.some(item => item.product_id === currentPlan.id);
+  const changingPlan = checkout?.kind === "vip" && store.vipMemberships.some(item => item.provider === "google_play" && item.product_id !== checkout.id);
   const needLogin = (fn: () => Promise<unknown>) =>
     logged ? run(fn) : go("auth");
   const claim = async (id: string) => {
@@ -514,7 +515,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
           onPress={() => currentPlan && openCheckout(currentPlan)}
           style={{ alignSelf: "stretch" }}
         >
-          {store.vip ? "Aktif VIP üyeliğimi gör" : "Seçili paketi incele"}
+          {selectedOwned ? "Aktif VIP üyeliğimi gör" : store.vip ? "Seçili pakete geç" : "Seçili paketi incele"}
         </AnimatedCTA>
         <Button secondary small icon="refresh" disabled={billing.busy} onPress={() => void refresh()}>Google Play fiyatlarını yenile</Button>
         <Text style={styles.h2}>VIP dünyanda neler var?</Text>
@@ -702,9 +703,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </View>
             ))}
           </View>
-          <AnimatedCTA
+          <Button
             icon="gift"
-            active={rewardAnimationsActive}
             testID="daily-reward-claim"
             onPress={() =>
               needLogin(async () => {
@@ -716,7 +716,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             style={{ alignSelf: "stretch" }}
           >
             Günlük ödülünü al
-          </AnimatedCTA>
+          </Button>
         </LinearGradient>
         <Text style={styles.h2}>BornCoins kazan</Text>
         <LinearGradient colors={["#613048", "#35234d", "#17323c"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
@@ -742,7 +742,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
                 <View style={[styles.row, { backgroundColor: accent + "15", padding: 10, borderRadius: 14, gap: 7 }]}><Icon name="dbs-coin" color={accent} size={20} /><Text style={{ color: accent, fontSize: 16, fontWeight: "900" }}>+{task.data?.coins || 0}</Text><Text style={{ color: "#d9cce4", fontSize: 12, fontWeight: "700" }}>BornCoins</Text></View>
                 {claimed
                   ? <Button small secondary icon="checkmark-circle" disabled onPress={() => {}}>Ödül alındı</Button>
-                  : <AnimatedCTA small active={rewardAnimationsActive} testID={`reward-claim-${task.id}`} icon="gift-outline" onPress={() => needLogin(() => claim(task.id))}>Ödülü al</AnimatedCTA>}
+                  : <Button small testID={`reward-claim-${task.id}`} icon="gift-outline" onPress={() => needLogin(() => claim(task.id))}>Ödülü al</Button>}
               </View>
             </LinearGradient>;
           })}
@@ -927,6 +927,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             title="Koleksiyonum"
             onPress={() => go("library")}
           />
+          <Row icon="help-buoy-outline" title="Destek" onPress={() => go("help")} color={colors.mint} />
           {store.isAdmin && (
             <Row
               icon="shield-checkmark-outline"
@@ -1011,7 +1012,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             </View>
             <Text style={styles.body}>
               {checkout?.kind === "vip"
-                ? "Seçtiğin VIP paketi aynı hesabınla Android ve webde geçerli olacak."
+                ? changingPlan ? "Yeni planın mevcut Google Play aboneliğinin yerini alır. Android ve webde aynı hesabınla devam edersin." : "Seçtiğin VIP paketi Android ve webde aynı hesabınla geçerli."
                 : "BornCoins ile uygun bölümleri kalıcı olarak hesabına açabilirsin."}
             </Text>
             {checkout && <LinearGradient colors={["#ffbd7025", "#e376c515", "#9576e51a"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 21, borderRadius: 22, gap: 10, borderWidth: 1, borderColor: "#ffd09b45" }}>
@@ -1019,6 +1020,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               {!!checkout.bonus_coins && <Text style={{ color: "#ff9acb", fontWeight: "800", fontSize: 13 }}>+{checkout.bonus_coins} bonus BornCoins dahil</Text>}
             </LinearGradient>}
             {checkout?.kind === "vip" && <VipPurchaseBenefits />}
+            {changingPlan && <View style={{ borderRadius: 14, padding: 13, backgroundColor: "#89e4cb12", gap: 5 }}><Text style={{ color: "#94ebd6", fontWeight: "800", fontSize: 13 }}>Paket değişikliği</Text><Text style={{ color: "#d1c5df", fontSize: 12, lineHeight: 18 }}>Mevcut döneminin kalan değeri Google Play tarafından yeni planına aktarılır. Yeni ücret ve yenileme tarihi onay ekranında gösterilir.</Text></View>}
             <View style={[panel, { borderColor: "#9a73df65", backgroundColor: "#171a2c", padding: 18, gap: 11 }]}>
               <View style={styles.row}><Icon name="shield-checkmark" color="#89e4cb" size={23} />
               <Text
@@ -1035,17 +1037,19 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             <AnimatedCTA
               active={checkoutVisible && !billing.notice}
               onPress={() => {
-                if (checkout?.kind === "vip" && store.vip) { setCheckoutVisible(false); setOwnedVisible(true); }
+                if (checkout?.kind === "vip" && store.vipMemberships.some(item => item.product_id === checkout.id)) { setCheckoutVisible(false); setOwnedVisible(true); }
                 else if (checkout) void needLogin(() => billing.buy(checkout.id));
               }}
               disabled={!billing.ready || billing.busy || !checkout?.active || !billing.available.includes(checkout.id)}
               icon="card-outline"
               style={{ alignSelf: "stretch" }}
             >
-              {billing.busy ? "Google Play işlemi sürüyor…" : checkout?.kind === "coins" ? "Google Play ile Ödeme Yap" : store.vip ? "Aktif VIP üyeliğimi gör" : "Google Play ile Abone Ol"}
+              {billing.busy ? "Google Play işlemi sürüyor…" : checkout?.kind === "coins" ? "Google Play ile Ödeme Yap" : "Google Play ile Abone Ol"}
             </AnimatedCTA>
-            <Button secondary small disabled={billing.busy} icon="refresh" onPress={() => needLogin(() => billing.restore())}>{billing.restoring ? "Geri yükleniyor…" : "Satın alımlarımı geri yükle"}</Button>
-            <Button secondary small disabled={billing.busy} icon="reload" onPress={() => void refresh()}>Fiyatı yeniden yükle</Button>
+            <View testID="checkout-tools" style={{ flexDirection: "row", gap: 8 }}>
+              <Button secondary small style={{ flex: 1 }} accessibilityLabel="Satın alımlarımı geri yükle" disabled={billing.busy} icon="refresh" onPress={() => needLogin(() => billing.restore())}>{billing.restoring ? "Yükleniyor…" : "Geri yükle"}</Button>
+              <Button secondary small style={{ flex: 1 }} accessibilityLabel="Fiyatları yeniden yükle" disabled={billing.busy} icon="reload" onPress={() => void refresh()}>Fiyatları yenile</Button>
+            </View>
             {Platform.OS !== "android" && <Text style={styles.body}>Ödemeyi Android uygulamasında tamamlayabilirsin.</Text>}
             {checkout?.kind === "vip" && store.vip && (
               <Button
