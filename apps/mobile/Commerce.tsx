@@ -437,7 +437,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         </View>
         <Text style={styles.h2}>Sınırsız hikâyelere bir adım</Text>
         {planCards}
-        <AnimatedCTA active={page === "store" && !checkoutVisible && !billing.notice} onPress={() => go("vip")} icon="diamond">
+        <AnimatedCTA testID="store-vip-cta" textSize={18} active={page === "store" && !checkoutVisible && !billing.notice} onPress={() => go("vip")} icon="diamond">
           VIP avantajlarını keşfet
         </AnimatedCTA>
         {billingTools("store-billing-tools")}
@@ -506,6 +506,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         {store.vip && <VipStatus membership={store.vipMemberships[0]} expiresAt={store.vipEnd} />}
         {planCards}
         <AnimatedCTA
+          testID="vip-plan-cta"
+          textSize={18}
           active={page === "vip" && !checkoutVisible && !billing.notice}
           icon="diamond"
           onPress={() => currentPlan && openCheckout(currentPlan)}

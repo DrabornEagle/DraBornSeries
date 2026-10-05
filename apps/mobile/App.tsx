@@ -38,6 +38,7 @@ import SeriesDetail from "./SeriesDetail";
 import Player from "./Player";
 import Account from "./Account";
 import Legal from "./Legal";
+import Library from "./Library";
 import Commerce from "./Commerce";
 import Discover from "./Discover";
 import Splash from "../../packages/ui/Splash";
@@ -75,7 +76,7 @@ function Main() {
     [query, setQuery] = useState(""),
     [genre, setGenre] = useState(""),
     [filter, setFilter] = useState("all"),
-    [libraryTab, setLibraryTab] = useState("favorites"),
+    [libraryTab, setLibraryTab] = useState<"favorites" | "history">("favorites"),
     [recent, setRecent] = useState<string[]>([]),
     [toast, setToast] = useState(""),
     [actionError, setActionError] = useState(""),
@@ -363,53 +364,8 @@ function Main() {
           )}
         </View>
       );
-    if (route.page === "library") {
-      if (!store.session)
-        return (
-          <Empty title="Kendi koleksiyonunu oluştur" detail={t.synced}>
-            <Button onPress={() => go("auth")}>{t.login}</Button>
-          </Empty>
-        );
-      const ids =
-        libraryTab === "favorites"
-          ? store.favorites
-          : store.progress.map(
-              (p) =>
-                store.episodes.find((e) => e.id === p.episode_id)?.series_id,
-            );
-      const list = store.series.filter((s) => ids.includes(s.id));
-      return (
-        <View style={{ gap: 25 }}>
-          <Text style={styles.h1}>{t.library}</Text>
-          <View style={styles.row}>
-            <Chip
-              label="Favorilerim"
-              active={libraryTab === "favorites"}
-              onPress={() => setLibraryTab("favorites")}
-            />
-            <Chip
-              label={t.history}
-              active={libraryTab === "history"}
-              onPress={() => setLibraryTab("history")}
-            />
-          </View>
-          <View style={styles.wrap}>
-            {list.map((s) => (
-              <Poster key={s.id} series={s} onPress={() => onSelect(s)} />
-            ))}
-          </View>
-          {list.length === 0 && (
-            <Empty
-              title="İlk hikâyeni seç"
-              detail="Sevdiğin dizileri listene ekle, kaldığın yerden devam et."
-              icon="bookmark-outline"
-            >
-              <Button onPress={() => browse()}>{t.browse}</Button>
-            </Empty>
-          )}
-        </View>
-      );
-    }
+    if (route.page === "library") return <Library key={store.session?.user.id || "guest"} store={store} tab={libraryTab} onTabChange={setLibraryTab}
+      onSelect={onSelect} onLogin={() => go("auth")} onBrowse={() => browse()} />;
     if (["store", "vip", "wallet", "rewards", "profile"].includes(route.page))
       return (
         <Commerce

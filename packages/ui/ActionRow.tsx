@@ -8,6 +8,7 @@ type Action = {
   onPress: () => void;
   icon?: React.ComponentProps<typeof Icon>["name"];
   color?: string;
+  gradient?: [string, string, string];
   disabled?: boolean;
 };
 
@@ -26,7 +27,7 @@ export default function ActionRow({ actions, testID }: { actions: Action[]; test
       return <Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label}
         accessibilityState={{ disabled: !!action.disabled }} disabled={action.disabled} onPress={action.onPress}
         style={({ pressed }) => ({ flex: action.label.length + 6 + (showIcons && action.icon ? 4 : 0), minWidth: 0, opacity: action.disabled ? 0.4 : pressed ? 0.75 : 1 })}>
-        <LinearGradient colors={[color + "24", color + "0c"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        <LinearGradient colors={action.gradient || [color + "24", color + "0c"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={{ minHeight: 44, paddingHorizontal: 6, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: color + "45", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 }}>
           {showIcons && action.icon && <Icon name={action.icon} size={16} color={color} />}
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}
@@ -37,20 +38,21 @@ export default function ActionRow({ actions, testID }: { actions: Action[]; test
   </View>;
 }
 
-export function AccentButton({ children, onPress, icon, gradient = ["#ed479e", "#a442d7", "#6451dc"], small = false, testID }: {
+export function AccentButton({ children, onPress, icon, gradient = ["#ed479e", "#a442d7", "#6451dc"], small = false, testID, textSize }: {
   children: string;
   onPress: () => void;
   icon: React.ComponentProps<typeof Icon>["name"];
   gradient?: [string, string, string];
   small?: boolean;
   testID?: string;
+  textSize?: number;
 }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={children} testID={testID} onPress={onPress}
     style={({ pressed }) => ({ alignSelf: "stretch", opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] })}>
     <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
       style={{ minHeight: small ? 48 : 54, padding: small ? 10 : 12, borderRadius: 16, borderWidth: 1, borderColor: "#ffffff40", flexDirection: "row", alignItems: "center", gap: small ? 8 : 12 }}>
       <View style={{ width: small ? 28 : 32, height: small ? 28 : 32, borderRadius: 10, backgroundColor: "#ffffff20", alignItems: "center", justifyContent: "center" }}><Icon name={icon} size={small ? 18 : 21} /></View>
-      <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 1, color: "#fff", fontSize: small ? 12 : 14, fontWeight: "800" }}>{children}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 1, color: "#fff", fontSize: textSize ?? (small ? 12 : 14), fontWeight: "800" }}>{children}</Text>
     </LinearGradient>
   </Pressable>;
 }

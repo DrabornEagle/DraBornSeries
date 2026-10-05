@@ -3,8 +3,8 @@ import { AccessibilityInfo, Animated, AppState, Easing, Platform, Pressable, Tex
 import { LinearGradient } from "expo-linear-gradient";
 import { Button, Icon } from "./theme";
 
-type Props = React.ComponentProps<typeof Button> & { active?: boolean; testID?: string };
-export default function AnimatedCTA({ children, onPress, icon, disabled = false, active = true, small = false, style, testID }: Props) {
+type Props = React.ComponentProps<typeof Button> & { active?: boolean; testID?: string; textSize?: number };
+export default function AnimatedCTA({ children, onPress, icon, disabled = false, active = true, small = false, style, testID, textSize }: Props) {
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     let live = true, reduced = true;
@@ -43,7 +43,7 @@ export default function AnimatedCTA({ children, onPress, icon, disabled = false,
         style={{ minHeight: small ? 44 : 64, borderRadius: small ? 16 : 22, padding: small ? 10 : 16, paddingHorizontal: small ? 14 : 16, flexDirection: "row", alignItems: "center", gap: small ? 8 : 14, overflow: "hidden", borderWidth: 1, borderColor: "#ffc48780" }}>
         <Animated.View pointerEvents="none" style={{ position: "absolute", inset: 0, backgroundColor: "#ffffff", opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.1] }) }} />
         <Animated.View style={{ width: small ? 24 : 36, height: small ? 24 : 36, borderRadius: small ? 8 : 12, backgroundColor: "#ffffff20", alignItems: "center", justifyContent: "center", transform: [{ rotate: pulse.interpolate({ inputRange: [0, 1], outputRange: small ? ["-7deg", "7deg"] : ["0deg", "0deg"] }) }] }}><Icon name={icon || "diamond"} size={small ? 18 : 24} color="#ffe7b9" /></Animated.View>
-        <Text style={{ color: "white", fontSize: small ? 12 : 16, fontWeight: "900", flex: small ? undefined : 1, lineHeight: small ? 18 : 22 }}>{children}</Text>
+        <Text style={{ color: "white", fontSize: textSize ?? (small ? 12 : 16), fontWeight: "900", flex: small ? undefined : 1, lineHeight: (textSize ?? (small ? 12 : 16)) + 6 }}>{children}</Text>
         {!small && <Icon name="sparkles" color="#ffe7b9" size={23} />}
       </LinearGradient>
     </Pressable>

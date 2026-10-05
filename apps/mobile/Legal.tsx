@@ -20,7 +20,7 @@ export default function Legal({ page, store, go, run }: {
       <Text style={styles.eyebrow}>DRABORNSERIES · DRABORNEAGLE</Text>
       <Text style={styles.h1}>{document.title}</Text>
       <Text style={styles.body}>{document.intro}</Text>
-      <Text style={[styles.body, { fontSize: 12 }]}>Güncelleme: {legalContact.updated}</Text>
+      <Text style={[styles.body, { fontSize: 12 }]}>Güncelleme: {document.updated || legalContact.updated}</Text>
     </LinearGradient>
     {page === "delete-account" && <View style={[styles.card, { borderColor: "#f143a150" }]}>
       <Text style={styles.h3}>{store.session ? "Hesabını buradan silebilirsin" : "Silme talebini e-posta ile ilet"}</Text>

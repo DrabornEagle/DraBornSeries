@@ -150,8 +150,8 @@ Deno.serve(async (req) => {
     if (body.action === "health")
       return send(req, {
         ok: true,
-        version: "0.7.7.3",
-        versionCode: 6,
+        version: "0.7.7.4",
+        versionCode: 7,
         cloudflare: streamConfigured(),
         worker: !!env("DBS_WORKER_URL"),
         uploads: streamConfigured(),

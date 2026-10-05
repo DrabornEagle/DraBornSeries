@@ -203,8 +203,8 @@ export default function Account({ page, store, go, run }: Props) {
             DraBornEagle uygulamalarını silmez.
           </Text>
           <ActionRow testID="privacy-account-actions" actions={[
-            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: colors.mint, onPress: () => go("privacy") },
-            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: colors.purple, onPress: () => go("terms") },
+            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: "#ff83bc", gradient: ["#db397c", "#a237a2", "#6141b2"], onPress: () => go("privacy") },
+            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: "#c993ff", gradient: ["#743cbc", "#a3339c", "#cf4d78"], onPress: () => go("terms") },
           ]} />
           <Button secondary small icon="person-remove-outline" onPress={() => go("delete-account")}>Hesap silme</Button>
         </View>
@@ -611,10 +611,6 @@ export default function Account({ page, store, go, run }: Props) {
             />
             <Text style={styles.body}>Yeni bölüm bildirimleri</Text>
           </View>
-          <Text style={styles.body}>
-            Expo Go üzerinde uygulama içi bildirimler kullanılabilir. Android
-            push için development build gerekir.
-          </Text>
         </View>
         <View style={styles.card}>
           <Text style={styles.h3}>Aktif DraBornSeries oturumları</Text>
@@ -661,6 +657,7 @@ export default function Account({ page, store, go, run }: Props) {
             onPress={() => setVisibleSessionCount((count) => count + 5)}>Daha Fazla · 5 oturum</Button>}
           <AccentButton
             testID="logout-all-devices"
+            textSize={16}
             icon="log-out-outline"
             gradient={["#d66065", "#b73d85", "#7248bc"]}
             onPress={() =>
@@ -693,8 +690,8 @@ export default function Account({ page, store, go, run }: Props) {
             if (!(await adPrivacyOptions())) throw Error("Örnek reklamlarda kişiselleştirme kapalıdır. Gerçek reklamlar etkinleştirildiğinde gizlilik tercihlerini burada yönetebilirsin.");
           })}>Reklam gizlilik tercihleri</Button>}
           <ActionRow testID="privacy-rules-actions" actions={[
-            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: colors.mint, onPress: () => go("privacy") },
-            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: colors.purple, onPress: () => go("terms") },
+            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: "#ff83bc", gradient: ["#db397c", "#a237a2", "#6141b2"], onPress: () => go("privacy") },
+            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: "#c993ff", gradient: ["#743cbc", "#a3339c", "#cf4d78"], onPress: () => go("terms") },
           ]} />
         </View>
       </View>

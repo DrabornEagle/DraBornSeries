@@ -1,3 +1,10 @@
+## 0.7.7.4 — 2026-10-05 · Android versionCode 7
+
+- Add independent favorite/history search, five-at-a-time paging and clear/no-result states to My List.
+- Increase global sign-out and selected VIP CTA text sizes; apply Miami gradients to privacy/rules actions.
+- Remove development-only notification text from settings.
+- Update shared in-app and public HTML privacy policy for current account, R2, Android AdMob, Google Play and local list-search behavior.
+
 ## 0.7.7 · Android versionCode 4
 
 ## 0.7.7.3 — 2026-10-05

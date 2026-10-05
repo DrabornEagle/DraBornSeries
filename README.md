@@ -1,9 +1,16 @@
-# DraBornSeries v0.7.7.3 · Kod 6
+# DraBornSeries v0.7.7.4 · Kod 7
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.7.4 · Listem araması ve güncel gizlilik
+
+- Favoriler ve izleme geçmişinde ayrı arama; başlangıçta 5 dizi, Daha Fazla ile 5 dizi daha. Arama ve sekme değişince ilk 5 sonuca dönülür.
+- Miami pembe/mor/turuncu gizlilik düğmeleri; daha büyük tüm cihazlardan çıkış ve VIP keşfet/paket incele yazıları.
+- Ayarlardaki geliştirme bildirimi açıklaması kaldırıldı. Gizlilik Politikası 5 Ekim 2026 / v0.7.7.4 olarak Android ve web HTML için tek kaynaktan güncellendi.
+- Sürüm 0.7.7.4 / Android versionCode 7.
 
 ## v0.7.7.3 · Ortak ekran düzeni ve Google Play yönlendirmesi
 
