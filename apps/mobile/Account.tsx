@@ -131,11 +131,7 @@ export default function Account({ page, store, go, run }: Props) {
         <View style={styles.card}>
           <Text style={styles.h3}>DraBornSeries · v{config.version} · Kod {config.versionCode}</Text>
           <Text style={styles.body}>
-            {store.series.filter((series) => series.status === "published").length} yayındaki hikâyeyi ve {store.episodes.length} bölümü keşfedebilirsin.
-            Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır.
-            VIP aboneliklerini Android’de Google Play üzerinden satın alıp aynı hesabınla her iki platformda kullanabilirsin.
-            {Platform.OS === "android" ? " Bu APK'da resmi AdMob test reklamları hazır. Test reklamları gerçek BornCoins kazandırmaz." : ""}
-            BornCoins paketleri Google Play üzerinden tek seferlik ödeme ile alınır ve aynı hesabın web cüzdanında da kullanılabilir. Push bildirimleri henüz etkin değildir.
+            Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. VIP aboneliklerini Android’de Google Play üzerinden satın alıp aynı hesabınla her iki platformda kullanabilirsin. BornCoins paketleri Google Play üzerinden tek seferlik ödeme ile alınır ve aynı hesabın web cüzdanında da kullanılabilir.
           </Text>
           <Button
             secondary

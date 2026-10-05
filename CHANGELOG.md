@@ -3,7 +3,9 @@
 - Add independent favorite/history search, five-at-a-time paging and clear/no-result states to My List.
 - Increase global sign-out and selected VIP CTA text sizes; apply Miami gradients to privacy/rules actions.
 - Remove development-only notification text from settings.
-- Update shared in-app and public HTML privacy policy for current account, R2, Android AdMob, Google Play and local list-search behavior.
+- Update shared in-app and public HTML privacy policy for current account, Android AdMob and Google Play behavior.
+- 6 October revision: apply the requested privacy/support wording and remove the local list-search policy section.
+- Fix four-component release comparisons, detect same-version source updates and revalidate web tabs on restore/resume/focus/online with reload-loop protection.
 
 ## 0.7.7 · Android versionCode 4
 

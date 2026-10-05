@@ -9,7 +9,9 @@ Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından ba
 
 - Favoriler ve izleme geçmişinde ayrı arama; başlangıçta 5 dizi, Daha Fazla ile 5 dizi daha. Arama ve sekme değişince ilk 5 sonuca dönülür.
 - Miami pembe/mor/turuncu gizlilik düğmeleri; daha büyük tüm cihazlardan çıkış ve VIP keşfet/paket incele yazıları.
-- Ayarlardaki geliştirme bildirimi açıklaması kaldırıldı. Gizlilik Politikası 5 Ekim 2026 / v0.7.7.4 olarak Android ve web HTML için tek kaynaktan güncellendi.
+- Ayarlardaki geliştirme bildirimi açıklaması kaldırıldı. Gizlilik Politikası 6 Ekim 2026 / v0.7.7.4 olarak Android ve web HTML için tek kaynaktan güncellendi.
+- Chrome sekmesine geri dönüldüğünde dört parçalı sürüm ve kaynak commit kontrolü yapılır; aynı sürümdeki yeni web derlemeleri de güncellenir. URL ve oturum korunur, çevrimdışı durumda yenileme döngüsü oluşmaz.
+- Gizlilik ve destek açıklamaları 6 Ekim düzeltmesindeki istenen metinlerle sadeleştirildi.
 - Sürüm 0.7.7.4 / Android versionCode 7.
 
 ## v0.7.7.3 · Ortak ekran düzeni ve Google Play yönlendirmesi

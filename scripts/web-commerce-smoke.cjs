@@ -76,6 +76,24 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
   assert.equal(popup.url(),'https://play.google.com/store/apps/details?id=com.draborneagle.drabornseries');await popup.close();
  };
+ // A restored document from an earlier commit must update even if the version is unchanged.
+ const source=JSON.parse(await fs.readFile('dist/DBS-SOURCE.json','utf8'));
+ const previousCommit='0'.repeat(40),restoredPage=await context.newPage();let servedRelease={...source,commit:previousCommit};
+ restoredPage.on('pageerror',error=>errors.push(error.message));
+ await restoredPage.route('**/DraBornSeries/DBS-SOURCE.json?check=*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(servedRelease)}));
+ await restoredPage.route(url=>url.pathname==='/DraBornSeries/'&&url.searchParams.has('resume_test')&&!url.searchParams.has('_dbs_source'),async route=>{
+  const response=await route.fetch(),html=await response.text(),marker='source='+JSON.stringify(source.commit);
+  assert.ok(html.includes(marker));await route.fulfill({response,body:html.replace(marker,'source='+JSON.stringify(previousCommit))});
+ });
+ await restoredPage.goto('http://localhost:8765/DraBornSeries/?page=library&resume_test=1#saved',{waitUntil:'networkidle'});
+ await restoredPage.getByLabel('DraBornSeries açılıyor',{exact:true}).waitFor({state:'detached'});assert.equal(await restoredPage.getByTestId('library-item').count(),5);
+ servedRelease=source;
+ const refreshed=restoredPage.waitForURL(url=>url.searchParams.get('_dbs_source')===source.commit);
+ await restoredPage.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));await refreshed;await restoredPage.waitForLoadState('networkidle');
+ await restoredPage.getByLabel('DraBornSeries açılıyor',{exact:true}).waitFor({state:'detached'});assert.equal(await restoredPage.getByTestId('library-item').count(),5);
+ const restoredUrl=new URL(restoredPage.url());assert.equal(restoredUrl.searchParams.get('page'),'library');assert.equal(restoredUrl.searchParams.get('resume_test'),'1');assert.equal(restoredUrl.hash,'#saved');
+ assert.equal(await restoredPage.evaluate(()=>JSON.parse(localStorage.getItem('dbs-auth-session')).user.id),user.id);
+ await restoredPage.screenshot({path:root+'/restored-tab-current.png'});await restoredPage.close();
  await visit('store');
  await page.getByRole('button',{name:'VIP üyelik bilgilerimi aç'}).waitFor({timeout:20000});
  await page.getByRole('button',{name:'VIP üyelik bilgilerimi aç'}).click();
@@ -173,14 +191,20 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await page.getByText('Destek',{exact:true}).click();
  await page.getByText('Nasıl yardımcı olabiliriz?',{exact:true}).waitFor();
  assert.ok(await page.getByText('DraBornSeries · v0.7.7.4 · Kod 7',{exact:true}).isVisible());
+ assert.equal(await page.getByText('yayındaki hikâyeyi',{exact:false}).count(),0);
+ assert.equal(await page.getByText('Push bildirimleri henüz etkin değildir.',{exact:false}).count(),0);
+ assert.ok(await page.getByText('Android ve web aynı hesabı, profil fotoğrafını ve izleme ilerlemesini kullanır. VIP aboneliklerini Android’de Google Play üzerinden satın alıp aynı hesabınla her iki platformda kullanabilirsin. BornCoins paketleri Google Play üzerinden tek seferlik ödeme ile alınır ve aynı hesabın web cüzdanında da kullanılabilir.',{exact:true}).isVisible());
  await page.screenshot({path:root+'/profile-support.png'});
  await visit('privacy');
- assert.ok(await page.getByText('Güncelleme: 5 Ekim 2026 · v0.7.7.4',{exact:true}).isVisible());
+ assert.ok(await page.getByText('Güncelleme: 6 Ekim 2026 · v0.7.7.4',{exact:true}).isVisible());
  assert.equal(await page.getByText('v0.7.5',{exact:false}).count(),0);
- assert.ok(await page.getByText('Listem’de arama',{exact:true}).isVisible());
+ assert.equal(await page.getByText('Listem’de arama',{exact:true}).count(),0);
+ assert.equal(await page.getByText('İlk kullanıcı adı e-posta adresinin',{exact:false}).count(),0);
+ assert.equal(await page.getByText('Whisper',{exact:false}).count(),0);
+ assert.equal(await page.getByText('Kimlik doğrulama, veritabanı ve profil fotoğrafı depolama için Supabase',{exact:false}).count(),0);
  const privacyResponse=await context.request.get('http://localhost:8765/DraBornSeries/privacy.html');
  const privacyHtml=await privacyResponse.text();assert.equal(privacyResponse.status(),200);
- assert.ok(privacyHtml.includes('5 Ekim 2026 · v0.7.7.4')&&privacyHtml.includes('Listem’de arama')&&!privacyHtml.includes('v0.7.5'));
+ assert.ok(privacyHtml.includes('6 Ekim 2026 · v0.7.7.4')&&!privacyHtml.includes('Listem’de arama')&&!privacyHtml.includes('v0.7.5'));
  await page.getByText('Google Play ödemeleri ve üyelik',{exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:root+'/privacy-current.png'});
  for(const width of [320,393,1440]){
   await page.setViewportSize({width,height:width>700?1000:851});
