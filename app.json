@@ -3,7 +3,7 @@
     "name": "DraBornSeries",
     "slug": "drabornseries",
     "scheme": "drabornseries",
-    "version": "0.7.7.2",
+    "version": "0.7.7.3",
     "orientation": "default",
     "userInterfaceStyle": "dark",
     "icon": "./assets/icons/logo-transparent.png",
@@ -14,7 +14,7 @@
     },
     "android": {
       "package": "com.draborneagle.drabornseries",
-      "versionCode": 5,
+      "versionCode": 6,
       "intentFilters": [
         {
           "action": "VIEW",

@@ -1,9 +1,17 @@
-# DraBornSeries v0.7.7.2 · Kod 5
+# DraBornSeries v0.7.7.3 · Kod 6
 
 
 Android + web kısa dizi platformunun **erken erişim test sürümü**. Web: https://www.draborneagle.com/DraBornSeries/
 
 Bu sürüm erken erişim sürümüdür. Google giriş kullanıcı tarafından bağlandı. Yeni videolar için R2 kullanılır; mevcut film, bölüm ve video kaynakları korunur. Üretim ödeme/reklam ve fiziksel Android kontrollerinin durumu: [FEATURE_STATUS.md](docs/FEATURE_STATUS.md).
+
+## v0.7.7.3 · Ortak ekran düzeni ve Google Play yönlendirmesi
+
+- Gizlilik bağlantıları, yorum işlemleri ve mağaza geri yükle/fiyat yenile kontrolleri tek satırda yer alır.
+- Okunaklı, renkli yorum kartları; yeni profil fotoğrafı ve tüm cihazlardan çıkış düğmeleri.
+- Cüzdanda ilk 5 işlem gösterilir; Daha Fazla her dokunuşta 5 işlem daha açar. Filtre veya hesap değişince görünüm sıfırlanır.
+- Webde Google Play abonelik/ödeme düğmeleri uygulamanın mağaza sayfasını açar; Android satın alımları yerel Play Billing üzerinden devam eder.
+- Sürüm 0.7.7.3 / Android versionCode 6.
 
 ## v0.7.7.2 · Paket geçişi, sade VIP ve Destek
 

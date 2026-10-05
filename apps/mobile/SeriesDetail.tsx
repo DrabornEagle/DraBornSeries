@@ -35,6 +35,7 @@ import { translations } from "../../packages/shared/i18n";
 import { seriesPath } from "../../packages/shared/routes";
 import { config } from "../../packages/shared/config";
 import { legalContact } from "../../packages/shared/legal";
+import ActionRow from "../../packages/ui/ActionRow";
 export default function SeriesDetail({
   series,
   store,
@@ -469,28 +470,28 @@ function Comment({
 }) {
   const [reveal, setReveal] = useState(!comment.spoiler);
   return (
-    <View style={styles.card}>
-      <Text style={styles.label}>
-        {own ? "Sen" : "İzleyici"} ·{" "}
-        {new Date(comment.created_at).toLocaleDateString("tr-TR")}
-        {comment.status === "pending" ? " · İncelemede" : ""}
-      </Text>
+    <LinearGradient testID="comment-card" colors={own ? ["#2a1d3a", "#191424"] : ["#202739", "#1b162b"]}
+      start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.card, { padding: 18, borderColor: own ? "#b785f34a" : "#70daca40", gap: 16 }]}>
+      <View style={[styles.row, { gap: 10 }]}>
+        <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: own ? "#ba8cff22" : "#73e1cd20", alignItems: "center", justifyContent: "center" }}><Icon name="person-outline" color={own ? colors.purple : colors.mint} size={20} /></View>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={{ color: "#fff5ff", fontSize: 14, fontWeight: "800" }}>{own ? "Sen" : "İzleyici"}</Text>
+          <Text style={{ color: "#baadc9", fontSize: 11 }}>{new Date(comment.created_at).toLocaleDateString("tr-TR")}{comment.status === "pending" ? " · İncelemede" : ""}</Text>
+        </View>
+        <Icon name="chatbubble-ellipses-outline" color={own ? colors.purple : colors.mint} size={20} />
+      </View>
       {reveal ? (
-        <Text style={styles.body}>{comment.body}</Text>
+        <Text selectable style={{ color: "#f4ecfa", fontSize: 15, lineHeight: 25 }}>{comment.body}</Text>
       ) : (
         <Button small secondary onPress={() => setReveal(true)}>
           Spoiler · Göster
         </Button>
       )}
-      <View style={styles.wrap}>
-        <Button small secondary onPress={like} icon="heart-outline">
-          Beğen
-        </Button>
-        <Button small secondary onPress={own ? remove : report}>
-          {own ? "Sil" : "Şikayet et"}
-        </Button>
-        {!own && <Button small secondary icon="person-remove-outline" onPress={block}>Kullanıcıyı engelle</Button>}
-      </View>
-    </View>
+      <ActionRow testID="comment-actions" actions={[
+        { label: "Beğen", icon: "heart-outline", color: colors.pink, onPress: like },
+        { label: own ? "Sil" : "Şikayet et", icon: own ? "trash-outline" : "flag-outline", color: colors.orange, onPress: own ? remove : report },
+        ...(!own ? [{ label: "Kullanıcıyı engelle", icon: "person-remove-outline" as const, color: colors.purple, onPress: block }] : []),
+      ]} />
+    </LinearGradient>
   );
 }

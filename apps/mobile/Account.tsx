@@ -15,6 +15,7 @@ import {
   styles,
 } from "../../packages/ui/theme";
 import ProfilePhotoPicker from "../../packages/ui/ProfilePhotoPicker";
+import ActionRow, { AccentButton } from "../../packages/ui/ActionRow";
 import { pickProfilePhoto, uploadProfilePhoto, type ProfilePhoto } from "../../packages/api/avatar";
 import { config } from "../../packages/shared/config";
 import { translations } from "../../packages/shared/i18n";
@@ -201,11 +202,11 @@ export default function Account({ page, store, go, run }: Props) {
             uygulamanın verilerini temizler; ortak giriş hesabını ve diğer
             DraBornEagle uygulamalarını silmez.
           </Text>
-          <View style={styles.wrap}>
-            <Button secondary small icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
-            <Button secondary small icon="document-text-outline" onPress={() => go("terms")}>Kullanım ve topluluk kuralları</Button>
-            <Button secondary small icon="person-remove-outline" onPress={() => go("delete-account")}>Hesap silme</Button>
-          </View>
+          <ActionRow testID="privacy-account-actions" actions={[
+            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: colors.mint, onPress: () => go("privacy") },
+            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: colors.purple, onPress: () => go("terms") },
+          ]} />
+          <Button secondary small icon="person-remove-outline" onPress={() => go("delete-account")}>Hesap silme</Button>
         </View>
       </View>
     );
@@ -658,8 +659,10 @@ export default function Account({ page, store, go, run }: Props) {
             ))}
           {sessions.filter((s) => !s.revoked_at).length > visibleSessionCount && <Button secondary small icon="chevron-down"
             onPress={() => setVisibleSessionCount((count) => count + 5)}>Daha Fazla · 5 oturum</Button>}
-          <Button
-            secondary
+          <AccentButton
+            testID="logout-all-devices"
+            icon="log-out-outline"
+            gradient={["#d66065", "#b73d85", "#7248bc"]}
             onPress={() =>
               run(async () => {
                 const { error } = await db.auth.signOut({ scope: "global" });
@@ -668,7 +671,7 @@ export default function Account({ page, store, go, run }: Props) {
             }
           >
             Tüm cihazlardan çıkış
-          </Button>
+          </AccentButton>
         </View>
         <View style={[styles.card, { borderColor: "#703042" }]}>
           <Text style={styles.h3}>DraBornSeries hesabını sil</Text>
@@ -689,8 +692,10 @@ export default function Account({ page, store, go, run }: Props) {
           {adAvailable && <Button secondary icon="options-outline" onPress={() => void run(async () => {
             if (!(await adPrivacyOptions())) throw Error("Örnek reklamlarda kişiselleştirme kapalıdır. Gerçek reklamlar etkinleştirildiğinde gizlilik tercihlerini burada yönetebilirsin.");
           })}>Reklam gizlilik tercihleri</Button>}
-          <Button secondary icon="shield-checkmark-outline" onPress={() => go("privacy")}>Gizlilik Politikası</Button>
-          <Button secondary icon="document-text-outline" onPress={() => go("terms")}>Kullanım ve topluluk kuralları</Button>
+          <ActionRow testID="privacy-rules-actions" actions={[
+            { label: "Gizlilik Politikası", icon: "shield-checkmark-outline", color: colors.mint, onPress: () => go("privacy") },
+            { label: "Kullanım ve topluluk kuralları", icon: "document-text-outline", color: colors.purple, onPress: () => go("terms") },
+          ]} />
         </View>
       </View>
     );

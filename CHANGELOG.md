@@ -1,5 +1,13 @@
 ## 0.7.7 · Android versionCode 4
 
+## 0.7.7.3 — 2026-10-05
+
+- Shared responsive single-row privacy, comment and billing actions.
+- High-contrast colorful comment cards and gradient profile photo/global sign-out controls.
+- Wallet displays five matching transactions initially and reveals five more per tap.
+- Web checkout opens the DraBornSeries Google Play listing without requiring native Billing; Android keeps its verified purchase flow.
+- Android version code 6.
+
 - Block a second ongoing VIP purchase using current server membership and verified Play receipts; display a colorful membership popup.
 - Report restore progress, restored purchases, pending payments, expired memberships, empty results and failures; deduplicate receipt processing.
 - Refresh rights after verified inactive subscription receipts and expire local VIP access at the real deadline.

@@ -10,9 +10,12 @@ const products = [
  ...[50,100,250,500,1000,2500].map((amount,index)=>({id:'dbs_coins_'+amount,kind:'coins',title:amount+' BornCoins',coins:amount+[0,10,30,80,200,600][index],bonus_coins:[0,10,30,80,200,600][index],active:true,sort_order:10+index}))
 ];
 const prices={dbs_vip_weekly:'₺71,99',dbs_vip_monthly:'₺199,99',dbs_vip_yearly:'₺1.999,99',dbs_coins_50:'₺35,99',dbs_coins_100:'₺61,99',dbs_coins_250:'₺129,99',dbs_coins_500:'₺249,99',dbs_coins_1000:'₺364,99',dbs_coins_2500:'₺609,99'};
+const transactions=Array.from({length:12},(_,index)=>({id:'transaction-'+index,amount:index%3===0?-10:50,description:'İşlem '+(index+1),created_at:new Date(Date.now()-index*3600000).toISOString()}));
+const series={id:'22222222-2222-4222-8222-222222222222',slug:'screen-check',title:'Ekran kontrolü',description:'Yorum ekranı için yerel kontrol.',short_description:'Yorum ekranı',genres:['Macera'],tags:[],cast_names:[],country:'TR',production_year:2026,age_rating:'7+',language:'tr',is_demo:false,is_vip:false,status:'published',accent:'#73e1cd',total_episodes:0,total_seasons:1,average_duration:0,view_count:12,like_count:3,rating:4,poster_url:null,banner_url:null};
+const comments=[{id:'comment-other',user_id:'33333333-3333-4333-8333-333333333333',series_id:series.id,body:'Harika! Renkli bir hikâye ve çok güzel bir bölüm. Uzun yorumlar da kolayca okunmalı; Türkçe karakterler ve emojiler ✨ net görünmeli.',spoiler:false,status:'approved',created_at:new Date().toISOString()},{id:'comment-own',user_id:user.id,series_id:series.id,body:'Spoiler içeren kendi yorumum.',spoiler:true,status:'approved',created_at:new Date().toISOString()}];
 const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-posta hesabınla giriş yap; bir defalık karşılama ödülünü al.',data:{coins:80}}, {id:'favorite',name:'İlk hikâyeni listene ekle',description:'Bir diziyi Listem’e ekle, sonra ödülünü al.',data:{coins:10}}, {id:'profile',name:'Profilini kişiselleştir',description:'Ayarlar bölümünde adını veya profil fotoğrafını kaydet.',data:{coins:10}}];
 (async()=>{
- await fs.mkdir(root,{recursive:true}); const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ await fs.mkdir(root,{recursive:true}); const browser=await chromium.launch({headless:true,executablePath:process.env.DBS_CHROME_EXECUTABLE,args:['--no-sandbox']});
  const context=await browser.newContext({viewport:{width:393,height:851},deviceScaleFactor:1,reducedMotion:'reduce'});
  let active=true, favoriteClaimed=false, testing=false; const errors=[];
  await context.addInitScript(({user})=>{
@@ -26,15 +29,19 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   if(url.pathname.startsWith('/auth/')) data=user;
   else if(url.pathname.includes('/functions/')) {
    const body=req.postDataJSON()||{};
-   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7.2'}:{};
+   data=body.action==='billing-catalog'?{configured:true,prices,available:Object.keys(prices),checkedAt:new Date().toISOString(),region:'TR'}:body.action==='ads-config'?{mode:'test'}:body.action==='status'?{version:'0.7.7.3'}:{};
   } else if(url.pathname.includes('/rpc/')) {
    if(name==='dbs_claim_task') { favoriteClaimed=true; data={coins:10}; }
    else data=name==='dbs_is_vip'?active:name==='dbs_is_admin'?false:name==='dbs_bootstrap'?{}:{};
   }
   else if(name==='dbs_google_play_products') data=products;
+  else if(name==='dbs_series') data=[series];
+  else if(name==='dbs_comments') data=comments;
+  else if(name==='dbs_borncoins_transactions') data=transactions;
+  else if(name==='dbs_user_sessions') data=Array.from({length:7},(_,index)=>({session_id:'session-'+index,device_id:index%2?'android-test':'web-test',last_seen_at:new Date(Date.now()-index*3600000).toISOString(),revoked_at:null}));
   else if(name==='dbs_tasks') data=tasks;
   else if(name==='dbs_user_tasks') data=[{tasks_id:'welcome',claimed_at:new Date().toISOString()},...(favoriteClaimed?[{tasks_id:'favorite',claimed_at:new Date().toISOString()}]:[])];
-  else if(name==='dbs_profiles') data={user_id:user.id,username:'Test İzleyicisi',full_name:'Test İzleyicisi',language:'tr',status:'active',autoplay_preview:false};
+  else if(name==='dbs_profiles') data={user_id:user.id,username:'Test İzleyicisi',full_name:'Test İzleyicisi',language:'tr',status:'active',autoplay_preview:false,avatar_url:'/DraBornSeries/media/icon.png',preferences:{}};
   else if(name==='dbs_borncoins_wallet') data={balance:147};
   else if(name==='dbs_user_streaks') data={days:2,last_claim_date:null};
   else if(name==='dbs_vip_subscriptions') data=active?[testing?{...membership,product_id:'dbs_vip_weekly',is_test:true,expires_at:new Date(Date.now()+5*60000).toISOString()}:membership]:[];
@@ -42,7 +49,21 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   await route.fulfill({status:200,headers:cors,body:JSON.stringify(data)});
  });
  const page=await context.newPage(); page.on('pageerror',error=>errors.push(error.message));
+ await context.route('https://play.google.com/**',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>Google Play link check</title>'}));
  const visit=async name=>{await page.goto('http://localhost:8765/DraBornSeries/?page='+name,{waitUntil:'networkidle'});await page.getByLabel('DraBornSeries açılıyor',{exact:true}).waitFor({state:'detached'});};
+ const checkRow=async locator=>{
+  await locator.scrollIntoViewIfNeeded();
+  const boxes=await locator.evaluate(element=>[...element.children].map(child=>{
+   const box=child.getBoundingClientRect(),text=[...child.querySelectorAll('[dir="auto"]')].at(-1);
+   return {top:box.top,height:box.height,clipped:text?text.scrollWidth>text.clientWidth+1:false};
+  }));
+  assert.ok(boxes.length>=2);assert.ok(boxes.every(box=>Math.abs(box.top-boxes[0].top)<1&&box.height>=44&&!box.clipped),JSON.stringify(boxes));
+ };
+ const checkPlayLink=async name=>{
+  const button=page.getByRole('button',{name});await button.scrollIntoViewIfNeeded();assert.ok(await button.isEnabled());
+  const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
+  assert.equal(popup.url(),'https://play.google.com/store/apps/details?id=com.draborneagle.drabornseries');await popup.close();
+ };
  await visit('store');
  await page.getByRole('button',{name:'VIP üyelik bilgilerimi aç'}).waitFor({timeout:20000});
  await page.getByRole('button',{name:'VIP üyelik bilgilerimi aç'}).click();
@@ -120,11 +141,17 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const controls=await page.getByTestId('checkout-tools').evaluate(element=>[...element.children].map(child=>({top:child.getBoundingClientRect().top})));
  assert.equal(controls.length,2); assert.ok(Math.abs(controls[0].top-controls[1].top)<1);
  await page.screenshot({path:root+'/vip-checkout-payment.png'});
+ await checkPlayLink(/Google Play ile Abone Ol/);
  await page.getByLabel('Kapat',{exact:true}).first().click();
  await visit('store');
  await page.getByRole('button',{name:/50 BornCoins paketi/}).first().scrollIntoViewIfNeeded();
  await page.screenshot({path:root+'/borncoins-cards.png'});
  assert.equal(await page.getByText('Cüzdanına toplam',{exact:false}).count(),0);
+ await page.getByRole('button',{name:/50 BornCoins paketi/}).first().click();
+ await page.getByText('BornCoins paketi',{exact:true}).waitFor();
+ await checkRow(page.getByTestId('checkout-tools'));
+ await checkPlayLink(/Google Play ile Ödeme Yap/);
+ await page.getByLabel('Kapat',{exact:true}).first().click();
  active=true; testing=true;
  await visit('vip');
  assert.ok(await page.getByText('GOOGLE PLAY TEST ABONELİĞİ',{exact:true}).isVisible());
@@ -133,13 +160,42 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  await visit('profile');
  await page.getByText('Destek',{exact:true}).click();
  await page.getByText('Nasıl yardımcı olabiliriz?',{exact:true}).waitFor();
- assert.ok(await page.getByText('DraBornSeries · v0.7.7.2 · Kod 5',{exact:true}).isVisible());
+ assert.ok(await page.getByText('DraBornSeries · v0.7.7.3 · Kod 6',{exact:true}).isVisible());
  await page.screenshot({path:root+'/profile-support.png'});
+ for(const width of [320,393,1440]){
+  await page.setViewportSize({width,height:width>700?1000:851});
+  await visit('wallet');
+  assert.equal(await page.getByTestId('transaction-row').count(),5);
+  await page.getByTestId('transaction-more').click();assert.equal(await page.getByTestId('transaction-row').count(),10);
+  await page.getByTestId('transaction-more').click();assert.equal(await page.getByTestId('transaction-row').count(),12);
+  assert.equal(await page.getByTestId('transaction-more').count(),0);
+  await page.getByRole('button',{name:'Kazanılan',exact:true}).click();assert.equal(await page.getByTestId('transaction-row').count(),5);
+  await page.getByTestId('transaction-more').click();assert.equal(await page.getByTestId('transaction-row').count(),8);
+  await page.getByRole('button',{name:'Harcanan',exact:true}).click();assert.equal(await page.getByTestId('transaction-row').count(),4);
+  assert.equal(await page.getByTestId('transaction-more').count(),0);
+  await page.getByRole('button',{name:'Tümü',exact:true}).click();assert.equal(await page.getByTestId('transaction-row').count(),5);
+  await page.getByTestId('transaction-more').scrollIntoViewIfNeeded();await page.screenshot({path:root+'/wallet-'+width+'.png'});
+  await visit('settings');
+  assert.ok(await page.getByTestId('profile-photo-picker').isVisible());
+  await page.getByTestId('profile-photo-picker').scrollIntoViewIfNeeded();await page.screenshot({path:root+'/profile-photo-'+width+'.png'});
+  await page.getByTestId('logout-all-devices').scrollIntoViewIfNeeded();await page.screenshot({path:root+'/logout-'+width+'.png'});
+  await checkRow(page.getByTestId('privacy-rules-actions'));await page.screenshot({path:root+'/privacy-rules-'+width+'.png'});
+  await visit('help');await checkRow(page.getByTestId('privacy-account-actions'));await page.screenshot({path:root+'/privacy-account-'+width+'.png'});
+  await visit('store');await checkRow(page.getByTestId('store-billing-tools'));await page.screenshot({path:root+'/store-tools-'+width+'.png'});
+  await visit('vip');await checkRow(page.getByTestId('vip-billing-tools'));
+  await page.goto('http://localhost:8765/DraBornSeries/?series='+series.slug,{waitUntil:'networkidle'});
+  await page.getByRole('button',{name:'Yorumlar',exact:true}).click();
+  await page.getByTestId('comment-card').first().waitFor();
+  await checkRow(page.getByTestId('comment-actions').first());await page.screenshot({path:root+'/comments-'+width+'.png'});
+  assert.ok(await page.getByText(comments[0].body,{exact:true}).isVisible());
+  await page.getByRole('button',{name:'Spoiler · Göster',exact:true}).click();assert.ok(await page.getByText(comments[1].body,{exact:true}).isVisible());
+  const size=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth}));assert.ok(size.width<=size.viewport+1);
+ }
  const layout=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth}));
  console.log(JSON.stringify({layout}));
  const overflow=layout.width>layout.viewport+1;
  assert.equal(overflow,false);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({screenshots:12,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-buttons-static-with-normal-motion','claimed-reward-static','reward-modal-static-buttons','reward-page-cleanup','restore-result','minimal-vip-purchase-benefits-android-web','single-row-features-and-tools','plan-change-preview','verified-test-period','profile-support-route','six-clean-coin-cards','no-horizontal-overflow']}));
+ console.log(JSON.stringify({screenshots:33,errors,verified:['vip-badge-membership-popup','owned-vip-block','countdown','unchanged-vip-world','reward-progress','reward-buttons-static-with-normal-motion','claimed-reward-static','reward-modal-static-buttons','reward-page-cleanup','restore-result','minimal-vip-purchase-benefits-android-web','single-row-features-and-tools','plan-change-preview','verified-test-period','profile-support-route','six-clean-coin-cards','web-vip-and-coin-play-store-links','wallet-five-at-a-time-with-filter-reset','privacy-comment-billing-single-row-320-393-1440','colorful-photo-and-logout','readable-comments-and-spoiler','no-horizontal-overflow']}));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

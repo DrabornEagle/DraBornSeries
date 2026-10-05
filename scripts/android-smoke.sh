@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p artifacts/smoke
-adb install -r "${DBS_SMOKE_APK:-artifacts/release/DraBornSeries-v0.7.7.2-release.apk}"
+adb install -r "${DBS_SMOKE_APK:-artifacts/release/DraBornSeries-v0.7.7.3-release.apk}"
 adb logcat -c
 adb shell am start -W -n com.draborneagle.drabornseries/.MainActivity
 for attempt in $(seq 1 8); do

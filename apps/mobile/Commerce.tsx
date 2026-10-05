@@ -33,6 +33,8 @@ import { rewardDays } from "../../packages/shared/domain";
 import type { Billing } from "../../packages/api/billing-types";
 import { adTestMode } from "../../packages/api/ads";
 import AdRewardButton from "../../packages/ui/AdRewardButton";
+import ActionRow from "../../packages/ui/ActionRow";
+import { config } from "../../packages/shared/config";
 type Props = {
   billing: Billing;
   page: Page;
@@ -134,6 +136,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     [reward, setReward] = useState<number | null>(null),
     [promoReward, setPromoReward] = useState<PromoReward | null>(null),
     [filter, setFilter] = useState("all"),
+    [visibleTransactionCount, setVisibleTransactionCount] = useState(5),
     [promo, setPromo] = useState(""),
     [tasks, setTasks] = useState<any[]>([]),
     [claims, setClaims] = useState<string[]>([]);
@@ -165,6 +168,8 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
   useEffect(() => {
     if (["store", "vip", "wallet"].includes(page)) void refresh().catch(() => {});
   }, [page, refresh]);
+  useEffect(() => { setVisibleTransactionCount(5); }, [accountUser, page, filter]);
+  const filteredTransactions = store.transactions.filter(tx => filter === "all" || (filter === "earned" ? tx.amount > 0 : tx.amount < 0));
   const logged = !!store.session,
     coins = products.filter((p) => p.kind === "coins"),
     plans = products.filter((p) => p.kind === "vip"),
@@ -236,6 +241,10 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
     </Pressable>
   );
   const managePlay = <Button secondary small icon="open-outline" onPress={() => void Linking.openURL("https://play.google.com/store/account/subscriptions?package=com.draborneagle.drabornseries")}>Google Play aboneliklerimi yönet</Button>;
+  const billingTools = (testID: string) => <ActionRow testID={testID} actions={[
+    { label: "Google Play fiyatlarını yenile", icon: "reload", color: colors.mint, disabled: billing.busy, onPress: () => void refresh() },
+    { label: billing.restoring ? "Geri yükleniyor…" : "Satın alımlarımı geri yükle", icon: "refresh", color: colors.purple, disabled: billing.busy, onPress: () => void needLogin(() => billing.restore()) },
+  ]} />;
   const planCards = (
     <View style={{ gap: 12 }}>
       {periods.map(([id, title, length], i) => {
@@ -431,20 +440,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         <AnimatedCTA active={page === "store" && !checkoutVisible && !billing.notice} onPress={() => go("vip")} icon="diamond">
           VIP avantajlarını keşfet
         </AnimatedCTA>
-        <Button secondary small icon="refresh" disabled={billing.busy} onPress={() => void refresh()}>Google Play fiyatlarını yenile</Button>
-        <Button
-          secondary
-          small
-          icon="refresh"
-          disabled={billing.busy}
-          onPress={() =>
-            needLogin(async () => {
-              await billing.restore();
-            })
-          }
-        >
-          {billing.restoring ? "Satın alımların geri yükleniyor…" : "Satın alımlarımı geri yükle"}
-        </Button>
+        {billingTools("store-billing-tools")}
         {managePlay}
         <Text style={styles.body}>
           {billing.message}
@@ -517,7 +513,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
         >
           {selectedOwned ? "Aktif VIP üyeliğimi gör" : store.vip ? "Seçili pakete geç" : "Seçili paketi incele"}
         </AnimatedCTA>
-        <Button secondary small icon="refresh" disabled={billing.busy} onPress={() => void refresh()}>Google Play fiyatlarını yenile</Button>
+        {billingTools("vip-billing-tools")}
         <Text style={styles.h2}>VIP dünyanda neler var?</Text>
         <Text style={{ color: "#cbb7d8", fontSize: 14, lineHeight: 22, marginTop: -12 }}>Her cihazında seninle olan ayrıcalıklarını keşfet.</Text>
         <VipBenefits />
@@ -583,14 +579,10 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             />
           ))}
         </View>
-        {store.transactions
-          .filter(
-            (tx) =>
-              filter === "all" ||
-              (filter === "earned" ? tx.amount > 0 : tx.amount < 0),
-          )
+        {filteredTransactions
+          .slice(0, visibleTransactionCount)
           .map((tx) => (
-            <View key={tx.id} style={[panel, styles.row, { padding: 16 }]}>
+            <View testID="transaction-row" key={tx.id} style={[panel, styles.row, { padding: 16 }]}>
               <Icon
                 name={
                   tx.amount > 0 ? "add-circle-outline" : "play-circle-outline"
@@ -618,9 +610,11 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               </Text>
             </View>
           ))}
-        {!store.transactions.length && (
+        {filteredTransactions.length > visibleTransactionCount && <Button testID="transaction-more" secondary small icon="chevron-down"
+          onPress={() => setVisibleTransactionCount(count => count + 5)}>Daha Fazla</Button>}
+        {!filteredTransactions.length && (
           <Text style={styles.body}>
-            Henüz bir işlem yok. Günlük ödülünle başlayabilirsin.
+            {store.transactions.length ? "Bu filtrede henüz bir işlem yok." : "Henüz bir işlem yok. Günlük ödülünle başlayabilirsin."}
           </Text>
         )}
       </View>
@@ -1037,19 +1031,17 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
             <AnimatedCTA
               active={checkoutVisible && !billing.notice}
               onPress={() => {
-                if (checkout?.kind === "vip" && store.vipMemberships.some(item => item.product_id === checkout.id)) { setCheckoutVisible(false); setOwnedVisible(true); }
+                if (Platform.OS === "web") { void run(() => Linking.openURL(config.playStoreUrl)); }
+                else if (checkout?.kind === "vip" && store.vipMemberships.some(item => item.product_id === checkout.id)) { setCheckoutVisible(false); setOwnedVisible(true); }
                 else if (checkout) void needLogin(() => billing.buy(checkout.id));
               }}
-              disabled={!billing.ready || billing.busy || !checkout?.active || !billing.available.includes(checkout.id)}
+              disabled={Platform.OS === "web" ? !checkout?.active : !billing.ready || billing.busy || !checkout?.active || !billing.available.includes(checkout.id)}
               icon="card-outline"
               style={{ alignSelf: "stretch" }}
             >
               {billing.busy ? "Google Play işlemi sürüyor…" : checkout?.kind === "coins" ? "Google Play ile Ödeme Yap" : "Google Play ile Abone Ol"}
             </AnimatedCTA>
-            <View testID="checkout-tools" style={{ flexDirection: "row", gap: 8 }}>
-              <Button secondary small style={{ flex: 1 }} accessibilityLabel="Satın alımlarımı geri yükle" disabled={billing.busy} icon="refresh" onPress={() => needLogin(() => billing.restore())}>{billing.restoring ? "Yükleniyor…" : "Geri yükle"}</Button>
-              <Button secondary small style={{ flex: 1 }} accessibilityLabel="Fiyatları yeniden yükle" disabled={billing.busy} icon="reload" onPress={() => void refresh()}>Fiyatları yenile</Button>
-            </View>
+            {billingTools("checkout-tools")}
             {Platform.OS !== "android" && <Text style={styles.body}>Ödemeyi Android uygulamasında tamamlayabilirsin.</Text>}
             {checkout?.kind === "vip" && store.vip && (
               <Button
