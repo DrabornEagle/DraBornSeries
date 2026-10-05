@@ -1,4 +1,4 @@
--- v0.7.7.3 / Android code 6. Wallet filters reset the five-row window atomically.
+-- v0.7.7.3 / Android code 6. Atomic wallet filters and padded single-row actions.
 begin;
 insert into drabornseries.dbs_app_settings(key,value,public)
 values ('release','{"version":"0.7.7.3","versionCode":6,"stage":"closed_test","adsPlatform":"android"}'::jsonb,true)

@@ -55,9 +55,12 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   await locator.scrollIntoViewIfNeeded();
   const boxes=await locator.evaluate(element=>[...element.children].map(child=>{
    const box=child.getBoundingClientRect(),text=[...child.querySelectorAll('[dir="auto"]')].at(-1);
-   return {top:box.top,height:box.height,clipped:text?text.scrollWidth>text.clientWidth+1:false};
+   return {label:child.getAttribute('aria-label'),top:box.top,height:box.height,width:box.width,textWidth:text?.clientWidth,contentWidth:text?.scrollWidth,font:text?getComputedStyle(text).fontSize:null,clipped:text?text.scrollWidth>text.clientWidth+1:false};
   }));
-  assert.ok(boxes.length>=2);assert.ok(boxes.every(box=>Math.abs(box.top-boxes[0].top)<1&&box.height>=44&&!box.clipped),JSON.stringify(boxes));
+  assert.ok(boxes.length>=2);
+  const valid=boxes.every(box=>Math.abs(box.top-boxes[0].top)<1&&box.height>=44&&!box.clipped);
+  if(!valid) await page.screenshot({path:root+'/row-failure.png'});
+  assert.ok(valid,JSON.stringify(boxes));
  };
  const checkPlayLink=async name=>{
   const button=page.getByRole('button',{name});await button.scrollIntoViewIfNeeded();assert.ok(await button.isEnabled());

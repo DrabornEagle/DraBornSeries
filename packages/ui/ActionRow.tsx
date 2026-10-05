@@ -25,7 +25,7 @@ export default function ActionRow({ actions, testID }: { actions: Action[]; test
       const color = action.color || colors.purple;
       return <Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label}
         accessibilityState={{ disabled: !!action.disabled }} disabled={action.disabled} onPress={action.onPress}
-        style={({ pressed }) => ({ flex: action.label.length + (showIcons && action.icon ? 4 : 0), minWidth: 0, opacity: action.disabled ? 0.4 : pressed ? 0.75 : 1 })}>
+        style={({ pressed }) => ({ flex: action.label.length + 4 + (showIcons && action.icon ? 4 : 0), minWidth: 0, opacity: action.disabled ? 0.4 : pressed ? 0.75 : 1 })}>
         <LinearGradient colors={[color + "24", color + "0c"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={{ minHeight: 44, paddingHorizontal: 6, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: color + "45", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 }}>
           {showIcons && action.icon && <Icon name={action.icon} size={16} color={color} />}
