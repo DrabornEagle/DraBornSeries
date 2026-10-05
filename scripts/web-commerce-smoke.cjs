@@ -192,7 +192,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   await checkRow(page.getByTestId('comment-actions').first());await page.screenshot({path:root+'/comments-'+width+'.png'});
   assert.ok(await page.getByText(comments[0].body,{exact:true}).isVisible());
   await page.getByRole('button',{name:'Spoiler · Göster',exact:true}).click();assert.ok(await page.getByText(comments[1].body,{exact:true}).isVisible());
-  const size=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth}));assert.ok(size.width<=size.viewport+1);
+  const size=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('*')].filter(element=>element.getBoundingClientRect().right>window.innerWidth+1).slice(0,6).map(element=>({tag:element.tagName,text:element.textContent.slice(0,60),right:element.getBoundingClientRect().right}))}));assert.ok(size.width<=size.viewport+1,JSON.stringify(size));
  }
  const layout=await page.evaluate(()=>({viewport:window.innerWidth,width:document.documentElement.scrollWidth}));
  console.log(JSON.stringify({layout}));

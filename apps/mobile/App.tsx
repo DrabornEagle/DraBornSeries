@@ -64,7 +64,9 @@ function Main() {
   const store = useStore(),
     t = translations(store.language),
     { width } = useWindowDimensions(),
-    desktop = width >= 1050;
+    desktop = width >= 1050,
+    tightHeader = width < 380,
+    compactBrand = desktop || width < 440;
   const [route, setRoute] = useState<Route>(() =>
       Platform.OS === "web" && typeof window !== "undefined"
         ? parseRoute(window.location.href)
@@ -427,17 +429,19 @@ function Main() {
   const brand = (
     <Pressable
       onPress={() => go("home")}
-      style={[styles.row, { gap: 9 }]}
+      style={[styles.row, { gap: tightHeader ? 6 : 9, flexShrink: 1, minWidth: 0 }]}
       accessibilityLabel="DraBornSeries ana sayfa"
     >
       <Image
         source={require("../../assets/icons/logo-transparent.png")}
-        style={{ width: 40, height: 40, borderRadius: 12 }}
+        style={{ width: tightHeader ? 32 : compactBrand ? 36 : 40, height: tightHeader ? 32 : compactBrand ? 36 : 40, borderRadius: 12 }}
       />
-      <View>
+      <View style={{ minWidth: 0, flexShrink: 1 }}>
         <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
           style={{
-            fontSize: 19,
+            fontSize: tightHeader ? 13 : compactBrand ? 17 : 19,
             fontWeight: "900",
             color: "#fff",
             letterSpacing: -0.6,
@@ -445,7 +449,7 @@ function Main() {
         >
           DraBorn<Text style={{ color: colors.pink }}>Series</Text>
         </Text>
-        <Text style={{ fontSize: 8, letterSpacing: 3.7, color: colors.muted }}>
+        <Text numberOfLines={1} style={{ fontSize: tightHeader ? 6 : compactBrand ? 7 : 8, letterSpacing: tightHeader ? 1.8 : compactBrand ? 2.8 : 3.7, color: colors.muted }}>
           YOUR NEXT CHAPTER
         </Text>
       </View>
@@ -544,7 +548,7 @@ function Main() {
           {(desktop || route.page !== "feed") && (
             <View
               style={{
-                paddingHorizontal: desktop ? 36 : 20,
+                paddingHorizontal: desktop ? 36 : tightHeader ? 14 : 20,
                 height: desktop ? 85 : 75,
                 borderBottomWidth: 1,
                 borderColor: colors.line,
@@ -569,7 +573,8 @@ function Main() {
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: desktop ? 18 : 12,
+                  gap: desktop ? 18 : tightHeader ? 8 : 12,
+                  flexShrink: 0,
                 }}
               >
                 {desktop && (
@@ -590,7 +595,7 @@ function Main() {
                 >
                   <Icon name="bag-handle-outline" />
                 </Pressable>
-                {store.vip && <Pressable accessibilityRole="button" accessibilityLabel="VIP üyelik bilgilerimi aç" onPress={() => { setVipVisible(true); void store.refreshEntitlements().catch(() => {}); }} style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 12, backgroundColor: "#ffd58c20", borderWidth: 1, borderColor: "#ffd58c70" }}><Icon name="diamond" color="#ffd58c" size={14} /><Text style={{ fontSize: 12, color: "#ffd58c", fontWeight: "900" }}>VIP</Text></Pressable>}
+                {store.vip && <Pressable accessibilityRole="button" accessibilityLabel="VIP üyelik bilgilerimi aç" onPress={() => { setVipVisible(true); void store.refreshEntitlements().catch(() => {}); }} style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 12, backgroundColor: "#ffd58c20", borderWidth: 1, borderColor: "#ffd58c70" }}><Icon name="diamond" color="#ffd58c" size={14} />{!tightHeader && <Text style={{ fontSize: 12, color: "#ffd58c", fontWeight: "900" }}>VIP</Text>}</Pressable>}
                 <Pressable
                   accessibilityLabel={store.session ? t.profile : t.login}
                   onPress={() => go(store.session ? "profile" : "auth")}

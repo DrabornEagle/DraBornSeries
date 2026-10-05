@@ -10,7 +10,7 @@ permissions:
   actions: write
 concurrency:
   group: dbs-native-android-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   android:
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[android-release]') }}
