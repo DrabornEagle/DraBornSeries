@@ -53,9 +53,12 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
  const visit=async name=>{await page.goto('http://localhost:8765/DraBornSeries/?page='+name,{waitUntil:'networkidle'});await page.getByLabel('DraBornSeries açılıyor',{exact:true}).waitFor({state:'detached'});};
  const checkRow=async locator=>{
   await locator.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
   const boxes=await locator.evaluate(element=>[...element.children].map(child=>{
    const box=child.getBoundingClientRect(),text=[...child.querySelectorAll('[dir="auto"]')].at(-1);
-   return {label:child.getAttribute('aria-label'),top:box.top,height:box.height,width:box.width,textWidth:text?.clientWidth,contentWidth:text?.scrollWidth,font:text?getComputedStyle(text).fontSize:null,clipped:text?text.scrollWidth>text.clientWidth+1:false};
+   let contentWidth=0,textWidth=0;
+   if(text){const probe=document.createElement('span'),computed=getComputedStyle(text);probe.textContent=text.textContent;probe.style.cssText='position:absolute;visibility:hidden;white-space:pre';probe.style.font=computed.font;probe.style.letterSpacing=computed.letterSpacing;document.body.appendChild(probe);contentWidth=probe.getBoundingClientRect().width;probe.remove();textWidth=text.getBoundingClientRect().width;}
+   return {label:child.getAttribute('aria-label'),top:box.top,height:box.height,width:box.width,textWidth,contentWidth,font:text?getComputedStyle(text).fontSize:null,clipped:contentWidth>textWidth+0.25};
   }));
   assert.ok(boxes.length>=2);
   const valid=boxes.every(box=>Math.abs(box.top-boxes[0].top)<1&&box.height>=44&&!box.clipped);

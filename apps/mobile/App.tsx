@@ -739,15 +739,16 @@ function Main() {
                     style={{
                       gap: 5,
                       alignItems: "center",
-                      minWidth: 55,
-                      paddingHorizontal: 8,
+                      flex: 1,
+                      minWidth: 0,
+                      paddingHorizontal: tightHeader ? 4 : 8,
                     }}
                   >
                     <View
                       style={{
                         backgroundColor:
                           route.page === page ? "#f53b8d22" : "transparent",
-                        paddingHorizontal: 14,
+                        paddingHorizontal: tightHeader ? 12 : 14,
                         paddingVertical: 5,
                         borderRadius: 15,
                       }}
