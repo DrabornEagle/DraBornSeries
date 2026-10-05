@@ -184,7 +184,7 @@ const tasks=[{id:'welcome',name:'DraBornSeries’e hoş geldin',description:'E-p
   await visit('store');await checkRow(page.getByTestId('store-billing-tools'));await page.screenshot({path:root+'/store-tools-'+width+'.png'});
   await visit('vip');await checkRow(page.getByTestId('vip-billing-tools'));
   await page.goto('http://localhost:8765/DraBornSeries/?series='+series.slug,{waitUntil:'networkidle'});
-  await page.getByRole('button',{name:'Yorumlar',exact:true}).click();
+  await page.getByRole('tab',{name:'Yorumlar',exact:true}).click();
   await page.getByTestId('comment-card').first().waitFor();
   await checkRow(page.getByTestId('comment-actions').first());await page.screenshot({path:root+'/comments-'+width+'.png'});
   assert.ok(await page.getByText(comments[0].body,{exact:true}).isVisible());

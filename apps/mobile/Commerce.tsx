@@ -575,7 +575,7 @@ export default function Commerce({ billing, page, store, go, run, onHistory }: P
               key={v}
               label={title}
               active={filter === v}
-              onPress={() => setFilter(v)}
+              onPress={() => { setFilter(v); setVisibleTransactionCount(5); }}
             />
           ))}
         </View>
